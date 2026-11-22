@@ -120,7 +120,6 @@ def analyze_structural_biophysics(ca_coords, sequence, cutoff=8.0):
     if L < 4:
         return None
 
-    # 1. 計算成對距離矩陣並篩選接觸對 (|i - j| >= 3 且 dist <= cutoff)
     diff = coords[:, np.newaxis, :] - coords[np.newaxis, :, :]
     dist_matrix = np.sqrt(np.sum(diff**2, axis=-1))
 
@@ -138,12 +137,10 @@ def analyze_structural_biophysics(ca_coords, sequence, cutoff=8.0):
         rco = 0.0
         long_range_ratio = 0.0
 
-    # 2. 計算迴轉半徑 Rg (Å)
     center_of_mass = np.mean(coords, axis=0)
     radial_dists = np.linalg.norm(coords - center_of_mass, axis=1)
     rg = float(np.sqrt(np.mean(radial_dists**2)))
 
-    # 3. 計算疏水殘基核心埋藏比例 (distance < 0.75 * Rg)
     hydrophobic_set = set("AVILMFYW")
     hydro_indices = [i for i, aa in enumerate(sequence[:L]) if aa in hydrophobic_set]
 
@@ -153,11 +150,8 @@ def analyze_structural_biophysics(ca_coords, sequence, cutoff=8.0):
     else:
         core_burial_ratio = 0.0
 
-    # 4. 映射至三態熱力學示意參數 (U, TS, N)
     est_u = 0.0
-    # RCO 越高 -> 折疊活化能障 ΔG‡ 越高 (限制在 5 ~ 55 kJ/mol)
     est_ts = float(np.clip(round(10.0 + 120.0 * rco, 1), 5.0, 55.0))
-    # 殘基數與疏水核心埋藏率決定天然態穩定度 (限制在 -55 ~ -5 kJ/mol)
     raw_dg = -0.25 * L * (0.6 + 0.8 * core_burial_ratio)
     est_n = float(np.clip(round(raw_dg, 1), -32.0, -5.0))
 
