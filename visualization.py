@@ -10,6 +10,8 @@ from plotly.subplots import make_subplots
 # =====================================
 PLOT_TEXTS = {
     "zh": {
+        "ca_gene_gc_colorbar": "密碼子<br>GC%",
+        "ca_gene_gc_title": "Model {model} 3D 結構—基因密碼子 GC% 聯動圖譜",
         "nt_plot_title": "推演編碼區 cDNA 局部 GC% 與鹼基組成分析 (視窗 = {win} nt)",
         "nt_sub_left": "滑動視窗局部 GC 含量分布 (5' → 3')",
         "nt_sub_right": "四種核苷酸鹼基組成統計",
@@ -63,6 +65,8 @@ PLOT_TEXTS = {
         "kin_yaxis_lnk": "ln k"
     },
     "en": {
+        "ca_gene_gc_colorbar": "Codon<br>GC%",
+        "ca_gene_gc_title": "Model {model} 3D Structure–Codon GC% Co-translational Map",
         "nt_plot_title": "Deduced Coding cDNA Local GC% & Base Composition (Window = {win} nt)",
         "nt_sub_left": "Sliding-Window Local GC% Profile (5' → 3')",
         "nt_sub_right": "Nucleotide Base Composition",
@@ -452,12 +456,47 @@ def create_ca_backbone_figure(
                     width=5,
                     color=seq_idx,
                     colorscale="Turbo",
-                    colorbar=dict(title=pt["ca_colorbar"]) if len(target_chains) == 1 else None
+                    colorbar=dict(
+                        title=dict(text=pt["ca_colorbar"], side="top"),
+                        orientation="v",
+                        x=1.02,
+                        xanchor="left",
+                        y=0.35,
+                        yanchor="middle",
+                        len=0.55,
+                        thickness=14
+                    ) if len(target_chains) == 1 else None
                 )
                 marker_cfg = dict(
                     size=3.5,
                     color=seq_idx,
                     colorscale="Turbo"
+                )
+            elif color_mode == "codon_gc":
+                gc_vals = item.get("codon_gc_list", [50.0] * n_res)
+                line_cfg = dict(
+                    width=6,
+                    color=gc_vals,
+                    colorscale="RdYlBu_r",
+                    cmin=0,
+                    cmax=100,
+                    colorbar=dict(
+                        title=dict(text=pt["ca_gene_gc_colorbar"], side="top"),
+                        orientation="v",
+                        x=1.02,
+                        xanchor="left",
+                        y=0.35,
+                        yanchor="middle",
+                        len=0.55,
+                        thickness=14
+                    ) if len(target_chains) == 1 else None
+                )
+                marker_cfg = dict(
+                    size=4.0,
+                    color=gc_vals,
+                    colorscale="RdYlBu_r",
+                    cmin=0,
+                    cmax=100
                 )
             else:
                 line_cfg = dict(width=5)
@@ -491,14 +530,16 @@ def create_ca_backbone_figure(
             )
         )
 
-    title_str = (
-        pt["ca_ribbon_title"].format(model=selected_model)
-        if color_mode == "ribbon"
-        else pt["ca_title"].format(model=selected_model)
-    )
+    if color_mode == "ribbon":
+        title_str = pt["ca_ribbon_title"].format(model=selected_model)
+    elif color_mode == "codon_gc":
+        title_str = pt["ca_gene_gc_title"].format(model=selected_model)
+    else:
+        title_str = pt["ca_title"].format(model=selected_model)
 
     fig.update_layout(
-        title=title_str,
+        title=dict(text=title_str, x=0.02, y=0.97),
+        autosize=True,
         scene=dict(
             xaxis_title="X (Å)",
             yaxis_title="Y (Å)",
@@ -506,8 +547,13 @@ def create_ca_backbone_figure(
             aspectmode="data"
         ),
         height=height,
-        margin=dict(l=10, r=10, t=50, b=10),
-        legend=dict(title=pt["ca_legend"])
+        margin=dict(l=10, r=90, t=55, b=15),
+        legend=dict(
+            x=1.02,
+            xanchor="left",
+            y=0.98,
+            yanchor="top"
+        )
     )
 
     return fig
@@ -850,6 +896,7 @@ def create_kinetics_sweep_figure(sweep_a, sweep_b, height=560, lang="en"):
 
     return fig
 
+
 # =====================================
 # 7. Nucleotide Sequence Local GC% & Base Composition
 # =====================================
@@ -869,7 +916,6 @@ def create_nucleotide_analysis_figure(cdna_seq, window=15, height=430, lang="en"
     if n == 0:
         return fig
 
-    # 1. 滑動視窗計算局部 GC%（支援標準鹼基與 IUPAC 簡併碼權重）
     eff_win = min(window, max(3, n))
     positions = []
     local_gc = []
@@ -909,7 +955,6 @@ def create_nucleotide_analysis_figure(cdna_seq, window=15, height=430, lang="en"
     )
     fig.add_hline(y=50.0, line_dash="dot", line_color="#94A3B8", row=1, col=1)
 
-    # 2. 四種核苷酸鹼基數量與百分比長條圖
     bases = ["A", "T", "G", "C"]
     counts = [int(seq.count(b)) for b in bases]
     colors = ["#3B82F6", "#F59E0B", "#10B981", "#6366F1"]
