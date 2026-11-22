@@ -5,8 +5,107 @@ from Bio.SeqUtils import seq1
 from io import StringIO
 
 
+def _assign_secondary_structure(chain, residues):
+    """
+    依據主鏈 (Phi, Psi) 雙面角與連續性規則，為每個殘基指派二級結構：
+    'H' = α-Helix, 'E' = β-Sheet/Strand, 'C' = Coil/Loop
+    """
+    n = len(residues)
+    if n == 0:
+        return []
+
+    ppb = PPBuilder()
+    # 必須傳入 Biopython 的 chain 物件，而非 Python list
+    angle_map = {}
+    for pp in ppb.build_peptides(chain):
+        for res, (phi, psi) in zip(pp, pp.get_phi_psi_list()):
+            phi_deg = float(np.degrees(phi)) if phi is not None else None
+            psi_deg = float(np.degrees(psi)) if psi is not None else None
+            angle_map[res.id] = (phi_deg, psi_deg)
+
+    raw_ss = []
+    for res in residues:
+        phi_deg, psi_deg = angle_map.get(res.id, (None, None))
+        if phi_deg is not None and psi_deg is not None:
+            if -115.0 <= phi_deg <= -30.0 and -75.0 <= psi_deg <= -10.0:
+                raw_ss.append("H")
+            elif -175.0 <= phi_deg <= -45.0 and (psi_deg >= 85.0 or psi_deg <= -150.0):
+                raw_ss.append("E")
+            else:
+                raw_ss.append("C")
+        else:
+            raw_ss.append("C")
+
+    # 連續性濾波：Helix 至少連續 4 殘基，Beta-strand 至少連續 3 殘基
+    cleaned_ss = ["C"] * n
+    i = 0
+    while i < n:
+        state = raw_ss[i]
+        j = i
+        while j < n and raw_ss[j] == state:
+            j += 1
+        run_len = j - i
+        if state == "H" and run_len >= 4:
+            for k in range(i, j):
+                cleaned_ss[k] = "H"
+        elif state == "E" and run_len >= 3:
+            for k in range(i, j):
+                cleaned_ss[k] = "E"
+        i = j
+
+    return cleaned_ss
+    """
+    依據主鏈 (Phi, Psi) 雙面角與連續性規則，為每個殘基指派二級結構：
+    'H' = α-Helix, 'E' = β-Sheet/Strand, 'C' = Coil/Loop
+    """
+    n = len(residues)
+    if n == 0:
+        return []
+
+    ppb = PPBuilder()
+    # 建立殘基物件到 (phi, psi) 角度（度）的對照表
+    angle_map = {}
+    for pp in ppb.build_peptides(residues):
+        for res, (phi, psi) in zip(pp, pp.get_phi_psi_list()):
+            phi_deg = float(np.degrees(phi)) if phi is not None else None
+            psi_deg = float(np.degrees(psi)) if psi is not None else None
+            angle_map[res.id] = (phi_deg, psi_deg)
+
+    raw_ss = []
+    for res in residues:
+        phi_deg, psi_deg = angle_map.get(res.id, (None, None))
+        if phi_deg is not None and psi_deg is not None:
+            if -115.0 <= phi_deg <= -30.0 and -75.0 <= psi_deg <= -10.0:
+                raw_ss.append("H")
+            elif -175.0 <= phi_deg <= -45.0 and (psi_deg >= 85.0 or psi_deg <= -150.0):
+                raw_ss.append("E")
+            else:
+                raw_ss.append("C")
+        else:
+            raw_ss.append("C")
+
+    # 連續性濾波：Helix 至少連續 4 殘基，Beta-strand 至少連續 3 殘基
+    cleaned_ss = ["C"] * n
+    i = 0
+    while i < n:
+        state = raw_ss[i]
+        j = i
+        while j < n and raw_ss[j] == state:
+            j += 1
+        run_len = j - i
+        if state == "H" and run_len >= 4:
+            for k in range(i, j):
+                cleaned_ss[k] = "H"
+        elif state == "E" and run_len >= 3:
+            for k in range(i, j):
+                cleaned_ss[k] = "E"
+        i = j
+
+    return cleaned_ss
+
+
 def _parse_pdb_text(pdb_content):
-    """內部共用解析函式：從 PDB 文字內容提取序列、Cα 座標與拉氏圖雙面角"""
+    """內部共用解析函式：從 PDB 文字內容提取序列、Cα 座標、二級結構與拉氏圖雙面角"""
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure("Protein", StringIO(pdb_content))
     ppb = PPBuilder()
@@ -17,7 +116,7 @@ def _parse_pdb_text(pdb_content):
         for chain in model:
             residues = [
                 residue for residue in chain
-                if residue.id[0] == " " and is_aa(residue, standard=False)
+                if residue.id[0] == " " and is_aa(residue, standard=False) and "CA" in residue
             ]
 
             if not residues:
@@ -25,16 +124,19 @@ def _parse_pdb_text(pdb_content):
 
             sequence = ""
             ca_coords = []
-            res_labels = []
-
             for residue in residues:
                 aa_code = seq1(residue.resname, custom_map={"UNK": "X"})
                 sequence += aa_code
+                coord = residue["CA"].get_coord()
+                ca_coords.append([float(coord[0]), float(coord[1]), float(coord[2])])
 
-                if "CA" in residue:
-                    coord = residue["CA"].get_coord()
-                    ca_coords.append([float(coord[0]), float(coord[1]), float(coord[2])])
-                    res_labels.append(f"Chain {chain.id} | {residue.resname} {residue.id[1]} ({aa_code})")
+            ss_list = _assign_secondary_structure(chain, residues)
+            ss_name_map = {"H": "α-Helix", "E": "β-Sheet", "C": "Coil/Loop"}
+
+            res_labels = [
+                f"Chain {chain.id} | {res.resname} {res.id[1]} ({seq1(res.resname, custom_map={'UNK': 'X'})}) | {ss_name_map[ss]}"
+                for res, ss in zip(residues, ss_list)
+            ]
 
             rama_data = []
             for pp in ppb.build_peptides(chain):
@@ -60,6 +162,7 @@ def _parse_pdb_text(pdb_content):
                 "sequence": sequence,
                 "ca_coords": ca_coords,
                 "res_labels": res_labels,
+                "ss_list": ss_list,
                 "rama_data": rama_data
             })
 

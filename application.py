@@ -1,11 +1,29 @@
+def apply_biophys_to_model_a(est_u, est_ts, est_n):
+    """在側邊欄元件建立前，透過 on_click 回呼安全同步 Model A 的所有狀態變數"""
+    st.session_state["a_u"] = est_u
+    st.session_state["a_ts"] = est_ts
+    st.session_state["a_n"] = est_n
+
+    st.session_state["slider_a_u"] = est_u
+    st.session_state["slider_a_ts"] = est_ts
+    st.session_state["slider_a_n"] = est_n
+
+    st.session_state["num_a_u"] = est_u
+    st.session_state["num_a_ts"] = est_ts
+    st.session_state["num_a_n"] = est_n
+
 import numpy as np
+
 import streamlit as st
+
 from data_loader import load_pdb
 from data_loader import load_pdb, load_sample_ubiquitin
+
 from thermodynamics import (
     calculate_thermodynamics,
     generate_energy_curve,
-    simulate_temperature_sweep
+    simulate_temperature_sweep,
+    analyze_structural_biophysics
 )
 
 from visualization import (
@@ -14,7 +32,8 @@ from visualization import (
     create_ca_backbone_figure,
     create_contact_map_figure,
     create_ramachandran_figure,
-    create_kinetics_sweep_figure
+    create_kinetics_sweep_figure,
+    create_nucleotide_analysis_figure
 )
 
 # 1. 頁面設定 (必須為第一個 st 指令)
@@ -41,6 +60,30 @@ st.markdown(
 # =====================================
 TEXTS = {
     "zh": {
+        "cm_mode_label": "顯示模式",
+        "cm_mode_binary": "二值化接觸圖 (Contact Map)",
+        "cm_mode_dist": "連續距離熱圖 (Distance Matrix)",
+        "cm_cutoff_label": "空間接觸閾值 (Cutoff, Å)",
+        "color_by_ribbon": "🎀 二級結構飄帶模式 (Helix / Sheet Ribbon)",
+        "ss_summary_title": "📊 二級結構組成與 SCOP 拓撲分類分析",
+        "ss_helix_pct": "α-螺旋比例 (α-Helix)",
+        "ss_sheet_pct": "β-折板比例 (β-Sheet)",
+        "ss_coil_pct": "無規捲曲 / 環區 (Coil)",
+        "ss_fold_class": "結構域拓撲類別",
+        "class_all_alpha": "全 α-螺旋型 (All-α)",
+        "class_all_beta": "全 β-折板型 (All-β)",
+        "class_alpha_beta": "α/β 混合型 (α + β / α/β)",
+        "class_coil": "無規捲曲主導型 (Disordered / Coil)",
+        "biophys_header": "🔬 結構拓撲與生物物理指標（驅動熱力學模型）",
+        "biophys_chain_select": "選擇分析胜肽鏈",
+        "metric_rco": "相對接觸序 (RCO)",
+        "metric_rco_help": "衡量三級結構的拓撲複雜度。RCO 越高，長程接觸越多，折疊活化能障（ΔG‡）越高。",
+        "metric_lr": "長程接觸比例 (|i-j| ≥ 12)",
+        "metric_rg": "迴轉半徑 (Rg)",
+        "metric_core": "疏水核心埋藏率",
+        "metric_core_help": "非極性殘基（A,V,I,L,M,F,Y,W）位於結構核心（< 0.75 Rg）的比例，反映疏水塌陷緊密度。",
+        "btn_sync_model_a": "⚡ 將此結構推算參數套用至 Model A（TS = {ts:.1f}, N = {n:.1f} kJ/mol）",
+        "sync_success_toast": "已將 {chain_label} 的物理推算參數同步至 Model A！",
         "btn_load_sample": "🧪 一鍵載入範例：Ubiquitin (1UBQ)",
         "btn_clear_sample": "清除範例結構",
         "sample_active_badge": "目前檢視內建模型蛋白質：**Human Ubiquitin (PDB: 1UBQ, 76 aa)**",
@@ -129,6 +172,30 @@ TEXTS = {
         "footer_note": "註：本工具為教學與概念驗證用之三態熱力學示意模型，非全原子分子動力學（MD）模擬。"
     },
     "en": {
+        "cm_mode_label": "Display Mode",
+        "cm_mode_binary": "Binary Contact Map",
+        "cm_mode_dist": "Continuous Distance Matrix",
+        "cm_cutoff_label": "Contact Distance Cutoff (Å)",
+        "color_by_ribbon": "🎀 Secondary Structure Ribbon (Helix / Sheet)",
+        "ss_summary_title": "📊 Secondary Structure Content & Fold Classification",
+        "ss_helix_pct": "α-Helix Content",
+        "ss_sheet_pct": "β-Sheet Content",
+        "ss_coil_pct": "Coil / Loop Content",
+        "ss_fold_class": "SCOP Fold Class",
+        "class_all_alpha": "All-α Protein",
+        "class_all_beta": "All-β Protein",
+        "class_alpha_beta": "α/β Mixed Fold",
+        "class_coil": "Coil / Loop Dominated",
+        "biophys_header": "🔬 Structural Biophysics & Topology Metrics (Model Coupling)",
+        "biophys_chain_select": "Target Chain for Biophysics",
+        "metric_rco": "Relative Contact Order (RCO)",
+        "metric_rco_help": "Topological complexity metric. Higher RCO indicates more non-local contacts and a higher folding barrier (ΔG‡).",
+        "metric_lr": "Long-Range Contacts (|i-j| ≥ 12)",
+        "metric_rg": "Radius of Gyration (Rg)",
+        "metric_core": "Hydrophobic Core Burial",
+        "metric_core_help": "Fraction of nonpolar residues (A,V,I,L,M,F,Y,W) buried within 0.75 Rg of the center of mass.",
+        "btn_sync_model_a": "⚡ Apply Estimated Parameters to Model A (TS = {ts:.1f}, N = {n:.1f} kJ/mol)",
+        "sync_success_toast": "Synced biophysical parameters from {chain_label} to Model A!",
         "btn_load_sample": "🧪 Load Sample: Ubiquitin (1UBQ)",
         "btn_clear_sample": "Clear Sample Structure",
         "sample_active_badge": "Active Built-in Model Protein: **Human Ubiquitin (PDB: 1UBQ, 76 aa)**",
@@ -256,12 +323,20 @@ def render_param_control(label, state_key, min_val, max_val, use_slider):
 # =====================================
 # 反向轉譯密碼子表 (Amino Acid -> RNA Codon)
 # =====================================
-PREFERRED_RNA_CODONS = {
-    "A": "GCU", "R": "CGU", "N": "AAC", "D": "GAU", "C": "UGC",
+ECOLI_RNA_CODONS = {
+    "A": "GCG", "R": "CGU", "N": "AAC", "D": "GAU", "C": "UGC",
     "Q": "CAG", "E": "GAA", "G": "GGU", "H": "CAC", "I": "AUU",
     "L": "CUG", "K": "AAA", "M": "AUG", "F": "UUU", "P": "CCG",
     "S": "UCU", "T": "ACC", "W": "UGG", "Y": "UAU", "V": "GUU",
     "*": "UAA", "X": "NNN"
+}
+
+HUMAN_RNA_CODONS = {
+    "A": "GCC", "R": "AGA", "N": "AAC", "D": "GAC", "C": "UGC",
+    "Q": "CAG", "E": "GAG", "G": "GGC", "H": "CAC", "I": "AUC",
+    "L": "CUG", "K": "AAG", "M": "AUG", "F": "UUC", "P": "CCC",
+    "S": "AGC", "T": "ACC", "W": "UGG", "Y": "UAC", "V": "GUG",
+    "*": "UGA", "X": "NNN"
 }
 
 DEGENERATE_RNA_CODONS = {
@@ -272,9 +347,25 @@ DEGENERATE_RNA_CODONS = {
     "*": "UAR", "X": "NNN"
 }
 
+RESTRICTION_SITES = {
+    "EcoRI": "GAATTC",
+    "BamHI": "GGATCC",
+    "HindIII": "AAGCTT",
+    "NdeI": "CATATG",
+    "XhoI": "CTCGAG",
+    "NotI": "GCGGCCGC",
+    "NcoI": "CCATGG",
+    "SalI": "GTCGAC"
+}
 
-def reverse_translate_sequence(aa_seq, degenerate=False, add_start_stop=False):
-    table = DEGENERATE_RNA_CODONS if degenerate else PREFERRED_RNA_CODONS
+
+def reverse_translate_sequence(aa_seq, strategy="ecoli", add_start_stop=False):
+    table_map = {
+        "ecoli": ECOLI_RNA_CODONS,
+        "human": HUMAN_RNA_CODONS,
+        "deg": DEGENERATE_RNA_CODONS
+    }
+    table = table_map.get(strategy, ECOLI_RNA_CODONS)
     codons = [table.get(aa, "NNN") for aa in aa_seq.upper()]
     if add_start_stop:
         if not aa_seq.startswith("M"):
@@ -284,16 +375,35 @@ def reverse_translate_sequence(aa_seq, degenerate=False, add_start_stop=False):
     cdna = mrna.replace("U", "T")
     return mrna, cdna
 
+
+def scan_restriction_sites(cdna_seq):
+    hits = {}
+    zero_cutters = []
+    for enz, site in RESTRICTION_SITES.items():
+        positions = []
+        start = 0
+        while True:
+            idx = cdna_seq.find(site, start)
+            if idx == -1:
+                break
+            positions.append(idx + 1)
+            start = idx + 1
+        if positions:
+            hits[enz] = positions
+        else:
+            zero_cutters.append(enz)
+    return hits, zero_cutters
+
 # =====================================
 # 側邊欄：語言切換、PDB 上傳與雙模式參數調整
 # =====================================
 with st.sidebar:
     lang_choice = st.radio(
         "語言 / Language",
-        ["繁體中文", "English"],
+        ["繁體中文(臺灣)", "English"],
         horizontal=True
     )
-    lang = "zh" if lang_choice == "繁體中文" else "en"
+    lang = "zh" if lang_choice == "繁體中文(臺灣)" else "en"
     t = TEXTS[lang]
 
     st.divider()
@@ -363,6 +473,65 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
         est_delta_g = -0.25 * total_residues
 
         st.subheader(f"{t['struct_summary']}: `{struct_title}`")
+
+        # =====================================
+        # 結構生物物理指標計算與一鍵套用至 Model A
+        # =====================================
+        with st.container(border=True):
+            bp_top1, bp_top2 = st.columns([2.2, 1.3])
+            with bp_top1:
+                st.markdown(f"**{t['biophys_header']}**")
+            with bp_top2:
+                bp_chain_idx = st.selectbox(
+                    t["biophys_chain_select"],
+                    list(range(len(results))),
+                    format_func=lambda idx: f"Model {results[idx]['model']} - Chain {results[idx]['chain']} ({results[idx]['residue_count']} aa)",
+                    label_visibility="collapsed",
+                    key="biophys_chain_selector"
+                )
+
+            target_bp_chain = results[bp_chain_idx]
+            bp_stats = analyze_structural_biophysics(
+                target_bp_chain["ca_coords"],
+                target_bp_chain["sequence"]
+            )
+
+            if bp_stats is not None:
+                b1, b2, b3, b4 = st.columns(4)
+                b1.metric(
+                    t["metric_rco"],
+                    f"{bp_stats['rco']:.3f}",
+                    help=t["metric_rco_help"]
+                )
+                b2.metric(
+                    t["metric_lr"],
+                    f"{bp_stats['long_range_ratio'] * 100:.1f}%"
+                )
+                b3.metric(
+                    t["metric_rg"],
+                    f"{bp_stats['rg']:.2f} Å"
+                )
+                b4.metric(
+                    t["metric_core"],
+                    f"{bp_stats['core_burial_ratio'] * 100:.1f}%",
+                    help=t["metric_core_help"]
+                )
+
+                btn_label = t["btn_sync_model_a"].format(
+                    ts=bp_stats["est_ts"],
+                    n=bp_stats["est_n"]
+                )
+                btn_label = t["btn_sync_model_a"].format(
+                    ts=bp_stats["est_ts"],
+                    n=bp_stats["est_n"]
+                )
+                st.button(
+                    btn_label,
+                    use_container_width=True,
+                    key="btn_apply_biophys_a",
+                    on_click=apply_biophys_to_model_a,
+                    args=(bp_stats["est_u"], bp_stats["est_ts"], bp_stats["est_n"])
+                )
         
         # 雙分頁：3D Cα 骨架模型 vs FASTA 序列
         subtab_3d, subtab_contact, subtab_rama, subtab_seq, subtab_nt = st.tabs([
@@ -375,7 +544,7 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
 
         with subtab_3d:
             available_models = sorted(list(set(item["model"] for item in results)))
-            ca_col1, ca_col2, ca_col3 = st.columns([1.1, 1.4, 1.0])
+            ca_col1, ca_col2, ca_col3 = st.columns([1.0, 1.6, 1.0])
 
             with ca_col1:
                 chosen_pdb_model = st.selectbox(
@@ -388,26 +557,60 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
             with ca_col2:
                 ca_color = st.selectbox(
                     t["ca_color_mode"],
-                    ["chain", "sequence"],
-                    format_func=lambda x: t["color_by_chain"] if x == "chain" else t["color_by_seq"],
+                    ["ribbon", "chain", "sequence"],
+                    format_func=lambda x: {
+                        "ribbon": t["color_by_ribbon"],
+                        "chain": t["color_by_chain"],
+                        "sequence": t["color_by_seq"]
+                    }[x],
                     key="ca_color_select"
                 )
 
             with ca_col3:
                 st.write("")
                 st.write("")
-                show_nodes = st.checkbox(t["show_ca_nodes"], value=True, key="ca_nodes_chk")
+                show_nodes = st.checkbox(
+                    t["show_ca_nodes"],
+                    value=(ca_color != "ribbon"),
+                    key="ca_nodes_chk"
+                )
 
             fig_ca = create_ca_backbone_figure(
                 results,
                 selected_model=chosen_pdb_model,
                 color_mode=ca_color,
-                show_markers=show_nodes
+                show_markers=show_nodes,
+                lang=lang
             )
             st.plotly_chart(fig_ca, use_container_width=True, key="pdb_ca_3d_chart")
 
+            model_chains = [item for item in results if item["model"] == chosen_pdb_model]
+            all_ss = [s for item in model_chains for s in item.get("ss_list", [])]
+            if len(all_ss) > 0:
+                total_ss = len(all_ss)
+                h_pct = all_ss.count("H") / total_ss * 100.0
+                e_pct = all_ss.count("E") / total_ss * 100.0
+                c_pct = all_ss.count("C") / total_ss * 100.0
+
+                if h_pct >= 15.0 and e_pct >= 15.0:
+                    fold_class = t["class_alpha_beta"]
+                elif h_pct >= 20.0 and e_pct < 15.0:
+                    fold_class = t["class_all_alpha"]
+                elif e_pct >= 20.0 and h_pct < 15.0:
+                    fold_class = t["class_all_beta"]
+                else:
+                    fold_class = t["class_coil"]
+
+                with st.container(border=True):
+                    st.markdown(f"**{t['ss_summary_title']}**")
+                    sc1, sc2, sc3, sc4 = st.columns(4)
+                    sc1.metric(t["ss_helix_pct"], f"{h_pct:.1f}%")
+                    sc2.metric(t["ss_sheet_pct"], f"{e_pct:.1f}%")
+                    sc3.metric(t["ss_coil_pct"], f"{c_pct:.1f}%")
+                    sc4.metric(t["ss_fold_class"], fold_class)
+
         with subtab_contact:
-            cm_col1, cm_col2, cm_col3 = st.columns([1.3, 1.3, 1.4])
+            cm_col1, cm_col2, cm_col3 = st.columns([1.4, 1.3, 1.3])
             chain_options = list(range(len(results)))
 
             with cm_col1:
@@ -420,15 +623,15 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
 
             with cm_col2:
                 cm_mode = st.selectbox(
-                    t["contact_mode"],
+                    t["cm_mode_label"],
                     ["binary", "distance"],
-                    format_func=lambda x: t["contact_binary"] if x == "binary" else t["contact_dist"],
+                    format_func=lambda x: t["cm_mode_binary"] if x == "binary" else t["cm_mode_dist"],
                     key="cm_mode_select"
                 )
 
             with cm_col3:
                 cm_cutoff = st.slider(
-                    t["contact_cutoff"],
+                    t["cm_cutoff_label"],
                     min_value=4.0,
                     max_value=15.0,
                     value=8.0,
@@ -440,52 +643,11 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
             fig_cm = create_contact_map_figure(
                 results[chosen_chain_idx],
                 cutoff=cm_cutoff,
-                map_mode=cm_mode
+                map_mode=cm_mode,
+                lang=lang
             )
             st.plotly_chart(fig_cm, use_container_width=True, key="pdb_contact_map_chart")
 
-        with subtab_seq:
-            for item in results:
-                st.markdown(
-                    f"**Model {item['model']} | Chain {item['chain']}** "
-                    f"(`{item['residue_count']}` residues)"
-                )
-                st.code(item["sequence"], language=None)
-
-        with subtab_nt:
-            nt_col1, nt_col2 = st.columns([1.4, 1.6])
-            with nt_col1:
-                nt_strat = st.radio(
-                    t["nt_strategy"],
-                    ["opt", "deg"],
-                    format_func=lambda x: t["nt_opt"] if x == "opt" else t["nt_deg"],
-                    horizontal=True,
-                    key="nt_strat_radio"
-                )
-            with nt_col2:
-                st.write("")
-                add_ends = st.checkbox(t["nt_include_stops"], value=False, key="nt_ends_chk")
-
-            is_deg = (nt_strat == "deg")
-            for item in results:
-                mrna_seq, cdna_seq = reverse_translate_sequence(
-                    item["sequence"],
-                    degenerate=is_deg,
-                    add_start_stop=add_ends
-                )
-                nt_len = len(mrna_seq)
-                gc_count = mrna_seq.count("G") + mrna_seq.count("C")
-                gc_pct = (gc_count / nt_len * 100.0) if nt_len > 0 else 0.0
-
-                with st.expander(
-                    f"Model {item['model']} | Chain {item['chain']} — {nt_len} nt (GC: {gc_pct:.1f}%)",
-                    expanded=(len(results) == 1)
-                ):
-                    st.caption(t["nt_mrna_label"])
-                    st.code(mrna_seq, language=None)
-                    st.caption(t["nt_cdna_label"])
-                    st.code(cdna_seq, language=None)
-            
             with subtab_rama:
                 rama_col1, rama_col2 = st.columns([1.4, 2.6])
                 chain_options = list(range(len(results)))
@@ -497,12 +659,11 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
                         format_func=lambda idx: f"Model {results[idx]['model']} - Chain {results[idx]['chain']} ({results[idx]['residue_count']} aa)",
                         key="rama_chain_select"
                     )
-
+    
                 selected_rama_item = results[rama_chain_idx]
                 r_list = selected_rama_item.get("rama_data", [])
                 total_angles = len(r_list)
     
-                # 統計二級結構區域殘基佔比
                 with rama_col2:
                     if total_angles > 0:
                         alpha_cnt = sum(1 for d in r_list if -110 <= d["phi"] <= -35 and -70 <= d["psi"] <= -15)
@@ -513,14 +674,92 @@ if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
                         s1.metric(t["rama_alpha"], f"{alpha_cnt / total_angles * 100:.1f}%")
                         s2.metric(t["rama_beta"], f"{beta_cnt / total_angles * 100:.1f}%")
                         s3.metric(t["rama_other"], f"{other_cnt / total_angles * 100:.1f}%")
-
-                fig_rama = create_ramachandran_figure(selected_rama_item)
+    
+                fig_rama = create_ramachandran_figure(selected_rama_item, lang=lang)
                 st.plotly_chart(fig_rama, use_container_width=True, key="pdb_rama_chart")
-        st.divider()
+
+                with subtab_seq:
+                    for item in results:
+                        st.markdown(
+                            f"**Model {item['model']} | Chain {item['chain']}** "
+                            f"(`{item['residue_count']}` residues)"
+                        )
+                        st.code(item["sequence"], language=None)
+            
+            with subtab_nt:
+                nt_col1, nt_col2, nt_col3 = st.columns([1.4, 1.4, 1.2])
+                with nt_col1:
+                    nt_chain_idx = st.selectbox(
+                        t["select_chain"],
+                        list(range(len(results))),
+                        format_func=lambda idx: f"Model {results[idx]['model']} - Chain {results[idx]['chain']} ({results[idx]['residue_count']} aa)",
+                        key="nt_chain_select"
+                    )
+                with nt_col2:
+                    nt_strat = st.selectbox(
+                        t["nt_strategy"],
+                        ["ecoli", "human", "deg"],
+                        format_func=lambda x: {
+                            "ecoli": "E. coli Codon-Optimized",
+                            "human": "Homo sapiens Codon-Optimized",
+                            "deg": t["nt_deg"]
+                        }[x],
+                        key="nt_strat_select"
+                    )
+                with nt_col3:
+                    st.write("")
+                    st.write("")
+                    add_ends = st.checkbox(t["nt_include_stops"], value=True, key="nt_ends_chk")
+
+                target_nt_item = results[nt_chain_idx]
+                mrna_seq, cdna_seq = reverse_translate_sequence(
+                    target_nt_item["sequence"],
+                    strategy=nt_strat,
+                    add_start_stop=add_ends
+                )
+    
+                nt_len = len(cdna_seq)
+                gc_total = (cdna_seq.count("G") + cdna_seq.count("C")) / nt_len * 100.0 if nt_len > 0 else 0.0
+                wobble_bases = cdna_seq[2::3]
+                gc3_pct = (wobble_bases.count("G") + wobble_bases.count("C")) / len(wobble_bases) * 100.0 if len(wobble_bases) > 0 else 0.0
+                mw_kda = (nt_len * 617.96 + 36.04) / 1000.0
+
+                nm1, nm2, nm3, nm4 = st.columns(4)
+                nm1.metric("cDNA Length", f"{nt_len} bp")
+                nm2.metric("Overall GC%", f"{gc_total:.1f}%")
+                nm3.metric("Wobble GC3%", f"{gc3_pct:.1f}%")
+                nm4.metric("dsDNA MW", f"{mw_kda:.2f} kDa")
+
+                fig_nt = create_nucleotide_analysis_figure(cdna_seq, window=15, lang=lang)
+                st.plotly_chart(fig_nt, use_container_width=True, key="pdb_nt_analysis_chart")
+
+                hits, zero_cutters = scan_restriction_sites(cdna_seq)
+                with st.container(border=True):
+                    if lang == "zh":
+                        st.markdown("**✂️ 常見分子選殖限制酶切位掃描 (Restriction Enzyme Mapping)**")
+                        if hits:
+                            hit_str = " ｜ ".join([f"**{enz}** (位置: {', '.join(map(str, pos))} bp)" for enz, pos in hits.items()])
+                            st.warning(f"偵測到內部限制酶切位：{hit_str}")
+                        else:
+                            st.success("序列內部未發現常見 MCS 限制酶切位。")
+                        st.caption(f"0-cutter 安全可用於載體兩端選殖之酵素：{', '.join(zero_cutters)}")
+                    else:
+                        st.markdown("**✂️ Cloning Restriction Enzyme Site Scan**")
+                        if hits:
+                            hit_str = " | ".join([f"**{enz}** (pos: {', '.join(map(str, pos))} bp)" for enz, pos in hits.items()])
+                            st.warning(f"Internal restriction sites detected: {hit_str}")
+                        else:
+                            st.success("No internal MCS restriction sites detected.")
+                        st.caption(f"Safe 0-cutter enzymes for terminal cloning: {', '.join(zero_cutters)}")
+    
+                st.caption(t["nt_mrna_label"])
+                st.code(mrna_seq, language=None)
+                st.caption(t["nt_cdna_label"])
+                st.code(cdna_seq, language=None)    
+                st.divider()
 
     except Exception as e:
         st.error(f"{t['parse_fail']} {e}")
-
 # =====================================
 # 熱力學計算與資料封裝
 # =====================================
@@ -554,7 +793,7 @@ st.subheader(t["landscape_header"])
 tab_2d, tab_3d, tab_kinetics = st.tabs([t["tab_2d"], t["tab_3d"], t["tab_kinetics"]])
 
 with tab_2d:
-    fig_2d = create_energy_figure(model_a, model_b)
+    fig_2d = create_energy_figure(model_a, model_b, lang=lang)
     st.plotly_chart(fig_2d, use_container_width=True, key="energy_2d_chart")
 
 with tab_3d:
@@ -622,7 +861,8 @@ with tab_3d:
                 basin_depth=basin_depth,
                 z_range=shared_z_range,
                 model_label="Model A",
-                height=600
+                height=600,
+                lang=lang
             )
             st.plotly_chart(fig_3d_a, use_container_width=True, key="funnel_3d_compare_a")
 
@@ -634,7 +874,8 @@ with tab_3d:
                 basin_depth=basin_depth,
                 z_range=shared_z_range,
                 model_label="Model B",
-                height=600
+                height=600,
+                lang=lang
             )
             st.plotly_chart(fig_3d_b, use_container_width=True, key="funnel_3d_compare_b")
     else:
@@ -645,7 +886,8 @@ with tab_3d:
             roughness_amplitude=roughness_amp,
             basin_depth=basin_depth,
             model_label=target_choice,
-            height=720
+            height=720,
+            lang=lang
         )
         st.plotly_chart(fig_3d, use_container_width=True, key="funnel_3d_chart")
 
@@ -656,8 +898,8 @@ with tab_kinetics:
         t_min, t_max = st.slider(
             t["temp_range_label"],
             min_value=250.0,
-            max_value=450.0,
-            value=(275.0, 400.0),
+            max_value=550.0,
+            value=(275.0, 420.0),
             step=5.0,
             key="arrhenius_temp_slider"
         )
@@ -695,7 +937,7 @@ with tab_kinetics:
         tm_b_str = f"{sweep_b['t_m']:.1f} K ({sweep_b['t_m'] - 273.15:.1f} °C)" if sweep_b["t_m"] else t["tm_none"]
         st.metric(t["tm_metric_b"], tm_b_str)
 
-    fig_kinetics = create_kinetics_sweep_figure(sweep_a, sweep_b)
+    fig_kinetics = create_kinetics_sweep_figure(sweep_a, sweep_b, lang=lang)
     st.plotly_chart(fig_kinetics, use_container_width=True, key="kinetics_sweep_chart")
 
 # =====================================
