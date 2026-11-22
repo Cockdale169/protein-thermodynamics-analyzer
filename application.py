@@ -1,6 +1,7 @@
 import numpy as np
 import streamlit as st
 from data_loader import load_pdb
+from data_loader import load_pdb, load_sample_ubiquitin
 from thermodynamics import (
     calculate_thermodynamics,
     generate_energy_curve,
@@ -40,6 +41,9 @@ st.markdown(
 # =====================================
 TEXTS = {
     "zh": {
+        "btn_load_sample": "🧪 一鍵載入範例：Ubiquitin (1UBQ)",
+        "btn_clear_sample": "清除範例結構",
+        "sample_active_badge": "目前檢視內建模型蛋白質：**Human Ubiquitin (PDB: 1UBQ, 76 aa)**",
         "arr_analysis_title": "📊 阿瑞尼士與熱動力學自動判讀",
         "arr_tm_comp": "**熱穩定度對比（$T_m$）：** Model A 的熔解溫度為 **{tm_a:.1f} K**，Model B 為 **{tm_b:.1f} K**，**{higher}** 的抗熱變性能力高出 **{diff:.1f} K（°C）**。",
         "arr_enthalpy": "**表觀活化焓（阿瑞尼士斜率來源）：** Model A 折疊活化焓 $\\Delta H^\\ddagger_{{\\text{{fold}}}} = {ha_f:.1f}$ kJ/mol（去折疊 $\\Delta H^\\ddagger_{{\\text{{unfold}}}} = {ha_u:.1f}$ kJ/mol）；Model B 折疊活化焓 $\\Delta H^\\ddagger_{{\\text{{fold}}}} = {hb_f:.1f}$ kJ/mol（去折疊 $\\Delta H^\\ddagger_{{\\text{{unfold}}}} = {hb_u:.1f}$ kJ/mol）。",
@@ -125,6 +129,9 @@ TEXTS = {
         "footer_note": "註：本工具為教學與概念驗證用之三態熱力學示意模型，非全原子分子動力學（MD）模擬。"
     },
     "en": {
+        "btn_load_sample": "🧪 Load Sample: Ubiquitin (1UBQ)",
+        "btn_clear_sample": "Clear Sample Structure",
+        "sample_active_badge": "Active Built-in Model Protein: **Human Ubiquitin (PDB: 1UBQ, 76 aa)**",
         "arr_analysis_title": "📊 Automated Arrhenius & Thermal Stability Analysis",
         "arr_tm_comp": "**Thermal Stability ($T_m$):** Model A melts at **{tm_a:.1f} K** vs. Model B at **{tm_b:.1f} K**; **{higher}** exhibits higher thermostability by **{diff:.1f} K (°C)**.",
         "arr_enthalpy": "**Apparent Activation Enthalpy (Arrhenius Slope):** Model A $\\Delta H^\\ddagger_{{\\text{{fold}}}} = {ha_f:.1f}$ kJ/mol ($\\Delta H^\\ddagger_{{\\text{{unfold}}}} = {ha_u:.1f}$ kJ/mol); Model B $\\Delta H^\\ddagger_{{\\text{{fold}}}} = {hb_f:.1f}$ kJ/mol ($\\Delta H^\\ddagger_{{\\text{{unfold}}}} = {hb_u:.1f}$ kJ/mol).",
@@ -296,7 +303,21 @@ with st.sidebar:
         type=["pdb"],
         help=t["upload_help"]
     )
+    if "use_sample_1ubq" not in st.session_state:
+        st.session_state["use_sample_1ubq"] = False
 
+    if uploaded_pdb is not None:
+        st.session_state["use_sample_1ubq"] = False
+
+    if not st.session_state["use_sample_1ubq"]:
+        if st.button(t["btn_load_sample"], use_container_width=True):
+            st.session_state["use_sample_1ubq"] = True
+            st.rerun()
+    else:
+        if st.button(t["btn_clear_sample"], use_container_width=True):
+            st.session_state["use_sample_1ubq"] = False
+            st.rerun()
+    
     st.divider()
     st.subheader(t["sidebar_param"])
     st.caption(t["unit_caption"])
@@ -327,23 +348,22 @@ st.markdown(t["subtitle"])
 # =====================================
 # 區塊 1：PDB 結構摘要與 3D Cα 骨架模型
 # =====================================
-if uploaded_pdb is not None:
+if uploaded_pdb is not None or st.session_state.get("use_sample_1ubq", False):
     try:
-        results = load_pdb(uploaded_pdb)
+        if uploaded_pdb is not None:
+            results = load_pdb(uploaded_pdb)
+            struct_title = uploaded_pdb.name
+        else:
+            results = load_sample_ubiquitin()
+            struct_title = "1UBQ (Human Ubiquitin)"
+            st.info(t["sample_active_badge"])
+
         total_chains = len(results)
         total_residues = sum(item["residue_count"] for item in results)
         est_delta_g = -0.25 * total_residues
 
-        st.subheader(f"{t['struct_summary']}: `{uploaded_pdb.name}`")
-        m1, m2, m3 = st.columns(3)
-        m1.metric(t["chains_metric"], f"{total_chains}")
-        m2.metric(t["res_metric"], f"{total_residues} aa")
-        m3.metric(
-            t["est_dg_metric"],
-            f"{est_delta_g:.1f} kJ/mol",
-            help=t["est_dg_help"]
-        )
-
+        st.subheader(f"{t['struct_summary']}: `{struct_title}`")
+        
         # 雙分頁：3D Cα 骨架模型 vs FASTA 序列
         subtab_3d, subtab_contact, subtab_rama, subtab_seq, subtab_nt = st.tabs([
             t["tab_ca_3d"],
