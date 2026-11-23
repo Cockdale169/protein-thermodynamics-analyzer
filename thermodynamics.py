@@ -166,3 +166,14 @@ def analyze_structural_biophysics(ca_coords, sequence, cutoff=8.0):
         "est_ts": est_ts,
         "est_n": est_n
     }
+
+
+def apply_mutation_to_thermodynamics(g_u, g_ts, g_n, ddg_kj):
+    """
+    根據突變預測 ΔΔG (kJ/mol) 產生突變體的熱力學參數 (U, TS, N)。
+    天然態受完整 ΔΔG 影響 (G_N' = G_N + ΔΔG)，過渡態受 Tanford β 係數調節 (約 35%)。
+    """
+    new_u = float(g_u)
+    new_ts = float(g_ts + 0.35 * ddg_kj)
+    new_n = float(g_n + ddg_kj)
+    return new_u, new_ts, new_n

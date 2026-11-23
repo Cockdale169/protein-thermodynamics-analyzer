@@ -1,4 +1,5 @@
 import numpy as np
+from datetime import datetime
 
 import plotly.graph_objects as go
 
@@ -983,3 +984,446 @@ def create_nucleotide_analysis_figure(cdna_seq, window=15, height=430, lang="en"
     )
 
     return fig
+
+
+# =====================================
+# 8. 3Dmol.js 全功能 3D 分子檢視器嵌入 HTML
+# =====================================
+def create_3dmol_html(
+    pdb_text,
+    height=600,
+    default_style="cartoon",
+    default_color="spectrum",
+    show_sidechains=False,
+    surface_mode="none",
+    spin=False
+):
+    """
+    產生包含 3Dmol.js 引擎、頂部互動工具列與深色現代畫布的完整 HTML 字串。
+    支援 Cartoon / Sticks / Spheres / Surface / 側鏈以及懸停資訊。
+    """
+    # 避免跳脫問題，將 PDB 文字安全存於 <script type="text/plain"> 標籤
+    html_code = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ background: #0B1120; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }}
+    #container {{ width: 100%; height: {height}px; position: relative; border-radius: 12px; overflow: hidden; }}
+    #viewport {{ width: 100%; height: 100%; position: absolute; top: 0; left: 0; }}
+    #toolbar {{
+      position: absolute; top: 12px; left: 12px; right: 12px;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px);
+      padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 10; color: #E2E8F0; font-size: 13px;
+    }}
+    .ctrl-group {{ display: flex; align-items: center; gap: 5px; }}
+    label {{ color: #94A3B8; font-weight: 500; font-size: 12px; }}
+    select, button {{
+      background: #1E293B; color: #F8FAFC; border: 1px solid #334155;
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; outline: none;
+      transition: all 0.2s;
+    }}
+    select:hover, button:hover {{ background: #334155; border-color: #64748B; }}
+    .badge {{
+      margin-left: auto; font-size: 11px; padding: 3px 8px; border-radius: 20px;
+      background: rgba(13, 148, 136, 0.25); color: #2DD4BF; border: 1px solid rgba(45, 212, 191, 0.3);
+    }}
+    #tooltip {{
+      position: absolute; bottom: 12px; left: 12px;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+      color: #38BDF8; padding: 6px 12px; border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3); font-size: 12px; pointer-events: none;
+      display: none; z-index: 10;
+    }}
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="toolbar">
+      <div class="ctrl-group">
+        <label>樣式:</label>
+        <select id="style_select" onchange="updateViewer()">
+          <option value="cartoon" selected>立體卡通 (Cartoon)</option>
+          <option value="stick">棒狀模型 (Sticks)</option>
+          <option value="sphere">空間填充球 (Spheres)</option>
+          <option value="line">細線骨架 (Lines)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>著色:</label>
+        <select id="color_select" onchange="updateViewer()">
+          <option value="spectrum" selected>光譜彩虹 (Spectrum)</option>
+          <option value="ss">二級結構 (Helix/Sheet/Coil)</option>
+          <option value="chain">多勝肽鏈 (Chain)</option>
+          <option value="hydrophobicity">疏水性色階 (Hydrophobic)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>表面:</label>
+        <select id="surface_select" onchange="updateViewer()">
+          <option value="none" selected>無 (None)</option>
+          <option value="sas">溶劑可及表面 (SAS)</option>
+          <option value="vdw">凡得瓦表面 (VDW)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label style="cursor:pointer;"><input type="checkbox" id="chk_sidechains" onchange="updateViewer()"> 側鏈</label>
+      </div>
+      <div class="ctrl-group">
+        <label style="cursor:pointer;"><input type="checkbox" id="chk_spin" onchange="toggleSpin()"> 自轉</label>
+      </div>
+      <button onclick="resetCamera()">🔄 重置視角</button>
+      <span class="badge">3Dmol.js WebGL</span>
+    </div>
+
+    <div id="viewport"></div>
+    <div id="tooltip"></div>
+  </div>
+
+  <script type="text/plain" id="raw_pdb">{pdb_text}</script>
+
+  <script>
+    let viewer = null;
+    let currentSurface = null;
+    let isSpinning = false;
+
+    window.addEventListener('DOMContentLoaded', () => {{
+      let element = document.getElementById('viewport');
+      let config = {{ backgroundColor: '#0B1120' }};
+      viewer = $3Dmol.createViewer(element, config);
+
+      let pdbData = document.getElementById('raw_pdb').textContent;
+      viewer.addModel(pdbData, "pdb");
+      updateViewer();
+      viewer.zoomTo();
+      viewer.render();
+
+      // 懸停殘基資訊提示
+      viewer.setHoverable({{}}, true,
+        function(atom, viewer, event, container) {{
+          if (atom) {{
+            let tip = document.getElementById('tooltip');
+            tip.style.display = 'block';
+            tip.innerHTML = `<strong>${{atom.resn}} ${{atom.resi}}</strong> (鏈 ${{atom.chain}}) - 原子: ${{atom.atom}}`;
+          }}
+        }},
+        function(atom, viewer, event, container) {{
+          document.getElementById('tooltip').style.display = 'none';
+        }}
+      );
+    }});
+
+    function updateViewer() {{
+      if (!viewer) return;
+      let styleMode = document.getElementById('style_select').value;
+      let colorMode = document.getElementById('color_select').value;
+      let surfaceMode = document.getElementById('surface_select').value;
+      let showSidechains = document.getElementById('chk_sidechains').checked;
+
+      let colorScheme = {{}};
+      if (colorMode === 'spectrum') {{
+        colorScheme = {{ color: 'spectrum' }};
+      }} else if (colorMode === 'ss') {{
+        colorScheme = {{ colorscheme: 'ssJmol' }};
+      }} else if (colorMode === 'chain') {{
+        colorScheme = {{ colorscheme: 'chain' }};
+      }} else if (colorMode === 'hydrophobicity') {{
+        colorScheme = {{ colorscheme: 'amino' }};
+      }}
+
+      let baseStyle = Object.assign({{}}, colorScheme);
+
+      let mainStyle = {{}};
+      if (styleMode === 'cartoon') {{
+        mainStyle.cartoon = baseStyle;
+      }} else if (styleMode === 'stick') {{
+        mainStyle.stick = baseStyle;
+      }} else if (styleMode === 'sphere') {{
+        mainStyle.sphere = Object.assign({{ scale: 0.35 }}, baseStyle);
+      }} else if (styleMode === 'line') {{
+        mainStyle.line = baseStyle;
+      }}
+
+      viewer.setStyle({{}}, mainStyle);
+
+      if (showSidechains && styleMode === 'cartoon') {{
+        viewer.setStyle({{ hetflag: false }}, {{
+          cartoon: baseStyle,
+          stick: {{ radius: 0.16, colorscheme: 'amino' }}
+        }});
+      }}
+
+      // 配體/異質分子 (HETATM) 永遠以棒狀加空間填充凸顯
+      viewer.setStyle({{ hetflag: true }}, {{
+        stick: {{ radius: 0.28, colorscheme: 'element' }},
+        sphere: {{ scale: 0.3 }}
+      }});
+
+      // 表面渲染
+      if (currentSurface) {{
+        viewer.removeSurface(currentSurface);
+        currentSurface = null;
+      }}
+
+      if (surfaceMode === 'sas') {{
+        currentSurface = viewer.addSurface($3Dmol.SurfaceType.SAS, {{
+          opacity: 0.65,
+          color: colorMode === 'spectrum' ? 'spectrum' : '#38BDF8'
+        }});
+      }} else if (surfaceMode === 'vdw') {{
+        currentSurface = viewer.addSurface($3Dmol.SurfaceType.VDW, {{
+          opacity: 0.55,
+          color: '#818CF8'
+        }});
+      }}
+
+      viewer.render();
+    }}
+
+    function toggleSpin() {{
+      if (!viewer) return;
+      isSpinning = !isSpinning;
+      viewer.spin(isSpinning, [0, 1, 0]);
+    }}
+
+    function resetCamera() {{
+      if (!viewer) return;
+      viewer.zoomTo();
+      viewer.render();
+    }}
+  </script>
+</body>
+</html>
+"""
+    return html_code
+
+
+# =====================================
+# 9. 獨立可儲存/列印之完整研究與實驗報告 HTML 產生器
+# =====================================
+def generate_standalone_report_html(data_bundle):
+    """
+    將所有結構、熱力學、二硫鍵、突變、引子與生化指標編譯為
+    自帶現代 CSS 樣式的單一獨立 HTML 檔案，使用者可直接存檔或列印為 PDF。
+    """
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    title = data_bundle.get("title", "Protein Thermodynamics Report")
+    seq = data_bundle.get("sequence", "")
+    l = len(seq)
+    bp = data_bundle.get("bp_stats", {})
+    bio = data_bundle.get("bio_stats", {})
+    nt = data_bundle.get("nt_stats", {})
+    primers = data_bundle.get("primers", {})
+    thermo = data_bundle.get("thermo_stats", {})
+    ss_comp = data_bundle.get("ss_comp", {})
+    ss_candidates = data_bundle.get("ss_candidates", [])
+    mut_info = data_bundle.get("mut_info", None)
+
+    # 建立二硫鍵候選表格 HTML
+    ss_rows = ""
+    for c in ss_candidates[:6]:
+        ss_rows += f"""<tr>
+          <td><strong>{c['res1_aa']}{c['res1_num']} ({c['res1_ss']})</strong></td>
+          <td><strong>{c['res2_aa']}{c['res2_num']} ({c['res2_ss']})</strong></td>
+          <td>{c['d_ca']:.2f} Å</td>
+          <td>{c['d_cb']:.2f} Å</td>
+          <td>{c['seq_dist']} aa</td>
+          <td style="color:#059669;font-weight:600;">{c['est_ddg_kj']} kJ/mol</td>
+          <td style="color:#2563EB;font-weight:600;">+{c['est_tm_boost']} °C</td>
+        </tr>"""
+    if not ss_rows:
+        ss_rows = "<tr><td colspan='7' style='text-align:center;color:#94A3B8;'>無符合幾何標準之工程位點</td></tr>"
+
+    html = f"""<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <title>{title} — 分析與實驗設計報告</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {{
+      --primary: #0F172A;
+      --accent: #0D9488;
+      --accent-light: #F0FDFA;
+      --text: #1E293B;
+      --muted: #64748B;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #F8FAFC; color: var(--text); line-height: 1.6; padding: 30px 20px;
+    }}
+    .container {{ max-width: 1080px; margin: 0 auto; }}
+    .header {{
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #FFFFFF; padding: 32px 36px; border-radius: 16px; margin-bottom: 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    }}
+    .header h1 {{ font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }}
+    .header p {{ color: #94A3B8; font-size: 14px; }}
+    .btn-print {{
+      display: inline-block; margin-top: 16px; background: #0D9488; color: white;
+      padding: 8px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: background 0.2s;
+    }}
+    .btn-print:hover {{ background: #0F766E; }}
+    .grid-4 {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }}
+    .stat-card {{
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }}
+    .stat-card .label {{ font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }}
+    .stat-card .value {{ font-size: 22px; font-weight: 700; color: var(--primary); margin-top: 4px; }}
+    .card {{
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+    }}
+    .card h2 {{
+      font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px;
+      padding-bottom: 10px; border-bottom: 2px solid var(--accent-light);
+      display: flex; align-items: center; gap: 8px;
+    }}
+    table {{ width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; }}
+    th, td {{ padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }}
+    th {{ background: #F1F5F9; color: var(--muted); font-weight: 600; font-size: 12px; }}
+    tr:hover td {{ background: #F8FAFC; }}
+    .seq-box {{
+      background: #0B1120; color: #38BDF8; padding: 16px; border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px; word-break: break-all; line-height: 1.5; margin-top: 10px;
+    }}
+    .badge {{ display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }}
+    .badge-success {{ background: #DCFCE7; color: #166534; }}
+    .badge-warning {{ background: #FEF3C7; color: #92400E; }}
+    .footer {{ text-align: center; color: var(--muted); font-size: 12px; margin-top: 36px; }}
+    @media print {{
+      body {{ background: white; padding: 0; }}
+      .btn-print {{ display: none; }}
+      .card, .header {{ box-shadow: none; border: 1px solid #CBD5E1; }}
+    }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧬 蛋白質生物物理與分子工程綜合分析報告</h1>
+      <p>目標標的：{title} ｜ 產生時間：{now_str} ｜ 鏈長度：{l} 殘基 (aa)</p>
+      <button class="btn-print" onclick="window.print()">🖨️ 列印 / 另存為 PDF</button>
+    </div>
+
+    <div class="grid-4">
+      <div class="stat-card">
+        <div class="label">拓撲折疊架構</div>
+        <div class="value">{ss_comp.get('fold_class', 'α/β Class')}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">相對接觸級數 (RCO)</div>
+        <div class="value">{bp.get('rco', 0.0):.3f}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">分子量 / 等電點</div>
+        <div class="value">{bio.get('mw_kda', 0.0):.2f} kDa <span style="font-size:15px;color:var(--muted);">(pI {bio.get('pi', 0.0):.1f})</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">熱熔解溫度 Tm</div>
+        <div class="value">{thermo.get('tm_str', 'N/A')}</div>
+      </div>
+    </div>
+
+    <!-- 區塊 1：結構生物物理與二級結構 -->
+    <div class="card">
+      <h2>📊 1. 結構拓撲與生物物理指標診斷</h2>
+      <table>
+        <tr>
+          <th>迴轉半徑 (Rg)</th>
+          <td>{bp.get('rg', 0.0):.2f} Å</td>
+          <th>長程三級接觸佔比</th>
+          <td>{bp.get('long_range_ratio', 0.0)*100:.1f}%</td>
+        </tr>
+        <tr>
+          <th>疏水核心埋藏率</th>
+          <td>{bp.get('core_burial_ratio', 0.0)*100:.1f}%</td>
+          <th>非相鄰總接觸數</th>
+          <td>{bp.get('n_contacts', 0)} 對</td>
+        </tr>
+        <tr>
+          <th>二級結構組成</th>
+          <td colspan="3">α-螺旋: <strong>{ss_comp.get('h_pct', 0.0):.1f}%</strong> ｜ β-折板: <strong>{ss_comp.get('e_pct', 0.0):.1f}%</strong> ｜ 環區/無規捲曲: <strong>{ss_comp.get('c_pct', 0.0):.1f}%</strong></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 區塊 2：二硫鍵與突變工程 -->
+    <div class="card">
+      <h2>🔬 2. 蛋白質工程：二硫鍵與穩定化突變預測</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">依據 Hazes & Dijkstra 幾何法則所篩選之去折疊態熵抑制（De Novo S-S）高潛力候選對：</p>
+      <table>
+        <thead>
+          <tr>
+            <th>殘基位點 1</th>
+            <th>殘基位點 2</th>
+            <th>Cα 距離</th>
+            <th>Cβ 距離</th>
+            <th>序列間距</th>
+            <th>預估穩定化 ΔΔG</th>
+            <th>預估 Tm 提升</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ss_rows}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 區塊 3：逆轉譯與分子選殖引子 -->
+    <div class="card">
+      <h2>🧬 3. 宿主表現密碼子優化與 PCR 引子設計</h2>
+      <table>
+        <tr>
+          <th>cDNA 全長</th>
+          <td>{nt.get('cdna_len', 0)} bp</td>
+          <th>整體 GC%</th>
+          <td>{nt.get('gc_pct', 0.0):.1f}% (GC3%: {nt.get('gc3_pct', 0.0):.1f}%)</td>
+        </tr>
+        <tr>
+          <th>密碼子適應指數 (CAI)</th>
+          <td><span class="badge badge-success">{nt.get('cai', 0.0):.3f}</span></td>
+          <th>5' 端前 30 nt 折疊 ΔG</th>
+          <td><strong>{nt.get('dg_5prime', 0.0):.2f} kcal/mol</strong></td>
+        </tr>
+      </table>
+
+      <h3 style="font-size:14px;margin-top:16px;color:var(--primary);">🎯 推薦 PCR 選殖引子 (5' → 3')：</h3>
+      <div style="margin-top:8px;">
+        <p style="font-size:12px;color:var(--muted);"><strong>5' Forward Primer:</strong> (退火 Tm = {primers.get('fwd_tm', 0.0):.1f} °C ｜ 長度 = {primers.get('fwd_len', 0)} nt)</p>
+        <div class="seq-box">{primers.get('fwd_full', 'N/A')}</div>
+      </div>
+      <div style="margin-top:12px;">
+        <p style="font-size:12px;color:var(--muted);"><strong>3' Reverse Primer:</strong> (退火 Tm = {primers.get('rev_tm', 0.0):.1f} °C ｜ 長度 = {primers.get('rev_len', 0)} nt)</p>
+        <div class="seq-box">{primers.get('rev_full', 'N/A')}</div>
+      </div>
+    </div>
+
+    <!-- 區塊 4：胺基酸與 cDNA 完整序列 -->
+    <div class="card">
+      <h2>📄 4. 蛋白質與 cDNA 序列明細</h2>
+      <p style="font-size:12px;color:var(--muted);">胺基酸序列 FASTA:</p>
+      <div class="seq-box" style="color:#A7F3D0;">>{title} | {l} aa&#10;{seq}</div>
+
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;">編碼區 cDNA 序列 (含終止密碼子):</p>
+      <div class="seq-box">{nt.get('cdna_seq', 'N/A')}</div>
+    </div>
+
+    <div class="footer">
+      <p>Generated by Protein Thermodynamics & Recombinant Design Platform ｜ Antigravity 2.0</p>
+    </div>
+  </div>
+</body>
+</html>"""
+    return html

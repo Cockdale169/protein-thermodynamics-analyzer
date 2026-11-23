@@ -1,8 +1,9 @@
+import urllib.request
+from io import StringIO
 import numpy as np
 from Bio.PDB import PDBParser
 from Bio.PDB.Polypeptide import is_aa, PPBuilder
 from Bio.SeqUtils import seq1
-from io import StringIO
 
 
 def _assign_secondary_structure(chain, residues):
@@ -15,7 +16,6 @@ def _assign_secondary_structure(chain, residues):
         return []
 
     ppb = PPBuilder()
-    # 必須傳入 Biopython 的 chain 物件，而非 Python list
     angle_map = {}
     for pp in ppb.build_peptides(chain):
         for res, (phi, psi) in zip(pp, pp.get_phi_psi_list()):
@@ -54,58 +54,13 @@ def _assign_secondary_structure(chain, residues):
         i = j
 
     return cleaned_ss
+
+
+def _parse_pdb_text(pdb_content, source_name="PDB"):
     """
-    依據主鏈 (Phi, Psi) 雙面角與連續性規則，為每個殘基指派二級結構：
-    'H' = α-Helix, 'E' = β-Sheet/Strand, 'C' = Coil/Loop
+    從 PDB 文字內容提取模型、序列、Cα 與 Cβ 座標、SG (Cys) 座標、
+    二級結構、拉氏圖雙面角以及原始 PDB 字串供 3Dmol 渲染。
     """
-    n = len(residues)
-    if n == 0:
-        return []
-
-    ppb = PPBuilder()
-    # 建立殘基物件到 (phi, psi) 角度（度）的對照表
-    angle_map = {}
-    for pp in ppb.build_peptides(residues):
-        for res, (phi, psi) in zip(pp, pp.get_phi_psi_list()):
-            phi_deg = float(np.degrees(phi)) if phi is not None else None
-            psi_deg = float(np.degrees(psi)) if psi is not None else None
-            angle_map[res.id] = (phi_deg, psi_deg)
-
-    raw_ss = []
-    for res in residues:
-        phi_deg, psi_deg = angle_map.get(res.id, (None, None))
-        if phi_deg is not None and psi_deg is not None:
-            if -115.0 <= phi_deg <= -30.0 and -75.0 <= psi_deg <= -10.0:
-                raw_ss.append("H")
-            elif -175.0 <= phi_deg <= -45.0 and (psi_deg >= 85.0 or psi_deg <= -150.0):
-                raw_ss.append("E")
-            else:
-                raw_ss.append("C")
-        else:
-            raw_ss.append("C")
-
-    # 連續性濾波：Helix 至少連續 4 殘基，Beta-strand 至少連續 3 殘基
-    cleaned_ss = ["C"] * n
-    i = 0
-    while i < n:
-        state = raw_ss[i]
-        j = i
-        while j < n and raw_ss[j] == state:
-            j += 1
-        run_len = j - i
-        if state == "H" and run_len >= 4:
-            for k in range(i, j):
-                cleaned_ss[k] = "H"
-        elif state == "E" and run_len >= 3:
-            for k in range(i, j):
-                cleaned_ss[k] = "E"
-        i = j
-
-    return cleaned_ss
-
-
-def _parse_pdb_text(pdb_content):
-    """內部共用解析函式：從 PDB 文字內容提取序列、Cα 座標、二級結構與拉氏圖雙面角"""
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure("Protein", StringIO(pdb_content))
     ppb = PPBuilder()
@@ -124,11 +79,45 @@ def _parse_pdb_text(pdb_content):
 
             sequence = ""
             ca_coords = []
+            cb_coords = []
+            sg_coords = []
+            res_nums = []
+            res_names = []
+
             for residue in residues:
                 aa_code = seq1(residue.resname, custom_map={"UNK": "X"})
                 sequence += aa_code
-                coord = residue["CA"].get_coord()
-                ca_coords.append([float(coord[0]), float(coord[1]), float(coord[2])])
+                res_nums.append(residue.id[1])
+                res_names.append(residue.resname.strip())
+
+                ca_coord = residue["CA"].get_coord()
+                ca_coords.append([float(ca_coord[0]), float(ca_coord[1]), float(ca_coord[2])])
+
+                # 提取 Cβ 座標 (若為 GLY 則以 N, CA, C 幾何向量估算虛擬 Cβ)
+                if "CB" in residue:
+                    cb = residue["CB"].get_coord()
+                    cb_coords.append([float(cb[0]), float(cb[1]), float(cb[2])])
+                else:
+                    if "N" in residue and "C" in residue:
+                        n_c = residue["N"].get_coord()
+                        c_c = residue["C"].get_coord()
+                        ca_c = residue["CA"].get_coord()
+                        v1 = n_c - ca_c
+                        v2 = c_c - ca_c
+                        v_cb = - (v1 + v2)
+                        norm_cb = np.linalg.norm(v_cb)
+                        if norm_cb > 1e-4:
+                            pseudo_cb = ca_c + (v_cb / norm_cb) * 1.52
+                            cb_coords.append([float(pseudo_cb[0]), float(pseudo_cb[1]), float(pseudo_cb[2])])
+                        else:
+                            cb_coords.append([float(ca_coord[0]), float(ca_coord[1]), float(ca_coord[2])])
+                    else:
+                        cb_coords.append([float(ca_coord[0]), float(ca_coord[1]), float(ca_coord[2])])
+
+                # 提取 CYS SG 原子座標
+                if residue.resname.strip() in ("CYS", "CYX", "CYM") and "SG" in residue:
+                    sg = residue["SG"].get_coord()
+                    sg_coords.append((residue.id[1], [float(sg[0]), float(sg[1]), float(sg[2])]))
 
             ss_list = _assign_secondary_structure(chain, residues)
             ss_name_map = {"H": "α-Helix", "E": "β-Sheet", "C": "Coil/Loop"}
@@ -161,9 +150,15 @@ def _parse_pdb_text(pdb_content):
                 "residue_count": len(residues),
                 "sequence": sequence,
                 "ca_coords": ca_coords,
+                "cb_coords": cb_coords,
+                "sg_coords": sg_coords,
+                "res_nums": res_nums,
+                "res_names": res_names,
                 "res_labels": res_labels,
                 "ss_list": ss_list,
-                "rama_data": rama_data
+                "rama_data": rama_data,
+                "raw_pdb": pdb_content,
+                "source_name": source_name
             })
 
     return results
@@ -171,7 +166,285 @@ def _parse_pdb_text(pdb_content):
 
 def load_pdb(uploaded_file):
     pdb_content = uploaded_file.getvalue().decode("utf-8", errors="replace")
-    return _parse_pdb_text(pdb_content)
+    source_name = getattr(uploaded_file, "name", "Uploaded_PDB")
+    return _parse_pdb_text(pdb_content, source_name=source_name)
+
+
+def fetch_pdb_from_rcsb(pdb_id):
+    """
+    透過 RCSB PDB 官方 REST API 線上取得 PDB 結構資料
+    """
+    clean_id = pdb_id.strip().upper()
+    if len(clean_id) != 4 or not clean_id.isalnum():
+        raise ValueError(f"無效的 PDB 代碼 '{pdb_id}'，請輸入 4 位英數字元代碼（例如 1UBQ, 1CRN, 4HHB）。")
+
+    url = f"https://files.rcsb.org/download/{clean_id}.pdb"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Antigravity-Protein-Thermodynamics/2.0"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=12) as response:
+            pdb_content = response.read().decode("utf-8", errors="replace")
+            if "HEADER" not in pdb_content and "ATOM" not in pdb_content:
+                raise ValueError(f"無法從 RCSB 下載到結構 {clean_id}。")
+            return _parse_pdb_text(pdb_content, source_name=f"RCSB:{clean_id}")
+    except Exception as e:
+        raise RuntimeError(f"連線 RCSB PDB 失敗 ({clean_id}): {str(e)}")
+
+
+def analyze_disulfide_bonds(chain_item):
+    """
+    偵測結構中既存的天然二硫鍵 (S-S bonds) 以及搜尋可進行二硫鍵工程 (De Novo Disulfide Design) 的候選殘基對。
+    基於 Hazes & Dijkstra (1988) 幾何標準：
+    Cα-Cα 距離 ~ 5.0 - 6.5 Å，Cβ-Cβ 距離 ~ 3.5 - 4.5 Å，|i - j| >= 4。
+    """
+    sg_coords = chain_item.get("sg_coords", [])
+    native_bonds = []
+    # 1. 偵測天然二硫鍵 (SG - SG 距離 <= 2.5 Å)
+    n_sg = len(sg_coords)
+    for i in range(n_sg):
+        for j in range(i + 1, n_sg):
+            r_i, p_i = sg_coords[i]
+            r_j, p_j = sg_coords[j]
+            dist = float(np.linalg.norm(np.array(p_i) - np.array(p_j)))
+            if dist <= 2.5:
+                native_bonds.append({
+                    "res1": r_i,
+                    "res2": r_j,
+                    "dist": round(dist, 2),
+                    "status": "Native Disulfide Bond"
+                })
+
+    # 2. 候選全新工程二硫鍵 (De Novo Disulfide Engineering)
+    ca = np.array(chain_item["ca_coords"], dtype=float)
+    cb = np.array(chain_item.get("cb_coords", chain_item["ca_coords"]), dtype=float)
+    res_nums = chain_item["res_nums"]
+    seq = chain_item["sequence"]
+    ss_list = chain_item.get("ss_list", ["C"] * len(seq))
+    L = len(ca)
+
+    native_pairs = set((b["res1"], b["res2"]) for b in native_bonds) | set((b["res2"], b["res1"]) for b in native_bonds)
+    candidates = []
+
+    for i in range(L):
+        for j in range(i + 4, L):
+            r1, r2 = res_nums[i], res_nums[j]
+            aa1, aa2 = seq[i], seq[j]
+
+            # 排除本身已是 Cys 或 Proline (Pro 骨架缺乏彈性)
+            if aa1 in ("C", "P") or aa2 in ("C", "P"):
+                continue
+            if (r1, r2) in native_pairs:
+                continue
+
+            d_ca = float(np.linalg.norm(ca[i] - ca[j]))
+            d_cb = float(np.linalg.norm(cb[i] - cb[j]))
+
+            # 幾何閾值
+            if 4.5 <= d_ca <= 6.8 and 3.4 <= d_cb <= 4.8:
+                # 幾何適應度評分 (越接近理想值 5.6 Å 與 3.8 Å 分數越佳)
+                geom_penalty = abs(d_ca - 5.6) + 1.2 * abs(d_cb - 3.8)
+                
+                # 依據構象熵效應預估穩定化自由能增益 (kJ/mol)
+                seq_dist = j - i
+                dg_entropy_benefit = round(-6.0 - 2.5 * np.log(max(4, seq_dist)), 1)
+                est_tm_boost = round(abs(dg_entropy_benefit) / 0.25 * 0.1, 1)
+
+                candidates.append({
+                    "res1_num": r1,
+                    "res1_aa": aa1,
+                    "res1_ss": ss_list[i],
+                    "res2_num": r2,
+                    "res2_aa": aa2,
+                    "res2_ss": ss_list[j],
+                    "d_ca": round(d_ca, 2),
+                    "d_cb": round(d_cb, 2),
+                    "geom_penalty": round(geom_penalty, 2),
+                    "seq_dist": seq_dist,
+                    "est_ddg_kj": dg_entropy_benefit,
+                    "est_tm_boost": est_tm_boost
+                })
+
+    candidates.sort(key=lambda x: x["geom_penalty"])
+    return {
+        "native_bonds": native_bonds,
+        "candidates": candidates[:10]  # 取前 10 佳設計候選
+    }
+
+
+def predict_mutation_ddg(chain_item, res_num, target_aa):
+    """
+    預測單點突變或丙胺酸掃描 (Alanine Scanning) 對蛋白質折疊穩定性 (ΔΔG) 與熔解溫度 (Tm) 的影響。
+    正值 ΔΔG 代表去穩定化 (Destabilizing, 穩定度下降)，負值代表穩定化。
+    """
+    res_nums = chain_item["res_nums"]
+    if res_num not in res_nums:
+        return None
+
+    idx = res_nums.index(res_num)
+    orig_aa = chain_item["sequence"][idx]
+    ss = chain_item.get("ss_list", ["C"] * len(res_nums))[idx]
+    coords = np.array(chain_item["ca_coords"], dtype=float)
+    L = len(coords)
+
+    # 計算該殘基的周邊接觸數與迴轉中心距離
+    center_of_mass = np.mean(coords, axis=0)
+    radial_dist = float(np.linalg.norm(coords[idx] - center_of_mass))
+    rg = float(np.sqrt(np.mean(np.sum((coords - center_of_mass)**2, axis=1))))
+
+    dists = np.linalg.norm(coords - coords[idx], axis=1)
+    local_contacts = int(np.sum((dists <= 8.5) & (dists > 0.1)))
+
+    is_buried = (radial_dist < 0.75 * rg) or (local_contacts >= 8)
+
+    # 疏水體積損失係數 (kJ/mol per carbon)
+    hydro_carbons = {
+        "A": 1, "V": 3, "I": 4, "L": 4, "M": 4, "F": 7, "W": 9, "Y": 7,
+        "P": 3, "C": 1, "G": 0, "S": 1, "T": 2, "N": 2, "Q": 3, "D": 2,
+        "E": 3, "H": 4, "K": 4, "R": 4
+    }
+
+    c_orig = hydro_carbons.get(orig_aa, 2)
+    c_target = hydro_carbons.get(target_aa, 1)
+
+    ddg_kj = 0.0
+
+    # 1. 疏水核心空洞懲罰 (Cavity formation)
+    if is_buried and c_orig > c_target:
+        carbon_diff = c_orig - c_target
+        cavity_penalty = carbon_diff * 4.8
+        ddg_kj += cavity_penalty
+    elif not is_buried and c_orig > c_target:
+        ddg_kj += (c_orig - c_target) * 1.5
+
+    # 2. 二級結構傾向性懲罰 (Secondary structure propensities)
+    if ss == "H":
+        if target_aa == "P":
+            ddg_kj += 14.5
+        elif orig_aa == "G" and target_aa == "A":
+            ddg_kj -= 3.5
+        elif target_aa == "G":
+            ddg_kj += 6.5
+    elif ss == "E":
+        if target_aa == "P":
+            ddg_kj += 12.0
+        elif target_aa in ("V", "I", "T", "Y", "F") and orig_aa not in ("V", "I", "T", "Y", "F"):
+            ddg_kj -= 2.5
+
+    # 3. 鹽橋/電荷破壞
+    charged = {"K", "R", "D", "E"}
+    if orig_aa in charged and target_aa not in charged:
+        opp_set = {"D", "E"} if orig_aa in {"K", "R"} else {"K", "R"}
+        has_salt_bridge = any(
+            chain_item["sequence"][k] in opp_set
+            for k in range(L) if dists[k] <= 4.5 and k != idx
+        )
+        if has_salt_bridge:
+            ddg_kj += 10.5
+
+    # 4. 特殊殘基突變
+    if orig_aa == "P" and ss != "H":
+        ddg_kj += 3.0
+
+    delta_tm = round(-ddg_kj / 0.25 * 0.1, 1)
+    ddg_kcal = round(ddg_kj / 4.184, 2)
+    ddg_kj = round(ddg_kj, 1)
+
+    if ddg_kj >= 10.0:
+        impact = "顯著去穩定 (Highly Destabilizing)"
+        badge_type = "error"
+    elif ddg_kj >= 3.0:
+        impact = "中度去穩定 (Moderately Destabilizing)"
+        badge_type = "warning"
+    elif ddg_kj <= -3.0:
+        impact = "顯著穩定化 (Significantly Stabilizing)"
+        badge_type = "success"
+    else:
+        impact = "近中性 (Neutral / Minor Effect)"
+        badge_type = "info"
+
+    return {
+        "res_num": res_num,
+        "orig_aa": orig_aa,
+        "target_aa": target_aa,
+        "mutation": f"{orig_aa}{res_num}{target_aa}",
+        "ss": ss,
+        "is_buried": is_buried,
+        "local_contacts": local_contacts,
+        "ddg_kj": ddg_kj,
+        "ddg_kcal": ddg_kcal,
+        "delta_tm": delta_tm,
+        "impact": impact,
+        "badge_type": badge_type
+    }
+
+
+def analyze_hydrophobic_patches(chain_item):
+    """
+    分析蛋白質表面暴露的疏水性斑塊 (Surface Hydrophobic Patches)
+    評估重組蛋白在表現時形成包涵體 (Inclusion Body) 或非專一性聚集 (Aggregation) 的風險。
+    """
+    coords = np.array(chain_item["ca_coords"], dtype=float)
+    seq = chain_item["sequence"]
+    res_nums = chain_item["res_nums"]
+    L = len(coords)
+
+    center_of_mass = np.mean(coords, axis=0)
+    radial_dists = np.linalg.norm(coords - center_of_mass, axis=1)
+    rg = float(np.sqrt(np.mean(radial_dists**2)))
+
+    hydro_set = set("AVILMFYW")
+    exposed_hydro = []
+
+    for i in range(L):
+        if seq[i] in hydro_set and radial_dists[i] >= 0.85 * rg:
+            exposed_hydro.append({
+                "idx": i,
+                "res_num": res_nums[i],
+                "aa": seq[i],
+                "coord": coords[i]
+            })
+
+    patches = []
+    visited = set()
+
+    for idx1, h1 in enumerate(exposed_hydro):
+        if idx1 in visited:
+            continue
+        cluster = [h1]
+        visited.add(idx1)
+        for idx2, h2 in enumerate(exposed_hydro):
+            if idx2 not in visited:
+                dist = np.linalg.norm(h1["coord"] - h2["coord"])
+                if dist <= 7.0:
+                    cluster.append(h2)
+                    visited.add(idx2)
+
+        if len(cluster) >= 3:
+            patches.append(cluster)
+
+    tot_exposed = len(exposed_hydro)
+    pct_exposed = round(tot_exposed / len(seq) * 100.0, 1)
+
+    if len(patches) >= 2 or tot_exposed >= 12:
+        risk_level = "高聚集傾向 (High Aggregation Risk)"
+        risk_color = "warning"
+    elif len(patches) == 1 or tot_exposed >= 6:
+        risk_level = "中度聚集傾向 (Moderate Risk)"
+        risk_color = "info"
+    else:
+        risk_level = "低聚集傾向 / 可溶性佳 (Low Risk / Highly Soluble)"
+        risk_color = "success"
+
+    return {
+        "exposed_count": tot_exposed,
+        "exposed_pct": pct_exposed,
+        "patches_count": len(patches),
+        "patches": patches,
+        "risk_level": risk_level,
+        "risk_color": risk_color
+    }
 
 
 # 內建經典模型蛋白質：Human Ubiquitin (PDB: 1UBQ, 76 aa) 主鏈座標
