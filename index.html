@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🧬 Protein Thermodynamics & Wet-Lab Engineering Studio</title>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js" defer></script>
 <style>:root{--bg:#0b1120;--panel:#111827;--card:#1e293b;--bd:#334155;--tx:#f1f5f9;--mu:#94a3b8;--ac:#14b8a6;--ac2:#38bdf8;--warn:#f59e0b;--err:#ef4444;--ok:#10b981}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;min-height:100vh;font-size:14px}
@@ -467,17 +465,42 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(v * 10) / 10))
 const cleanDNA = s => (s || "").toUpperCase().replace(/[^ACGT]/g, "");
 const toast = msg => { const el = $("toast"); el.textContent = msg; el.style.display = "block"; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = "none", 2600); };
 let rafId = 0, viewToken = 0;
+const LIB_PROMISES = {};
+const LIB_URLS = {
+  plotly: "https://cdn.plot.ly/plotly-2.35.2.min.js",
+  "3dmol": "https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"
+};
+const ensureLib = name => {
+  if (name === "plotly" && window.Plotly) return Promise.resolve();
+  if (name === "3dmol" && window.$3Dmol) return Promise.resolve();
+  if (!LIB_PROMISES[name]) {
+    LIB_PROMISES[name] = new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = LIB_URLS[name]; s.async = true;
+      s.onload = () => res();
+      s.onerror = () => { delete LIB_PROMISES[name]; rej(new Error(`Failed to load ${name}`)); };
+      document.head.appendChild(s);
+    });
+  }
+  return LIB_PROMISES[name];
+};
 const scheduleFrame = fn => { if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(() => { rafId = 0; fn(); }); };
 const cleanupView = () => {
 viewToken++;
 if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
 if (S.molViewer) {
 try { S.molViewer.spin(false); S.molViewer.removeAllSurfaces(); S.molViewer.clear(); } catch (_) {}
+const cv = $("molView")?.querySelector("canvas");
+if (cv) { try { const gl = cv.getContext("webgl") || cv.getContext("webgl2"); gl?.getExtension("WEBGL_lose_context")?.loseContext(); cv.width = 0; cv.height = 0; } catch (_) {} }
 S.molViewer = null; S.molSurf = null; S.molSpin = false; S.molLastSurf = "none";
 }
 if (window.Plotly) {
-document.querySelectorAll("#workspace .plot").forEach(el => { try { Plotly.purge(el); } catch (_) {} });
+document.querySelectorAll("#workspace .plot").forEach(el => {
+  try { Plotly.purge(el); } catch (_) {}
+  el.querySelectorAll("canvas").forEach(cv => { try { cv.width = 0; cv.height = 0; } catch (_) {} });
+});
 }
+if (S.tab !== "thermo") { for (const k in FUNNEL_GRIDS) delete FUNNEL_GRIDS[k]; }
 };
 const AA3TO1 = {ALA:"A",ARG:"R",ASN:"N",ASP:"D",CYS:"C",CYX:"C",CYM:"C",GLN:"Q",GLU:"E",GLY:"G",HIS:"H",HID:"H",HIE:"H",HIP:"H",ILE:"I",LEU:"L",LYS:"K",MET:"M",MSE:"M",PHE:"F",PRO:"P",SER:"S",THR:"T",TRP:"W",TYR:"Y",VAL:"V",SEC:"U",PYL:"O"};
 const HYDRO = new Set("AVILMFYW"), CHARGED = new Set("KRDE"), BETA_FAV = new Set("VITYF");
@@ -1036,10 +1059,10 @@ if(S.v3d==="3dmol"){
         </div>
         <div id="molView"></div><div id="molTip"></div>
 </div>`;
-const initMol=()=>{
+const initMol=async()=>{
 if(tok!==viewToken||!$("molView")) return;
-if(!window.$3Dmol){ setTimeout(initMol,120); return; }
-const v=$3Dmol.createViewer($("molView"),{backgroundColor:"#070c18",antialias:true});
+if(!window.$3Dmol){ $("molView").innerHTML="<div style='color:#94a3b8;padding:24px'>⏳ 按需載入 3Dmol.js 引擎...</div>"; try{ await ensureLib("3dmol"); }catch(_){ return; } if(tok!==viewToken||!$("molView")) return; $("molView").innerHTML=""; }
+const v=$3Dmol.createViewer($("molView"),{backgroundColor:"#070c18",antialias:false,disableFog:true});
 S.molViewer=v; S.molLastSurf="none"; v.addModel(S.bundle.rawPdb,"pdb");
 const upd=(forceSurf=false)=>{
 if(!S.molViewer||tok!==viewToken) return;
@@ -1069,9 +1092,9 @@ upd(false); v.zoomTo(); v.render();
 initMol();
 } else {
 $("v3Host").innerHTML=`<div id="pl3" class="plot" style="height:550px"></div>`;
-const drawCa=(recreate=true)=>{
+const drawCa=async(recreate=true)=>{
 if(tok!==viewToken||!$("pl3")) return;
-if(!window.Plotly){ setTimeout(()=>drawCa(true),120); return; }
+if(!window.Plotly){ $("pl3").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("pl3")) return; $("pl3").innerHTML=""; }
 const c=ch.ca, n=ch.n, xs=[],ys=[],zs=[],txt=[];
 for(let i=0;i<n;i++){ xs.push(c[i*3]); ys.push(c[i*3+1]); zs.push(c[i*3+2]); txt.push(`${ch.resNames[i]} ${ch.resNums[i]} (${ch.sequence[i]}) | ${ch.ss[i]}`); }
 const traces=[];
@@ -1116,10 +1139,10 @@ const renderCM = (ws, ch, tok) => {
       <div id="cmPlot" class="plot" style="height:500px"></div>
     </div>
 <div class="g3" id="cmStats"></div>`;
-const draw=(recreate=false)=>{
+const draw=async(recreate=false)=>{
 if(tok!==viewToken||!$("cmPlot")) return;
-if(!window.Plotly){ setTimeout(()=>draw(true),120); return; }
-const L=ch.n, dm=getDM(ch), step=Math.max(1,Math.ceil(L/280)), subN=Math.ceil(L/step);
+if(!window.Plotly){ $("cmPlot").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("cmPlot")) return; $("cmPlot").innerHTML=""; }
+const L=ch.n, dm=getDM(ch), step=Math.max(1,Math.ceil(L/200)), subN=Math.ceil(L/step);
 const Z=new Array(subN), lbl=new Array(subN);
 for(let i=0;i<subN;i++){
 const ri=i*step; lbl[i]=`${ch.resNums[ri]} (${ch.sequence[ri]})`;
@@ -1163,9 +1186,9 @@ if(ok) fav++; else out.push(`${r.names[i]}${r.nums[i]} (${p.toFixed(0)}°,${q.to
     </div>
     <div class="card"><div id="rmPlot" class="plot" style="height:500px"></div></div>
 <div class="card">${out.length?`<span class="badge b-warn">偵測到 ${out.length} 個構象異常殘基</span> <span style="font-size:12px;color:var(--mu)">${out.slice(0,8).join(", ")}</span>`:`<span class="badge b-ok">所有非甘胺酸殘基皆位於立體化學核心允許區</span>`}</div>`;
-const draw=()=>{
+const draw=async()=>{
 if(tok!==viewToken||!$("rmPlot")) return;
-if(!window.Plotly){ setTimeout(draw,120); return; }
+if(!window.Plotly){ $("rmPlot").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("rmPlot")) return; $("rmPlot").innerHTML=""; }
 const mk=(name,fn,sym,col)=>{
 const x=[],y=[],t=[];
 for(let i=0;i<n;i++) if(fn(r.names[i])){ x.push(r.phi[i]); y.push(r.psi[i]); t.push(`${r.names[i]} ${r.nums[i]} (${r.aa[i]})<br>φ=${r.phi[i].toFixed(1)}°, ψ=${r.psi[i].toFixed(1)}°`); }
@@ -1266,7 +1289,7 @@ const renderNT = (ws, ch, tok) => {
       <div id="ntPlot" class="plot" style="height:370px"></div>
       <pre class="seq" id="ntSeq"></pre>
 </div>`;
-const upd=()=>{
+const upd=async()=>{
 if(tok!==viewToken||!$("ntPlot")) return;
 S.ntStrat=$("ntSt").value; S.ntWin=+$("ntW").value; S.ntEnds=$("ntE").checked; $("ntWv").textContent=S.ntWin+" nt";
 const [mrna,cdna]=revTranslate(ch.sequence,S.ntStrat,S.ntEnds), n=Math.max(1,cdna.length);
@@ -1277,7 +1300,7 @@ $("ntM").innerHTML=[["cDNA 長度",`${cdna.length} bp`],["GC%",`${(gc/n*100).toF
 .map(([l,v])=>`<div class="m"><div class="l">${l}</div><div class="v">${v}</div></div>`).join("");
 $("ntRare").innerHTML=rare.clusters?`<span class="badge b-warn">⚠️ 偵測到 ${rare.clusters} 處稀有密碼子簇（轉譯停頓風險）</span>`:`<span class="badge b-ok">✅ 未發現高風險稀有密碼子簇</span>`;
 $("ntSeq").textContent=cdna;
-if(!window.Plotly){ setTimeout(upd,120); return; }
+if(!window.Plotly){ $("ntPlot").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("ntPlot")) return; $("ntPlot").innerHTML=""; }
 const w=Math.min(S.ntWin,Math.max(3,cdna.length)), pos=[], lgc=[];
 const sc=new Float32Array(cdna.length);
 for(let i=0;i<cdna.length;i++){ const c=cdna[i]; sc[i]=(c==="G"||c==="C"||c==="S")?1:("RYKMN".includes(c)?0.5:0); }
@@ -1449,7 +1472,7 @@ const sl=(id,lbl,min,max,val)=>`<div><div class="sl-hdr"><span>${lbl}</span><b i
     </div>
 <div class="card"><div class="g4" id="thMetrics"></div><div id="thRate" style="margin-top:8px;font-size:13px;color:var(--ac2)"></div></div>`;
 let rev=1;
-const draw = (hiRes=false, recreate=false) => {
+const draw = async (hiRes=false, recreate=false) => {
 if(tok!==viewToken||!$("thMetrics")) return;
 const dga=S.a.n-S.a.u, dgb=S.b.n-S.b.u, eaa=S.a.ts-S.a.u, eab=S.b.ts-S.b.u;
 const warns=[];
@@ -1466,7 +1489,7 @@ if(eaa>0&&eab>0&&Math.abs(eaa-eab)>0.05){
 const ratio=Math.exp(Math.min(50,Math.abs(eaa-eab)/(8.3144626e-3*298.15)));
 $("thRate").textContent=`⚡ 298.15 K 理論折疊速率：${eaa<eab?"Model A":"Model B"} 約快 ${ratio.toFixed(1)}× ｜ 熱力學更穩定：${dga<dgb?"Model A":dgb<dga?"Model B":"相當"}`;
 } else $("thRate").textContent="⚡ 兩模型活化能障相當或存在無能障下坡折疊。";
-if(!window.Plotly){ setTimeout(()=>draw(hiRes,true),120); return; }
+if(!window.Plotly){ if($("thP1")) $("thP1").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("thP1")) return; $("thP1").innerHTML=""; }
 rev++;
 const renderP=(id,tr,lay)=>{ if(recreate){ try{Plotly.purge(id);}catch(_){} Plotly.newPlot(id,tr,lay,{responsive:true}); } else Plotly.react(id,tr,lay); };
 if(S.thSub==="2d"){
@@ -1478,7 +1501,7 @@ renderP("thP1",[
 {type:"scatter",mode:"markers",x:[0,.5,1],y:[S.b.u,S.b.ts,S.b.n],marker:{size:10,color:"#ea580c"},showlegend:false}
 ],sciLayout({title:"蛋白質折疊自由能剖面比較 (Free Energy Profile)",xaxis:{title:"反應座標 (Reaction Coordinate)",gridcolor:"#e2e8f0"},yaxis:{title:"吉布斯自由能 ΔG (kJ/mol)",gridcolor:"#e2e8f0"},hovermode:"x unified",datarevision:rev}));
 } else if(S.thSub==="3d"){
-const N=hiRes?96:48;
+const N=hiRes?64:40;
 const tMap={smooth:"平滑折疊漏斗 (Smooth Funnel)",rugged:"粗糙能量地景 (Rugged Landscape)",multi:"多盆地錯誤折疊地景 (Multi-basin)"};
 const mkLay=(ttl,zr)=>sciLayout({title:`${ttl} — ${tMap[S.fType]}`,margin:{l:10,r:10,t:46,b:10},scene:{xaxis:{title:"構形座標 1"},yaxis:{title:"構形座標 2"},zaxis:zr?{title:"有效自由能 (kJ/mol)",range:zr}:{title:"有效自由能 (kJ/mol)"},aspectratio:{x:1.2,y:1.2,z:.8}},uirevision:`fn_${S.fType}_${S.fTgt}`,datarevision:rev});
 if(S.fTgt==="Both"){
@@ -1702,6 +1725,7 @@ downloadBlob(JSON.stringify(obj,null,2),`${prefix}_project.json`,"application/js
 const loadBundle = (pdbText, title, keepMut=false) => {
 const b=parsePDB(pdbText, title);
 if(!b.chains.length){ toast("PDB 中找不到有效胺基酸鏈"); return; }
+S.dmCache=new WeakMap(); S.bpCache=new WeakMap(); S.ssCache=new WeakMap(); S.patchCache=new WeakMap();
 S.bundle=b; S.title=title; S.chainIdx=0; S.mutRes=b.chains[0].resNums[0];
 if(!keepMut){ S.pipe.mutations=[]; saveState(); }
 $("srcStatus").textContent=`✓ ${title} (${b.chains.length} chain${b.chains.length>1?"s":""})`;
