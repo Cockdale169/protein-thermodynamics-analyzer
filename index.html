@@ -4,79 +4,152 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🧬 Protein Thermodynamics & Wet-Lab Engineering Studio</title>
-<style>:root{--bg:#0b1120;--panel:#111827;--card:#1e293b;--bd:#334155;--tx:#f1f5f9;--mu:#94a3b8;--ac:#14b8a6;--ac2:#38bdf8;--warn:#f59e0b;--err:#ef4444;--ok:#10b981}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;min-height:100vh;font-size:14px}
-aside{width:276px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--bd);padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:100vh;position:sticky;top:0}
-main{flex:1;padding:18px 22px;overflow-x:hidden;min-width:0}
-h1{font-size:21px;font-weight:700;display:flex;align-items:center;gap:8px}
-h2{font-size:15px;font-weight:700;margin-bottom:8px;color:#e2e8f0}
-h3{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--ac2)}
-.sub{color:var(--mu);font-size:12.5px;margin:4px 0 14px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+<style>
+:root{--bg:#f5f5f7;--panel:rgba(255,255,255,.78);--card:#ffffff;--surf:#f5f5f7;--bd:rgba(0,0,0,.08);--bd-s:rgba(0,0,0,.14);--tx:#1d1d1f;--mu:#6e6e73;--ac:#0071e3;--ac-h:#0077ed;--ac2:#0066cc;--warn:#b25000;--err:#d70015;--ok:#1d8348;--sh:0 2px 12px rgba(0,0,0,.04),0 12px 32px rgba(0,0,0,.03);--sh-h:0 6px 20px rgba(0,0,0,.07),0 16px 40px rgba(0,0,0,.05)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:radial-gradient(ellipse 90% 50% at 72% -8%,rgba(0,113,227,.075),transparent 58%),radial-gradient(ellipse 60% 40% at 15% 100%,rgba(88,86,214,.05),transparent 60%),var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","PingFang TC",sans-serif;display:flex;min-height:100vh;font-size:14px;line-height:1.47;letter-spacing:-.01em}
+aside{width:292px;flex-shrink:0;background:var(--panel);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-right:1px solid var(--bd);padding:20px 18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:100vh;position:sticky;top:0}
+main{flex:1;padding:28px 34px 40px;overflow-x:hidden;min-width:0;max-width:1440px;margin:0 auto}
+h1{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.15;background:linear-gradient(135deg,#1d1d1f 0%,#424245 55%,#0071e3 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:10px}
+h2{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px;color:var(--tx)}
+h3{font-size:15px;font-weight:600;letter-spacing:-.015em;margin-bottom:10px;color:var(--tx)}
+.sub{color:var(--mu);font-size:14px;margin:6px 0 22px;line-height:1.5}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--sh);transition:box-shadow .25s ease,transform .25s ease}
+.card:hover{box-shadow:var(--sh-h)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-@media(max-width:960px){body{flex-direction:column}aside{width:100%;max-height:none;position:static}.g4,.g5,.g3,.g2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.m{background:#0f172a;border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
-.m .l{font-size:11.5px;color:var(--mu);margin-bottom:3px}.m .v{font-size:16.5px;font-weight:700;color:#fff}.m .d{font-size:11.5px;margin-top:2px;color:var(--ac2)}
-label{font-size:12px;color:var(--mu);display:block;margin-bottom:3px}
-select,input[type=text],input[type=number],input[type=file],textarea{width:100%;background:#0f172a;color:var(--tx);border:1px solid var(--bd);border-radius:7px;padding:6px 9px;font-size:12.5px;outline:none;font-family:inherit}
-select:focus,input:focus,textarea:focus{border-color:var(--ac)}
-input[type=range]{width:100%;accent-color:var(--ac);cursor:pointer}
-button{background:#1e293b;color:#f8fafc;border:1px solid var(--bd);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s}
-button:hover{background:#334155;border-color:#64748b}
-button.pri{background:var(--ac);color:#042f2e;border-color:var(--ac)}
-button.pri:hover{background:#2dd4bf}
-button.sm{padding:4px 9px;font-size:11.5px}
-.nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.nav button{padding:7px 11px;font-size:12.5px;border-radius:9px}
-.nav button.act{background:var(--ac);color:#042f2e;border-color:var(--ac)}
-.seg{display:inline-flex;background:#0f172a;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
-.seg button{border:none;border-radius:0;padding:5px 10px;font-size:12px;background:transparent;color:var(--mu)}
-.seg button.act{background:var(--ac);color:#042f2e}
-.badge{display:inline-block;padding:4px 9px;border-radius:7px;font-size:12px;font-weight:600}
-.b-ok{background:rgba(16,185,129,.18);color:#34d399;border:1px solid rgba(16,185,129,.35)}
-.b-warn{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
-.b-err{background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.35)}
-.b-info{background:rgba(56,189,248,.16);color:#38bdf8;border:1px solid rgba(56,189,248,.35)}
-pre.seq{background:#0f172a;color:#38bdf8;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-all;max-height:170px;overflow:auto;margin-top:6px}
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
-th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--bd)}
-th{background:#0f172a;color:var(--mu);font-size:11.5px}
-.hr{height:1px;background:var(--bd);margin:4px 0}
-.plot{width:100%;min-height:440px;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #cbd5e1}
-#molBox{width:100%;height:550px;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--bd);background:#070c18}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media(max-width:960px){body{flex-direction:column}aside{width:100%;max-height:none;position:static}main{padding:18px 16px}.g4,.g5,.g3,.g2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.m{background:var(--surf);border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:12px 14px;transition:background .2s}
+.m:hover{background:#ededf0}
+.m .l{font-size:11.5px;font-weight:500;color:var(--mu);margin-bottom:4px;letter-spacing:.005em}
+.m .v{font-size:19px;font-weight:600;color:var(--tx);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.m .d{font-size:11.5px;margin-top:3px;color:var(--ac2);font-weight:500;font-variant-numeric:tabular-nums}
+label{font-size:12px;font-weight:500;color:var(--mu);display:block;margin-bottom:5px}
+select,input[type=text],input[type=number],input[type=file],textarea{width:100%;background:#ffffff;color:var(--tx);border:1px solid #d2d2d7;border-radius:10px;padding:8px 11px;font-size:13px;outline:none;font-family:inherit;transition:border-color .18s,box-shadow .18s}
+select:focus,input:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3.5px rgba(0,113,227,.18)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:#d2d2d7;border-radius:99px;outline:none;cursor:pointer;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#ffffff;border:1px solid rgba(0,0,0,.15);box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+button{background:#ffffff;color:var(--tx);border:1px solid #d2d2d7;border-radius:980px;padding:8px 15px;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s cubic-bezier(.25,.1,.25,1)}
+button:hover{background:#f5f5f7;border-color:#b8b8bf}
+button:active{transform:scale(.98)}
+button.pri{background:var(--ac);color:#ffffff;border-color:var(--ac);box-shadow:0 2px 8px rgba(0,113,227,.25)}
+button.pri:hover{background:var(--ac-h);border-color:var(--ac-h);box-shadow:0 4px 14px rgba(0,113,227,.32)}
+button.sm{padding:5px 12px;font-size:12px}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;padding:6px;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(18px);border:1px solid var(--bd);border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.nav button{padding:8px 14px;font-size:13px;font-weight:500;border-radius:11px;border:none;background:transparent;color:var(--mu)}
+.nav button:hover{background:rgba(0,0,0,.05);color:var(--tx)}
+.nav button.act{background:#1d1d1f;color:#ffffff;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.seg{display:inline-flex;background:rgba(118,118,128,.12);border:none;border-radius:10px;padding:3px;gap:2px}
+.seg button{border:none;border-radius:7.5px;padding:5px 11px;font-size:12px;font-weight:500;background:transparent;color:var(--mu);box-shadow:none}
+.seg button:hover{color:var(--tx);background:rgba(255,255,255,.45)}
+.seg button.act{background:#ffffff;color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:980px;font-size:12px;font-weight:600}
+.b-ok{background:rgba(52,199,89,.14);color:#1d8348;border:1px solid rgba(52,199,89,.28)}
+.b-warn{background:rgba(255,149,0,.14);color:#b25000;border:1px solid rgba(255,149,0,.3)}
+.b-err{background:rgba(255,59,48,.13);color:#d70015;border:1px solid rgba(255,59,48,.28)}
+.b-info{background:rgba(0,113,227,.1);color:#0066cc;border:1px solid rgba(0,113,227,.22)}
+pre.seq{background:#1d1d1f;color:#64d2ff;border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:13px 15px;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-all;max-height:175px;overflow:auto;margin-top:8px;box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--bd);font-variant-numeric:tabular-nums}
+th{background:var(--surf);color:var(--mu);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+tr:hover td{background:rgba(0,113,227,.03)}
+.hr{height:1px;background:var(--bd);margin:2px 0}
+.plot{width:100%;min-height:440px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid var(--bd)}
+#molBox{width:100%;height:560px;position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:radial-gradient(circle at 50% 40%,#16181f,#08090c);box-shadow:0 16px 40px rgba(0,0,0,.16)}
 #molView{width:100%;height:100%;position:absolute;inset:0}
-#molBar{position:absolute;top:10px;left:10px;right:10px;z-index:10;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:rgba(15,23,42,.82);padding:7px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.1)}
-#molBar select{width:auto;padding:4px 7px;font-size:12px}
-#molTip{position:absolute;bottom:10px;left:10px;z-index:10;background:rgba(15,23,42,.9);color:#38bdf8;padding:5px 10px;border-radius:7px;border:1px solid rgba(56,189,248,.35);font-size:12px;display:none;pointer-events:none}
-#toast{position:fixed;bottom:18px;right:18px;z-index:999;background:#0f172a;color:#2dd4bf;border:1px solid #14b8a6;padding:10px 14px;border-radius:10px;font-size:13px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#molBar{position:absolute;top:14px;left:14px;right:14px;z-index:10;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgba(28,28,30,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);padding:8px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#molBar select,#molBar button{width:auto;padding:5px 10px;font-size:12px;background:rgba(255,255,255,.12);color:#f5f5f7;border:1px solid rgba(255,255,255,.16);border-radius:8px}
+#molBar select option{background:#1c1c1e;color:#f5f5f7}
+#molBar select:hover,#molBar button:hover{background:rgba(255,255,255,.22)}
+#molTip{position:absolute;bottom:14px;left:14px;z-index:10;background:rgba(28,28,30,.85);backdrop-filter:blur(16px);color:#64d2ff;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.15);font-size:12.5px;display:none;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;background:rgba(29,29,31,.92);backdrop-filter:saturate(180%) blur(20px);color:#ffffff;border:1px solid rgba(255,255,255,.12);padding:12px 18px;border-radius:14px;font-size:13px;font-weight:500;display:none;box-shadow:0 12px 36px rgba(0,0,0,.22)}
 .sl-hdr{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);margin-bottom:2px}
-.sl-hdr b{color:#fff}
-.prog{height:8px;background:#0f172a;border-radius:99px;overflow:hidden;border:1px solid var(--bd);margin:6px 0 10px}
-.prog>div{height:100%;background:linear-gradient(90deg,#14b8a6,#38bdf8);transition:width .2s}
-.chk-item{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;background:#0f172a;border:1px solid var(--bd);margin-bottom:6px;cursor:pointer}
+.sl-hdr b{color:var(--tx);font-variant-numeric:tabular-nums}
+.prog{height:7px;background:#e8e8ed;border-radius:99px;overflow:hidden;margin:10px 0 8px}
+.prog>div{height:100%;background:linear-gradient(90deg,#0071e3,#34c759);border-radius:99px;transition:width .3s cubic-bezier(.25,.1,.25,1)}
+.chk-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:12px;background:var(--surf);border:1px solid rgba(0,0,0,.04);margin-bottom:7px;cursor:pointer;transition:background .15s;color:var(--tx)}
+.chk-item:hover{background:#ebebef}
 .chk-item input{margin-top:3px;accent-color:var(--ac)}
-.chk-item.done{opacity:.65;text-decoration:line-through}
-.step-tag{display:inline-block;padding:2px 7px;border-radius:6px;background:rgba(20,184,166,.18);color:#2dd4bf;font-size:11px;font-weight:700;margin-right:6px}
-.hb{background:linear-gradient(135deg,rgba(15,23,42,.95),rgba(17,24,39,.95));border:1px solid rgba(20,184,166,.45);border-left:4px solid var(--ac);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.55}
-.hb-t{font-weight:700;color:#2dd4bf;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
-.hb-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.chk-item.done{opacity:.55;text-decoration:line-through}
+.step-tag{display:inline-block;padding:3px 9px;border-radius:980px;background:rgba(0,113,227,.1);color:var(--ac);font-size:11px;font-weight:700;letter-spacing:.03em;margin-right:8px}
+.hb{background:linear-gradient(135deg,#f0f7ff 0%,#f7f9fc 100%);border:1px solid rgba(0,113,227,.16);border-radius:18px;padding:16px 20px;margin-bottom:18px;font-size:13px;line-height:1.58;box-shadow:0 2px 10px rgba(0,113,227,.04)}
+.hb-t{font-weight:600;color:var(--ac);margin-bottom:10px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+.hb-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 @media(max-width:960px){.hb-g{grid-template-columns:1fr}}
-.hb-i b{color:#e2e8f0;display:block;font-size:11.5px;margin-bottom:2px}.hb-i span{color:var(--mu)}
-.mut-hl{background:rgba(245,158,11,.28);color:#fde047;font-weight:700;padding:0 2px;border-radius:3px}
+.hb-i{background:rgba(255,255,255,.78);border-radius:12px;padding:10px 12px;border:1px solid rgba(0,0,0,.05)}
+.hb-i b{color:var(--tx);display:block;font-size:12px;margin-bottom:3px}.hb-i span{color:#424245;font-size:12.5px}
+.mut-hl{background:rgba(255,214,10,.3);color:#ffd60a;font-weight:700;padding:1px 4px;border-radius:4px}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);background:rgba(0,113,227,.09);padding:4px 11px;border-radius:980px;margin-bottom:8px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+#workspace>*{animation:appleIn .28s cubic-bezier(.16,1,.3,1) both}
+@keyframes appleIn{from{opacity:0;transform:translateY(8px) scale(.994)}to{opacity:1;transform:none}}
+.card{box-shadow:inset 0 1px 0 rgba(255,255,255,.85),var(--sh)}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(128,128,136,.32);border-radius:99px}::-webkit-scrollbar-thumb:hover{background:rgba(128,128,136,.52)}
+[data-theme=dark]{--bg:#000000;--panel:rgba(28,28,30,.78);--card:#1c1c1e;--surf:#2c2c2e;--bd:rgba(255,255,255,.1);--bd-s:rgba(255,255,255,.18);--tx:#f5f5f7;--mu:#98989d;--ac:#2997ff;--ac-h:#47a6ff;--ac2:#64d2ff;--sh:0 4px 20px rgba(0,0,0,.45),0 16px 44px rgba(0,0,0,.35);--sh-h:0 8px 28px rgba(0,0,0,.6)}
+[data-theme=dark] body{background:radial-gradient(ellipse 85% 45% at 72% -10%,rgba(41,151,255,.14),transparent 58%),radial-gradient(ellipse 60% 40% at 12% 100%,rgba(191,90,242,.08),transparent 60%),#000000}
+[data-theme=dark] h1{background:linear-gradient(135deg,#ffffff 0%,#d1d1d6 55%,#2997ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+[data-theme=dark] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.08),var(--sh)}
+[data-theme=dark] .m:hover{background:#3a3a3c}
+[data-theme=dark] select,[data-theme=dark] input[type=text],[data-theme=dark] input[type=number],[data-theme=dark] input[type=file],[data-theme=dark] textarea{background:#2c2c2e;border-color:rgba(255,255,255,.14);color:#f5f5f7}
+[data-theme=dark] button{background:#2c2c2e;color:#f5f5f7;border-color:rgba(255,255,255,.14)}
+[data-theme=dark] button:hover{background:#3a3a3c;border-color:rgba(255,255,255,.24)}
+[data-theme=dark] button.pri{background:#0071e3;color:#ffffff;border-color:#0071e3}
+[data-theme=dark] .nav{background:rgba(28,28,30,.75)}
+[data-theme=dark] .nav button.act{background:#f5f5f7;color:#000000}
+[data-theme=dark] .seg{background:rgba(118,118,128,.24)}
+[data-theme=dark] .seg button.act{background:#636366;color:#ffffff}
+[data-theme=dark] .hb{background:linear-gradient(135deg,rgba(41,151,255,.12),rgba(28,28,30,.95));border-color:rgba(41,151,255,.28)}
+[data-theme=dark] .hb-i{background:rgba(44,44,46,.75);border-color:rgba(255,255,255,.07)}
+[data-theme=dark] .hb-i span{color:#d1d1d6}
+[data-theme=dark] .chk-item:hover{background:#3a3a3c}
+[data-theme=dark] .prog{background:#2c2c2e}
+[data-theme=dark] .b-ok{background:rgba(48,209,88,.18);color:#30d158}
+[data-theme=dark] .b-warn{background:rgba(255,159,10,.18);color:#ff9f0a}
+[data-theme=dark] .b-err{background:rgba(255,69,58,.18);color:#ff453a}
+[data-theme=dark] .b-info{background:rgba(41,151,255,.18);color:#64d2ff}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;background:radial-gradient(circle 42vw at 78% 12%,rgba(0,113,227,.08),transparent 70%),radial-gradient(circle 36vw at 18% 82%,rgba(94,92,230,.06),transparent 70%);animation:aurora 22s ease-in-out infinite alternate;will-change:transform}
+[data-theme=dark] body::before{background:radial-gradient(circle 45vw at 78% 12%,rgba(41,151,255,.15),transparent 70%),radial-gradient(circle 38vw at 18% 82%,rgba(191,90,242,.1),transparent 70%)}
+@keyframes aurora{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-2%,1.8%,0) scale(1.04)}}
+.card{position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s ease;background:radial-gradient(460px circle at var(--mx,50%) var(--my,50%),rgba(0,113,227,.065),transparent 60%)}
+[data-theme=dark] .card::before{background:radial-gradient(460px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.065),transparent 60%)}
+.card:hover::before{opacity:1}
+.nav{position:sticky;top:12px;z-index:30;box-shadow:0 8px 28px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.8)}
+[data-theme=dark] .nav{box-shadow:0 12px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.cmd-btn{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:980px;background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border:1px solid var(--bd-s);color:var(--mu);font-size:12.5px;font-weight:500;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .18s}
+.cmd-btn:hover{color:var(--tx);border-color:var(--ac);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,113,227,.14)}
+.cmd-btn kbd{font-family:inherit;font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;background:rgba(118,118,128,.14);color:var(--tx)}
+[data-theme=dark] .cmd-btn{background:rgba(44,44,46,.75);color:#aeaeb2}
+pre.seq{position:relative;cursor:pointer;transition:border-color .18s}
+pre.seq:hover{border-color:var(--ac)}
+pre.seq::after{content:"點擊複製";position:sticky;float:right;top:0;font-family:-apple-system,sans-serif;font-size:10.5px;font-weight:600;color:#a1a1a6;background:rgba(255,255,255,.1);padding:2px 7px;border-radius:6px;opacity:0;transition:opacity .15s;pointer-events:none}
+pre.seq:hover::after{opacity:1}
+#cmdModal{position:fixed;inset:0;z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:12vh;background:rgba(0,0,0,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#cmdModal.open{display:flex;animation:appleIn .18s ease}
+.cmd-box{width:min(580px,92vw);background:rgba(255,255,255,.92);backdrop-filter:saturate(200%) blur(32px);border:1px solid rgba(0,0,0,.1);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.24);overflow:hidden}
+[data-theme=dark] .cmd-box{background:rgba(28,28,30,.92);border-color:rgba(255,255,255,.16);box-shadow:0 28px 90px rgba(0,0,0,.7)}
+.cmd-in{width:100%;border:none!important;border-bottom:1px solid var(--bd)!important;border-radius:0!important;padding:16px 20px!important;font-size:16px!important;background:transparent!important;box-shadow:none!important}
+.cmd-list{max-height:340px;overflow-y:auto;padding:8px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--tx);transition:background .12s}
+.cmd-item:hover,.cmd-item.sel{background:var(--ac);color:#ffffff}
+.cmd-item span.k{font-size:11.5px;opacity:.7}
 </style>
 </head>
 <body>
 <aside>
-<div class="row" style="justify-content:space-between">
-<strong style="font-size:14px">🧬 Protein Studio Pro</strong>
+<div class="row" style="justify-content:space-between;gap:6px">
+<strong style="font-size:14.5px;letter-spacing:-.02em">🧬 Protein Studio</strong>
+<div class="row" style="gap:5px">
+<button id="btnTheme" class="sm" style="padding:4px 8px" title="切換 Apple 淺色 / Pro 深色">☀️</button>
 <div class="seg" id="langSeg">
 <button data-l="zh" class="act">中文</button>
 <button data-l="en">EN</button>
+</div>
 </div>
 </div>
 <div class="hr"></div>
@@ -138,6 +211,10 @@ th{background:#0f172a;color:var(--mu);font-size:11.5px}
 <div style="font-size:11.5px;color:var(--mu);line-height:1.5" id="sideHint"></div>
 </aside>
 <main>
+<div class="hero-top">
+<div class="eyebrow">Protein Biophysics · In Silico Pro Studio</div>
+<button class="cmd-btn" id="btnCmd">🔍 Spotlight 快速指令 <kbd>Ctrl K</kbd></button>
+</div>
 <h1 id="appTitle"></h1>
 <div class="sub" id="appSub"></div>
 <div class="card" id="topSummary">
@@ -151,6 +228,7 @@ th{background:#0f172a;color:var(--mu);font-size:11.5px}
 <div class="nav" id="navBar"></div>
 <div id="workspace"></div>
 </main>
+<div id="cmdModal"><div class="cmd-box"><input type="text" id="cmdIn" class="cmd-in" placeholder="搜尋模組、蛋白質 (1CRN / 4HHB / TP53) 或切換外觀..."><div class="cmd-list" id="cmdList"></div></div></div>
 <div id="toast"></div>
 <script type="text/plain" id="sample1ubq">ATOM      1  N   MET A   1      27.340  24.430   2.614  1.00  9.67           N
 ATOM      2  CA  MET A   1      26.266  25.413   2.842  1.00 10.38           C
@@ -603,13 +681,14 @@ pipe:{ mutations:[], vector:"pet28", pcrN:4, pcrVol:50, notes:"", checks:{} },
 lastPrimers:null
 };
 const saveState = () => {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify({lang:S.lang,handbook:S.handbook,a:S.a,b:S.b,clN:S.clN,clC:S.clC,clP:S.clP,clL:S.clL,clM:S.clM,clAl:S.clAl,pipe:S.pipe})); } catch(_) {}
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({lang:S.lang,theme:S.theme||"light",handbook:S.handbook,a:S.a,b:S.b,clN:S.clN,clC:S.clC,clP:S.clP,clL:S.clL,clM:S.clM,clAl:S.clAl,pipe:S.pipe})); } catch(_) {}
 };
 const loadSavedState = () => {
   try {
     const raw=localStorage.getItem(STORE_KEY); if(!raw) return;
     const d=JSON.parse(raw);
     if(d.lang) S.lang=d.lang;
+    if(d.theme) S.theme=d.theme;
     if(typeof d.handbook==="boolean") S.handbook=d.handbook;
     if(d.a) Object.assign(S.a,d.a);
     if(d.b) Object.assign(S.b,d.b);
@@ -813,10 +892,35 @@ const imp=ddg>=10?["顯著去穩定 (Highly Destabilizing)","b-err"]:ddg>=3?["�
 return {mut:`${orig}${resNum}${tgtAa}`,resNum,orig,tgtAa,ss,buried,loc,ddg,kcal,dtm,imp:imp[0],cls:imp[1]};
 };
 const revComp = s => [...s.toUpperCase()].reverse().map(c=>RC_MAP[c]||c).join("");
+const NN_DH = {AA:-7.9,TT:-7.9,AT:-7.2,TA:-7.2,CA:-8.5,TG:-8.5,GT:-8.4,AC:-8.4,CT:-7.8,AG:-7.8,GA:-8.2,TC:-8.2,CG:-10.6,GC:-9.8,GG:-8.0,CC:-8.0};
+const NN_DS = {AA:-22.2,TT:-22.2,AT:-20.4,TA:-21.3,CA:-22.7,TG:-22.7,GT:-22.4,AC:-22.4,CT:-21.0,AG:-21.0,GA:-22.2,TC:-22.2,CG:-27.2,GC:-24.4,GG:-19.9,CC:-19.9};
 const primerTm = s => {
-const u=s.toUpperCase(), n=u.length; if(!n) return 0;
-let gc=0; for(const c of u) if(c==="G"||c==="C") gc++;
-return +(n<14 ? 2*(n-gc)+4*gc : 64.9+41*(gc-16.4)/n).toFixed(1);
+const u=s.toUpperCase().replace(/[^ACGT]/g,""), n=u.length; if(!n) return 0;
+if(n<10){ let gc=0; for(const c of u) if(c==="G"||c==="C") gc++; return +(2*(n-gc)+4*gc).toFixed(1); }
+let dh=0.2, ds=-5.7;
+if(u[0]==="A"||u[0]==="T"){ dh+=2.3; ds+=4.1; } else { dh+=0.1; ds+=-2.8; }
+if(u[n-1]==="A"||u[n-1]==="T"){ dh+=2.3; ds+=4.1; } else { dh+=0.1; ds+=-2.8; }
+for(let i=0;i<n-1;i++){ const p=u.slice(i,i+2); dh+=NN_DH[p]||-8.0; ds+=NN_DS[p]||-22.0; }
+const dsSalt = ds + 0.368 * (n - 1) * Math.log(0.05);
+const tmK = (dh * 1000) / (dsSalt + 1.987 * Math.log(250e-9 / 4));
+return +(tmK - 273.15).toFixed(1);
+};
+const checkPrimerQC = (fwd, rev) => {
+const comp = {A:"T",T:"A",G:"C",C:"G"};
+const maxMatch = (a, b) => {
+  let best=0; const u=a.toUpperCase(), v=b.toUpperCase();
+  for(let shift=-v.length+1; shift<u.length; shift++){
+    let cur=0;
+    for(let i=0;i<u.length;i++){
+      const j=i-shift;
+      if(j>=0&&j<v.length&&comp[u[i]]===v[v.length-1-j]){ cur++; if(cur>best) best=cur; } else cur=0;
+    }
+  }
+  return best;
+};
+const selfF=maxMatch(fwd.slice(-14),fwd.slice(-14)), selfR=maxMatch(rev.slice(-14),rev.slice(-14)), cross=maxMatch(fwd.slice(-12),rev.slice(-12));
+const gcClamp=(fwd.endsWith("G")||fwd.endsWith("C"))&&(rev.endsWith("G")||rev.endsWith("C"));
+return {selfF, selfR, cross, gcClamp, ok:selfF<6&&selfR<6&&cross<6};
 };
 const revTranslate = (aa, strat="ecoli", ends=false) => {
 const tbl=CODONS[strat]||CODONS.ecoli, u=aa.toUpperCase();
@@ -1222,7 +1326,13 @@ const ss=getDisulfide(ch), pat=getPatches(ch);
     <div class="card">
       <h3>🔗 2. 二硫鍵工程設計 (De Novo S-S)</h3>
       <div style="font-size:12.5px;color:var(--mu);margin-bottom:6px">${ss.native.length?"天然二硫鍵: "+ss.native.map(b=>`CYS${b.r1}↔CYS${b.r2} (${b.d}Å)`).join(" | "):"未偵測到既有天然二硫鍵。"}</div>
-      ${ss.cands.length?`<table><thead><tr><th>位點 1</th><th>位點 2</th><th>Cα</th><th>Cβ</th><th>間距</th><th>預估 ΔΔG</th><th>預估 ΔTm</th><th>操作</th></tr></thead><tbody>${ss.cands.map((c,i)=>`<tr><td><b>${c.a1}${c.r1}</b> (${c.s1})</td><td><b>${c.a2}${c.r2}</b> (${c.s2})</td><td>${c.dca} Å</td><td>${c.dcb} Å</td><td>${c.sd} aa</td><td style="color:#34d399;font-weight:700">${c.ddg} kJ/mol</td><td style="color:#38bdf8;font-weight:700">+${c.tm} °C</td><td><button class="sm ssLock" data-i="${i}">+ 加入實驗</button></td></tr>`).join("")}</tbody></table>`:"<div style='color:var(--mu)'>未發現理想二硫鍵候選對。</div>"}
+      ${ss.cands.length?`<table><thead><tr><th>位點 1</th><th>位點 2</th><th>Cα</th><th>Cβ</th><th>間距</th><th>預估 ΔΔG</th><th>預估 ΔTm</th><th>操作</th></tr></thead><tbody>${ss.cands.map((c,i)=>`<tr><td><b>${c.a1}${c.r1}</b> (${c.s1})</td><td><b>${c.a2}${c.r2}</b> (${c.s2})</td><td>${c.dca} Å</td><td>${c.dcb} Å</td><td>${c.sd} aa</td><td style="color:#1d8348;font-weight:700">${c.ddg} kJ/mol</td><td style="color:#0071e3;font-weight:700">+${c.tm} °C</td><td><button class="sm ssLock" data-i="${i}">+ 加入實驗</button></td></tr>`).join("")}</tbody></table>`:"<div style='color:var(--mu)'>未發現理想二硫鍵候選對。</div>"}
+    </div>
+    <div class="card">
+      <h3>📊 4. 全序列丙胺酸掃描 (Full-Chain Alanine Scanning)</h3>
+      <div style="font-size:12px;color:var(--mu);margin-bottom:8px">一鍵計算整條鏈每個殘基突變為 Ala 的 ΔΔG (kJ/mol)，快速鎖定結構核心熱點（正值紅＝去穩定、負值綠＝穩定化）。</div>
+      <button class="pri sm" id="btnAlaScan">🚀 執行全序列丙胺酸掃描 (${ch.n} aa)</button>
+      <div id="alaOut" style="margin-top:10px"></div>
     </div>
     <div class="card">
       <h3>⚠️ 3. 表面疏水斑塊與聚集風險</h3>
@@ -1263,6 +1373,30 @@ updateSidebarParams(); toast(`已同步 ${r.mut} 至 Model B！`);
 $("btnLockMut").onclick=()=>{ if(r.orig===r.tgtAa){ toast("野生型無需加入突變"); return; } lockMut(r.resNum,r.tgtAa,r.mut,r.ddg); };
 };
 $("mRes").onchange=updMut; $("mAa").onchange=updMut; updMut();
+$("btnAlaScan").onclick=()=>{
+  const xs=[], ys=[], cols=[], txt=[];
+  for(let i=0;i<ch.n;i++){
+    const rn=ch.resNums[i], r=predictMut(ch,rn,"A");
+    xs.push(`${ch.sequence[i]}${rn}`); ys.push(r?r.ddg:0);
+    cols.push(r&&r.ddg>=10?"#ef4444":r&&r.ddg>=3?"#f59e0b":r&&r.ddg<=-2?"#10b981":"#38bdf8");
+    txt.push(`${ch.sequence[i]}${rn}A | ΔΔG=${r?r.ddg:0} kJ/mol | ${r?.buried?"核心":"表面"}`);
+  }
+  const hot=xs.map((l,i)=>({l,v:ys[i],rn:ch.resNums[i]})).filter(x=>x.v>=10).sort((a,b)=>b.v-a.v).slice(0,5);
+  $("alaOut").innerHTML=`
+    <div style="margin-bottom:8px">${hot.length?`<span class="badge b-err">核心熱點 Top 5: ${hot.map(h=>`${h.l} (+${h.v})`).join(", ")}</span>`:`<span class="badge b-ok">無顯著高風險空洞熱點</span>`}</div>
+    <canvas id="alaCv" height="150" style="width:100%;height:150px;background:#fff;border-radius:8px;border:1px solid #cbd5e1"></canvas>`;
+  const cv=$("alaCv"), W=cv.width=cv.clientWidth||720, H=cv.height=150, ctx=cv.getContext("2d");
+  const maxY=Math.max(15,...ys.map(Math.abs)), midY=H*0.65, bw=Math.max(2,(W-40)/xs.length);
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="#cbd5e1"; ctx.beginPath(); ctx.moveTo(20,midY); ctx.lineTo(W-10,midY); ctx.stroke();
+  for(let i=0;i<xs.length;i++){
+    const bh=(ys[i]/maxY)*(H*0.52);
+    ctx.fillStyle=cols[i];
+    ctx.fillRect(20+i*bw, ys[i]>=0?midY-bh:midY, Math.max(1,bw-1), Math.abs(bh));
+  }
+  ctx.fillStyle="#334155"; ctx.font="11px sans-serif";
+  ctx.fillText(`+${maxY.toFixed(0)} kJ/mol`,4,14); ctx.fillText("0",8,midY+4);
+};
 };
 const renderFasta = ws => {
 ws.innerHTML=S.bundle.chains.map(c=>{
@@ -1282,7 +1416,7 @@ const renderNT = (ws, ch, tok) => {
       <div class="g3" style="margin-bottom:10px">
         <div><label>宿主密碼子策略</label><select id="ntSt"><option value="ecoli" ${S.ntStrat==="ecoli"?"selected":""}>E. coli</option><option value="human" ${S.ntStrat==="human"?"selected":""}>Homo sapiens</option><option value="deg" ${S.ntStrat==="deg"?"selected":""}>IUPAC Degenerate</option></select></div>
         <div><div class="sl-hdr"><span>GC% 視窗 (nt)</span><b id="ntWv">${S.ntWin} nt</b></div><input type="range" id="ntW" min="9" max="45" step="3" value="${S.ntWin}"></div>
-        <div style="display:flex;align-items:center"><label style="margin:0;cursor:pointer;color:#e2e8f0"><input type="checkbox" id="ntE" ${S.ntEnds?"checked":""}> 含起始 (ATG) 與終止碼</label></div>
+        <div style="display:flex;align-items:center"><label style="margin:0;cursor:pointer;color:var(--tx)"><input type="checkbox" id="ntE" ${S.ntEnds?"checked":""}> 含起始 (ATG) 與終止碼</label></div>
       </div>
       <div class="g5" id="ntM" style="margin-bottom:10px"></div>
       <div id="ntRare" style="margin-bottom:10px"></div>
@@ -1368,8 +1502,10 @@ $("cAa").textContent=`(${p.eng.fullAa.length} aa | ${p.cdna.length} bp) ${p.eng.
 const body=$("clBody");
 const showPr=r=>{
 S.lastPrimers=r;
+const qc=checkPrimerQC(r.ff, r.rf);
       $("prRes").innerHTML=`
-        <div class="g3" style="margin:10px 0"><div class="m"><div class="l">Forward Tm</div><div class="v">${r.ft} °C</div></div><div class="m"><div class="l">Reverse Tm</div><div class="v">${r.rt} °C</div></div><div class="m"><div class="l">建議 PCR Ta</div><div class="v">${r.ta} °C</div></div></div>
+        <div class="g3" style="margin:10px 0"><div class="m"><div class="l">Forward Tm (NN)</div><div class="v">${r.ft} °C</div></div><div class="m"><div class="l">Reverse Tm (NN)</div><div class="v">${r.rt} °C</div></div><div class="m"><div class="l">建議 PCR Ta</div><div class="v">${r.ta} °C</div></div></div>
+        <div style="margin-bottom:8px"><span class="badge ${qc.ok?"b-ok":"b-warn"}">${qc.ok?"✓ 引子二聚體 / 髮夾檢查通過":"⚠️ 偵測到潛在引子二聚體"} (Self: ${qc.selfF}/${qc.selfR} bp, Cross: ${qc.cross} bp, 3' GC-Clamp: ${qc.gcClamp?"✓":"無"})</span></div>
         <label>5' Forward Primer (${r.ff.length} nt)</label><pre class="seq">${r.ff}</pre>
 <label style="margin-top:8px">3' Reverse Primer (${r.rf.length} nt)</label><pre class="seq">${r.rf}</pre>`;
 };
@@ -1622,7 +1758,7 @@ const doneCnt=steps.filter(([k])=>S.pipe.checks[k]).length, pct=Math.round(doneC
       <h3><span class="step-tag">STAGE 1-2</span>構築體性質與表現宿主決策</h3>
       <div class="g2" style="margin-bottom:10px">
         <div><label>表現載體與宿主系統</label><select id="labVec">${Object.entries(VECTORS).map(([k,v])=>`<option value="${k}" ${k===S.pipe.vector?"selected":""}>${v.name}</option>`).join("")}</select></div>
-        <div class="m"><div class="l">系統建議與誘導條件</div><div style="font-size:12px;color:#e2e8f0">${vec.ab} ｜ ${vec.ind}</div><div class="d">${vec.note}</div></div>
+        <div class="m"><div class="l">系統建議與誘導條件</div><div style="font-size:12.5px;color:var(--tx);font-weight:500">${vec.ab} ｜ ${vec.ind}</div><div class="d">${vec.note}</div></div>
       </div>
       ${hasSS&&S.pipe.vector==="pet28"?`<div style="margin-bottom:8px"><span class="badge b-warn">⚠️ 偵測到二硫鍵需求（Cys=${fullBio.cys}），建議切換至 SHuffle T7 或 Expi293 真核系統！</span></div>`:""}
       ${pat.nP>=2?`<div style="margin-bottom:8px"><span class="badge b-warn">⚠️ 表面疏水斑塊偏高（${pat.nP} 個），建議降溫至 16°C 低濃度 IPTG 誘導或改用 pGEX (GST 助溶)。</span></div>`:""}
@@ -1669,8 +1805,8 @@ const doneCnt=steps.filter(([k])=>S.pipe.checks[k]).length, pct=Math.round(doneC
     <div class="card">
       <h3><span class="step-tag">STAGE 4-5</span>純化緩衝液策略與實驗查檢表 (Checklist)</h3>
       <div class="g2" style="margin-bottom:10px">
-        <div class="m"><div class="l">親和層析 (Step 1)</div><div style="font-size:12.5px;color:#e2e8f0">${resin}</div></div>
-        <div class="m"><div class="l">精製拋光 & DSF QC (Step 2)</div><div style="font-size:12.5px;color:#e2e8f0">${iex} → SEC ｜ DSF 建議 0.2 mg/mL (A₂₈₀≈${(fullBio.abs01*0.2).toFixed(3)})</div></div>
+        <div class="m"><div class="l">親和層析 (Step 1)</div><div style="font-size:12.5px;color:var(--tx);font-weight:500">${resin}</div></div>
+        <div class="m"><div class="l">精製拋光 & DSF QC (Step 2)</div><div style="font-size:12.5px;color:var(--tx);font-weight:500">${iex} → SEC ｜ DSF 建議 0.2 mg/mL (A₂₈₀≈${(fullBio.abs01*0.2).toFixed(3)})</div></div>
       </div>
       <div>${steps.map(([k,txt])=>`<label class="chk-item ${S.pipe.checks[k]?"done":""}"><input type="checkbox" class="labChk" data-k="${k}" ${S.pipe.checks[k]?"checked":""}><span>${txt}</span></label>`).join("")}</div>
       <label style="margin-top:8px">實驗備註 (Lab Notes)</label>
@@ -1775,6 +1911,12 @@ const res=await fetch(pdbUrl); if(!res.ok) throw new Error(`PDB HTTP ${res.statu
 loadBundle(await res.text(),`${cid} (AlphaFold DB)`); toast(`已載入 AlphaFold ${cid}`);
 }catch(e){ $("srcStatus").textContent=`✕ AFDB 失敗: ${e.message}`; toast("無法抓取 AlphaFold DB，請確認 UniProt ID"); }
 };
+const applyTheme = th => {
+  S.theme = th === "dark" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", S.theme);
+  if ($("btnTheme")) $("btnTheme").textContent = S.theme === "dark" ? "🌙" : "☀️";
+};
+$("btnTheme").onclick = () => { applyTheme(S.theme === "dark" ? "light" : "dark"); saveState(); };
 $("langSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.lang=b.dataset.l; $("langSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b)); saveState(); renderHeader(); renderTab(); });
 $("btnHandbook").onclick=()=>{ S.handbook=!S.handbook; saveState(); renderHeader(); renderTab(); };
 $("btnShare").onclick=async()=>{
@@ -1800,6 +1942,7 @@ $("pdbFile").onchange=async e=>{ const f=e.target.files[0]; if(f) loadBundle(awa
 $("topChainSel").onchange=()=>{ S.chainIdx=+$("topChainSel").value; S.pipe.mutations=[]; saveState(); renderHeader(); renderTab(); };
 window.addEventListener("DOMContentLoaded",()=>{
 loadSavedState();
+applyTheme(S.theme||"light");
 $("langSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x.dataset.l===S.lang));
 const qs=new URLSearchParams(location.search);
 const qPdb=qs.get("pdb"), qAfdb=qs.get("afdb");
@@ -1807,6 +1950,47 @@ if(qPdb){ $("rcsbId").value=qPdb.toUpperCase(); fetchRCSB(qPdb); }
 else if(qAfdb){ $("afdbId").value=qAfdb.toUpperCase(); fetchAFDB(qAfdb); }
 else loadBundle($("sample1ubq").textContent,"1UBQ (Ubiquitin)",true);
 });
+// @ux: Vision Pro specular card sheen + click-to-copy sequences + Spotlight Command Palette (Ctrl+K)
+document.addEventListener("pointermove", e => {
+  const c = e.target.closest?.(".card"); if (!c) return;
+  const r = c.getBoundingClientRect();
+  c.style.setProperty("--mx", (e.clientX - r.left) + "px");
+  c.style.setProperty("--my", (e.clientY - r.top) + "px");
+}, { passive: true });
+document.addEventListener("click", async e => {
+  const pre = e.target.closest?.("pre.seq"); if (!pre) return;
+  try { await navigator.clipboard.writeText(pre.textContent.trim()); toast("✓ 已複製序列至剪貼簿"); } catch (_) {}
+});
+const cmdItems = () => [
+  ...I18N[S.lang].nav.map(([k, l]) => ({ t: l, k: "模組", fn: () => { S.tab = k; renderHeader(); renderTab(); } })),
+  { t: "🌐 載入 RCSB 1CRN (Crambin)", k: "RCSB", fn: () => fetchRCSB("1CRN") },
+  { t: "🌐 載入 RCSB 1UBQ (真實晶體 Ubiquitin)", k: "RCSB", fn: () => fetchRCSB("1UBQ") },
+  { t: "🌐 載入 RCSB 4HHB (Hemoglobin)", k: "RCSB", fn: () => fetchRCSB("4HHB") },
+  { t: "🤖 載入 AlphaFold P04637 (TP53)", k: "AFDB", fn: () => fetchAFDB("P04637") },
+  { t: "🤖 載入 AlphaFold P69905 (HBA1)", k: "AFDB", fn: () => fetchAFDB("P69905") },
+  { t: "☀️ / 🌙 切換 Apple 淺色 / Pro 深色外觀", k: "外觀", fn: () => { applyTheme(S.theme === "dark" ? "light" : "dark"); saveState(); } },
+  { t: "📖 切換實驗室手冊顯示", k: "手冊", fn: () => { S.handbook = !S.handbook; saveState(); renderHeader(); renderTab(); } }
+];
+let cmdIdx = 0, cmdFiltered = [];
+const renderCmd = () => {
+  const q = ($("cmdIn").value || "").trim().toLowerCase();
+  cmdFiltered = cmdItems().filter(x => x.t.toLowerCase().includes(q) || x.k.toLowerCase().includes(q));
+  cmdIdx = Math.min(cmdIdx, Math.max(0, cmdFiltered.length - 1));
+  $("cmdList").innerHTML = cmdFiltered.map((x, i) => `<div class="cmd-item ${i===cmdIdx?"sel":""}" data-i="${i}"><span>${x.t}</span><span class="k">${x.k}</span></div>`).join("") || `<div style="padding:14px;color:var(--mu);text-align:center">查無符合指令</div>`;
+  $("cmdList").querySelectorAll(".cmd-item").forEach(el => el.onclick = () => { closeCmd(); cmdFiltered[+el.dataset.i]?.fn(); });
+};
+const openCmd = () => { $("cmdModal").classList.add("open"); $("cmdIn").value = ""; cmdIdx = 0; renderCmd(); setTimeout(() => $("cmdIn").focus(), 20); };
+const closeCmd = () => $("cmdModal").classList.remove("open");
+$("btnCmd").onclick = openCmd;
+$("cmdModal").onclick = e => { if (e.target === $("cmdModal")) closeCmd(); };
+$("cmdIn").oninput = () => { cmdIdx = 0; renderCmd(); };
+$("cmdIn").onkeydown = e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); cmdIdx = (cmdIdx + 1) % Math.max(1, cmdFiltered.length); renderCmd(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); cmdIdx = (cmdIdx - 1 + Math.max(1, cmdFiltered.length)) % Math.max(1, cmdFiltered.length); renderCmd(); }
+  else if (e.key === "Enter" && cmdFiltered[cmdIdx]) { e.preventDefault(); const fn = cmdFiltered[cmdIdx].fn; closeCmd(); fn(); }
+  else if (e.key === "Escape") closeCmd();
+};
+window.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("cmdModal").classList.contains("open") ? closeCmd() : openCmd(); } });
 })();
 </script>
 </body>
