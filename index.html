@@ -1,0 +1,1789 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🧬 Protein Thermodynamics & Wet-Lab Engineering Studio</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js" defer></script>
+<style>:root{--bg:#0b1120;--panel:#111827;--card:#1e293b;--bd:#334155;--tx:#f1f5f9;--mu:#94a3b8;--ac:#14b8a6;--ac2:#38bdf8;--warn:#f59e0b;--err:#ef4444;--ok:#10b981}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;min-height:100vh;font-size:14px}
+aside{width:276px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--bd);padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:100vh;position:sticky;top:0}
+main{flex:1;padding:18px 22px;overflow-x:hidden;min-width:0}
+h1{font-size:21px;font-weight:700;display:flex;align-items:center;gap:8px}
+h2{font-size:15px;font-weight:700;margin-bottom:8px;color:#e2e8f0}
+h3{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--ac2)}
+.sub{color:var(--mu);font-size:12.5px;margin:4px 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media(max-width:960px){body{flex-direction:column}aside{width:100%;max-height:none;position:static}.g4,.g5,.g3,.g2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.m{background:#0f172a;border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
+.m .l{font-size:11.5px;color:var(--mu);margin-bottom:3px}.m .v{font-size:16.5px;font-weight:700;color:#fff}.m .d{font-size:11.5px;margin-top:2px;color:var(--ac2)}
+label{font-size:12px;color:var(--mu);display:block;margin-bottom:3px}
+select,input[type=text],input[type=number],input[type=file],textarea{width:100%;background:#0f172a;color:var(--tx);border:1px solid var(--bd);border-radius:7px;padding:6px 9px;font-size:12.5px;outline:none;font-family:inherit}
+select:focus,input:focus,textarea:focus{border-color:var(--ac)}
+input[type=range]{width:100%;accent-color:var(--ac);cursor:pointer}
+button{background:#1e293b;color:#f8fafc;border:1px solid var(--bd);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s}
+button:hover{background:#334155;border-color:#64748b}
+button.pri{background:var(--ac);color:#042f2e;border-color:var(--ac)}
+button.pri:hover{background:#2dd4bf}
+button.sm{padding:4px 9px;font-size:11.5px}
+.nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.nav button{padding:7px 11px;font-size:12.5px;border-radius:9px}
+.nav button.act{background:var(--ac);color:#042f2e;border-color:var(--ac)}
+.seg{display:inline-flex;background:#0f172a;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{border:none;border-radius:0;padding:5px 10px;font-size:12px;background:transparent;color:var(--mu)}
+.seg button.act{background:var(--ac);color:#042f2e}
+.badge{display:inline-block;padding:4px 9px;border-radius:7px;font-size:12px;font-weight:600}
+.b-ok{background:rgba(16,185,129,.18);color:#34d399;border:1px solid rgba(16,185,129,.35)}
+.b-warn{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
+.b-err{background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.35)}
+.b-info{background:rgba(56,189,248,.16);color:#38bdf8;border:1px solid rgba(56,189,248,.35)}
+pre.seq{background:#0f172a;color:#38bdf8;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-all;max-height:170px;overflow:auto;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--bd)}
+th{background:#0f172a;color:var(--mu);font-size:11.5px}
+.hr{height:1px;background:var(--bd);margin:4px 0}
+.plot{width:100%;min-height:440px;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #cbd5e1}
+#molBox{width:100%;height:550px;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--bd);background:#070c18}
+#molView{width:100%;height:100%;position:absolute;inset:0}
+#molBar{position:absolute;top:10px;left:10px;right:10px;z-index:10;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:rgba(15,23,42,.82);padding:7px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.1)}
+#molBar select{width:auto;padding:4px 7px;font-size:12px}
+#molTip{position:absolute;bottom:10px;left:10px;z-index:10;background:rgba(15,23,42,.9);color:#38bdf8;padding:5px 10px;border-radius:7px;border:1px solid rgba(56,189,248,.35);font-size:12px;display:none;pointer-events:none}
+#toast{position:fixed;bottom:18px;right:18px;z-index:999;background:#0f172a;color:#2dd4bf;border:1px solid #14b8a6;padding:10px 14px;border-radius:10px;font-size:13px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.sl-hdr{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);margin-bottom:2px}
+.sl-hdr b{color:#fff}
+.prog{height:8px;background:#0f172a;border-radius:99px;overflow:hidden;border:1px solid var(--bd);margin:6px 0 10px}
+.prog>div{height:100%;background:linear-gradient(90deg,#14b8a6,#38bdf8);transition:width .2s}
+.chk-item{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;background:#0f172a;border:1px solid var(--bd);margin-bottom:6px;cursor:pointer}
+.chk-item input{margin-top:3px;accent-color:var(--ac)}
+.chk-item.done{opacity:.65;text-decoration:line-through}
+.step-tag{display:inline-block;padding:2px 7px;border-radius:6px;background:rgba(20,184,166,.18);color:#2dd4bf;font-size:11px;font-weight:700;margin-right:6px}
+.hb{background:linear-gradient(135deg,rgba(15,23,42,.95),rgba(17,24,39,.95));border:1px solid rgba(20,184,166,.45);border-left:4px solid var(--ac);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.55}
+.hb-t{font-weight:700;color:#2dd4bf;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+.hb-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:960px){.hb-g{grid-template-columns:1fr}}
+.hb-i b{color:#e2e8f0;display:block;font-size:11.5px;margin-bottom:2px}.hb-i span{color:var(--mu)}
+.mut-hl{background:rgba(245,158,11,.28);color:#fde047;font-weight:700;padding:0 2px;border-radius:3px}
+</style>
+</head>
+<body>
+<aside>
+<div class="row" style="justify-content:space-between">
+<strong style="font-size:14px">🧬 Protein Studio Pro</strong>
+<div class="seg" id="langSeg">
+<button data-l="zh" class="act">中文</button>
+<button data-l="en">EN</button>
+</div>
+</div>
+<div class="hr"></div>
+<div>
+<label id="lbSrc"></label>
+<div class="seg" style="width:100%;margin-bottom:8px" id="srcSeg">
+<button data-s="sample" class="act" style="flex:1;padding:5px 4px">1UBQ</button>
+<button data-s="rcsb" style="flex:1;padding:5px 4px">RCSB</button>
+<button data-s="afdb" style="flex:1;padding:5px 4px">AFDB</button>
+<button data-s="fasta" style="flex:1;padding:5px 4px">FASTA</button>
+<button data-s="upload" style="flex:1;padding:5px 4px">PDB</button>
+</div>
+<div id="srcSample"><button class="pri" style="width:100%" id="btnLoadSample">🧪 1UBQ (Ubiquitin)</button></div>
+<div id="srcRcsb" style="display:none">
+<div class="row" style="gap:6px;margin-bottom:6px">
+<input type="text" id="rcsbId" value="1CRN" maxlength="4" style="flex:1;text-transform:uppercase">
+<button class="pri" id="btnFetch">🌐</button>
+</div>
+<div class="g2" style="gap:5px">
+<button class="preBtn" data-id="1UBQ">1UBQ</button>
+<button class="preBtn" data-id="1CRN">1CRN</button>
+<button class="preBtn" data-id="1L2Y">1L2Y</button>
+<button class="preBtn" data-id="4HHB">4HHB</button>
+</div>
+</div>
+<div id="srcAfdb" style="display:none">
+<div class="row" style="gap:6px;margin-bottom:6px">
+<input type="text" id="afdbId" value="P69905" maxlength="12" placeholder="UniProt ID" style="flex:1;text-transform:uppercase">
+<button class="pri" id="btnAfdb">🤖</button>
+</div>
+<div class="g2" style="gap:5px">
+<button class="afBtn" data-id="P69905">P69905 (HBA1)</button>
+<button class="afBtn" data-id="P01308">P01308 (Insulin)</button>
+<button class="afBtn" data-id="P04637">P04637 (TP53)</button>
+<button class="afBtn" data-id="P02768">P02768 (HSA)</button>
+</div>
+</div>
+<div id="srcFasta" style="display:none">
+<textarea id="fastaIn" rows="3" placeholder="貼上胺基酸序列或 FASTA (例: >MyProt&#10;MQIFVKTLTG...)"></textarea>
+<button class="pri" id="btnFasta" style="width:100%;margin-top:6px">📄 解析純序列</button>
+</div>
+<div id="srcUpload" style="display:none"><input type="file" id="pdbFile" accept=".pdb,.ent,.txt"></div>
+<div id="srcStatus" style="font-size:11.5px;color:var(--ac2);margin-top:6px"></div>
+</div>
+<div class="hr"></div>
+<div class="row" style="gap:6px">
+<button id="btnHandbook" class="pri sm" style="flex:1">📖 實驗室手冊：開</button>
+<button id="btnShare" class="sm" title="複製分享連結">🔗 分享</button>
+<button id="btnResetStore" class="sm" title="清除自動存檔">↺</button>
+</div>
+<div class="hr"></div>
+<div>
+<label id="lbParams"></label>
+<div class="m" style="margin-bottom:6px"><div class="l">🔵 Model A (WT, kJ/mol)</div><div id="sideA" style="font-size:12.5px;font-weight:600"></div></div>
+<div class="m" style="margin-bottom:6px"><div class="l">🟠 Model B (Mut, kJ/mol)</div><div id="sideB" style="font-size:12.5px;font-weight:600"></div></div>
+<div class="m"><div class="l">🧪 Pipeline 鎖定突變</div><div id="sidePipe" style="font-size:12px;color:var(--ac)">Wild-Type</div></div>
+</div>
+<div class="hr"></div>
+<div style="font-size:11.5px;color:var(--mu);line-height:1.5" id="sideHint"></div>
+</aside>
+<main>
+<h1 id="appTitle"></h1>
+<div class="sub" id="appSub"></div>
+<div class="card" id="topSummary">
+<div class="row" style="justify-content:space-between;margin-bottom:10px">
+<div style="font-weight:700" id="structHdr"></div>
+<select id="topChainSel" style="width:auto;min-width:220px"></select>
+</div>
+<div class="g4" id="bpMetrics"></div>
+<button class="pri" id="btnSyncA" style="width:100%;margin-top:10px"></button>
+</div>
+<div class="nav" id="navBar"></div>
+<div id="workspace"></div>
+</main>
+<div id="toast"></div>
+<script type="text/plain" id="sample1ubq">ATOM      1  N   MET A   1      27.340  24.430   2.614  1.00  9.67           N
+ATOM      2  CA  MET A   1      26.266  25.413   2.842  1.00 10.38           C
+ATOM      3  C   MET A   1      26.913  26.639   3.531  1.00  9.62           C
+ATOM      4  O   MET A   1      27.886  26.463   4.263  1.00  9.62           O
+ATOM      9  N   GLN A   2      26.335  27.770   3.258  1.00  9.27           N
+ATOM     10  CA  GLN A   2      26.850  29.021   3.898  1.00  9.07           C
+ATOM     11  C   GLN A   2      26.100  29.253   5.202  1.00  8.72           C
+ATOM     12  O   GLN A   2      24.865  29.024   5.330  1.00  8.22           O
+ATOM     18  N   ILE A   3      26.849  29.656   6.217  1.00  5.87           N
+ATOM     19  CA  ILE A   3      26.235  30.058   7.497  1.00  5.07           C
+ATOM     20  C   ILE A   3      26.882  31.428   7.862  1.00  4.96           C
+ATOM     21  O   ILE A   3      27.906  31.711   7.264  1.00  3.69           O
+ATOM     26  N   PHE A   4      26.214  32.097   8.771  1.00  5.13           N
+ATOM     27  CA  PHE A   4      26.666  33.428   9.253  1.00  4.73           C
+ATOM     28  C   PHE A   4      26.071  33.662  10.630  1.00  5.51           C
+ATOM     29  O   PHE A   4      25.083  33.012  11.003  1.00  4.63           O
+ATOM     37  N   VAL A   5      26.740  34.602  11.318  1.00  5.13           N
+ATOM     38  CA  VAL A   5      26.310  35.039  12.642  1.00  5.01           C
+ATOM     39  C   VAL A   5      26.906  36.410  12.888  1.00  5.66           C
+ATOM     40  O   VAL A   5      27.835  36.854  12.198  1.00  6.74           O
+ATOM     44  N   LYS A   6      26.316  37.053  13.890  1.00  5.29           N
+ATOM     45  CA  LYS A   6      26.721  38.393  14.287  1.00  5.91           C
+ATOM     46  C   LYS A   6      26.153  38.716  15.656  1.00  5.31           C
+ATOM     47  O   LYS A   6      25.252  37.988  16.122  1.00  5.59           O
+ATOM     53  N   THR A   7      26.647  39.825  16.211  1.00  5.70           N
+ATOM     54  CA  THR A   7      26.135  40.317  17.485  1.00  6.36           C
+ATOM     55  C   THR A   7      26.827  41.617  17.921  1.00  6.98           C
+ATOM     56  O   THR A   7      27.866  41.970  17.345  1.00  6.72           O
+ATOM     60  N   LEU A   8      26.238  42.313  18.894  1.00  8.45           N
+ATOM     61  CA  LEU A   8      26.757  43.621  19.342  1.00  9.55           C
+ATOM     62  C   LEU A   8      28.203  43.524  19.839  1.00 10.97           C
+ATOM     63  O   LEU A   8      28.814  42.444  19.831  1.00 12.01           O
+ATOM     68  N   THR A   9      28.724  44.661  20.289  1.00 12.16           N
+ATOM     69  CA  THR A   9      30.088  44.716  20.808  1.00 13.52           C
+ATOM     70  C   THR A   9      31.069  44.205  19.749  1.00 12.63           C
+ATOM     71  O   THR A   9      31.006  44.576  18.567  1.00 13.09           O
+ATOM     75  N   GLY A  10      31.964  43.344  20.214  1.00 11.45           N
+ATOM     76  CA  GLY A  10      32.989  42.735  19.364  1.00 10.61           C
+ATOM     77  C   GLY A  10      32.435  41.584  18.536  1.00  9.81           C
+ATOM     78  O   GLY A  10      31.268  41.186  18.678  1.00  9.83           O
+ATOM     79  N   LYS A  11      33.297  41.059  17.669  1.00  8.66           N
+ATOM     80  CA  LYS A  11      32.921  39.961  16.774  1.00  7.63           C
+ATOM     81  C   LYS A  11      32.517  38.758  17.625  1.00  6.90           C
+ATOM     82  O   LYS A  11      33.266  38.308  18.497  1.00  7.07           O
+ATOM     88  N   THR A  12      31.321  38.248  17.347  1.00  6.20           N
+ATOM     89  CA  THR A  12      30.785  37.110  18.082  1.00  5.58           C
+ATOM     90  C   THR A  12      30.068  36.178  17.111  1.00  5.18           C
+ATOM     91  O   THR A  12      29.131  36.588  16.416  1.00  4.98           O
+ATOM     95  N   ILE A  13      30.525  34.929  17.071  1.00  4.86           N
+ATOM     96  CA  ILE A  13      29.936  33.917  16.195  1.00  4.64           C
+ATOM     97  C   ILE A  13      30.511  32.570  16.612  1.00  4.79           C
+ATOM     98  O   ILE A  13      31.547  32.495  17.283  1.00  5.02           O
+ATOM    103  N   THR A  14      29.831  31.512  16.174  1.00  4.84           N
+ATOM    104  CA  THR A  14      30.223  30.145  16.512  1.00  4.95           C
+ATOM    105  C   THR A  14      29.532  29.181  15.556  1.00  5.12           C
+ATOM    106  O   THR A  14      28.431  29.476  15.072  1.00  5.19           O
+ATOM    110  N   LEU A  15      30.193  28.046  15.308  1.00  4.89           N
+ATOM    111  CA  LEU A  15      29.669  26.989  14.442  1.00  4.92           C
+ATOM    112  C   LEU A  15      30.331  25.676  14.847  1.00  5.16           C
+ATOM    113  O   LEU A  15      31.491  25.647  15.274  1.00  5.48           O
+ATOM    118  N   GLU A  16      29.585  24.588  14.696  1.00  5.45           N
+ATOM    119  CA  GLU A  16      30.068  23.255  15.056  1.00  5.82           C
+ATOM    120  C   GLU A  16      29.257  22.244  14.252  1.00  6.12           C
+ATOM    121  O   GLU A  16      28.036  22.387  14.122  1.00  6.33           O
+ATOM    127  N   VAL A  17      29.946  21.224  13.738  1.00  6.39           N
+ATOM    128  CA  VAL A  17      29.313  20.136  12.990  1.00  6.64           C
+ATOM    129  C   VAL A  17      30.289  19.005  12.695  1.00  6.98           C
+ATOM    130  O   VAL A  17      31.499  19.163  12.885  1.00  7.22           O
+ATOM    134  N   GLU A  18      29.749  17.868  12.245  1.00  7.41           N
+ATOM    135  CA  GLU A  18      30.541  16.682  11.915  1.00  7.88           C
+ATOM    136  C   GLU A  18      31.348  16.178  13.112  1.00  8.15           C
+ATOM    137  O   GLU A  18      30.785  15.839  14.156  1.00  8.34           O
+ATOM    143  N   PRO A  19      32.681  16.126  12.969  1.00  8.32           N
+ATOM    144  CA  PRO A  19      33.549  15.654  14.053  1.00  8.45           C
+ATOM    145  C   PRO A  19      33.575  14.132  14.172  1.00  8.51           C
+ATOM    146  O   PRO A  19      33.861  13.450  13.186  1.00  8.62           O
+ATOM    150  N   SER A  20      33.274  13.619  15.367  1.00  8.49           N
+ATOM    151  CA  SER A  20      33.249  12.176  15.616  1.00  8.35           C
+ATOM    152  C   SER A  20      34.614  11.531  15.374  1.00  8.12           C
+ATOM    153  O   SER A  20      35.631  12.226  15.276  1.00  8.05           O
+ATOM    156  N   ASP A  21      34.619  10.203  15.276  1.00  7.91           N
+ATOM    157  CA  ASP A  21      35.851   9.439  15.056  1.00  7.74           C
+ATOM    158  C   ASP A  21      36.732   9.493  16.304  1.00  7.52           C
+ATOM    159  O   ASP A  21      36.228   9.483  17.431  1.00  7.48           O
+ATOM    164  N   THR A  22      38.046   9.547  16.085  1.00  7.22           N
+ATOM    165  CA  THR A  22      39.011   9.605  17.185  1.00  6.95           C
+ATOM    166  C   THR A  22      39.115  11.025  17.746  1.00  6.68           C
+ATOM    167  O   THR A  22      39.323  11.219  18.947  1.00  6.54           O
+ATOM    171  N   ILE A  23      38.967  12.011  16.863  1.00  6.32           N
+ATOM    172  CA  ILE A  23      39.035  13.412  17.269  1.00  5.98           C
+ATOM    173  C   ILE A  23      37.926  13.736  18.273  1.00  5.74           C
+ATOM    174  O   ILE A  23      38.172  14.421  19.269  1.00  5.61           O
+ATOM    179  N   GLU A  24      36.711  13.237  18.005  1.00  5.52           N
+ATOM    180  CA  GLU A  24      35.568  13.465  18.889  1.00  5.34           C
+ATOM    181  C   GLU A  24      35.825  12.905  20.289  1.00  5.21           C
+ATOM    182  O   GLU A  24      35.523  13.551  21.298  1.00  5.18           O
+ATOM    188  N   ASN A  25      36.386  11.699  20.341  1.00  5.08           N
+ATOM    189  CA  ASN A  25      36.689  11.045  21.615  1.00  4.98           C
+ATOM    190  C   ASN A  25      37.752  11.836  22.376  1.00  4.89           C
+ATOM    191  O   ASN A  25      37.651  12.063  23.585  1.00  4.82           O
+ATOM    196  N   VAL A  26      38.765  12.248  21.616  1.00  4.75           N
+ATOM    197  CA  VAL A  26      39.858  13.025  22.198  1.00  4.64           C
+ATOM    198  C   VAL A  26      39.354  14.371  22.724  1.00  4.58           C
+ATOM    199  O   VAL A  26      39.776  14.826  23.791  1.00  4.52           O
+ATOM    203  N   LYS A  27      38.445  14.996  21.976  1.00  4.48           N
+ATOM    204  CA  LYS A  27      37.878  16.283  22.375  1.00  4.41           C
+ATOM    205  C   LYS A  27      37.163  16.178  23.724  1.00  4.38           C
+ATOM    206  O   LYS A  27      37.339  17.024  24.605  1.00  4.35           O
+ATOM    212  N   ALA A  28      36.357  15.134  23.876  1.00  4.32           N
+ATOM    213  CA  ALA A  28      35.612  14.912  25.115  1.00  4.28           C
+ATOM    214  C   ALA A  28      36.535  14.745  26.324  1.00  4.26           C
+ATOM    215  O   ALA A  28      36.321  15.385  27.356  1.00  4.24           O
+ATOM    217  N   LYS A  29      37.558  13.896  26.185  1.00  4.25           N
+ATOM    218  CA  LYS A  29      38.515  13.642  27.265  1.00  4.27           C
+ATOM    219  C   LYS A  29      39.188  14.936  27.724  1.00  4.31           C
+ATOM    220  O   LYS A  29      39.465  15.145  28.908  1.00  4.34           O
+ATOM    226  N   ILE A  30      39.445  15.798  26.742  1.00  4.36           N
+ATOM    227  CA  ILE A  30      40.088  17.075  27.035  1.00  4.42           C
+ATOM    228  C   ILE A  30      39.175  18.015  27.824  1.00  4.49           C
+ATOM    229  O   ILE A  30      39.635  18.685  28.752  1.00  4.53           O
+ATOM    234  N   GLN A  31      37.886  18.055  27.456  1.00  4.58           N
+ATOM    235  CA  GLN A  31      36.912  18.912  28.135  1.00  4.66           C
+ATOM    236  C   GLN A  31      36.735  18.455  29.585  1.00  4.75           C
+ATOM    237  O   GLN A  31      36.712  19.265  30.515  1.00  4.81           O
+ATOM    243  N   ASP A  32      36.612  17.145  29.765  1.00  4.86           N
+ATOM    244  CA  ASP A  32      36.435  16.565  31.095  1.00  4.98           C
+ATOM    245  C   ASP A  32      37.685  16.755  31.955  1.00  5.12           C
+ATOM    246  O   ASP A  32      37.625  17.245  33.085  1.00  5.21           O
+ATOM    251  N   LYS A  33      38.812  16.365  31.365  1.00  5.28           N
+ATOM    252  CA  LYS A  33      40.088  16.485  32.065  1.00  5.45           C
+ATOM    253  C   LYS A  33      40.285  17.915  32.565  1.00  5.62           C
+ATOM    254  O   LYS A  33      40.765  18.145  33.675  1.00  5.74           O
+ATOM    260  N   GLU A  34      39.912  18.865  31.715  1.00  5.81           N
+ATOM    261  CA  GLU A  34      40.045  20.275  32.065  1.00  6.02           C
+ATOM    262  C   GLU A  34      39.045  20.685  33.145  1.00  6.21           C
+ATOM    263  O   GLU A  34      39.215  21.715  33.795  1.00  6.35           O
+ATOM    269  N   GLY A  35      38.012  19.865  33.325  1.00  6.48           N
+ATOM    270  CA  GLY A  35      36.988  20.125  34.325  1.00  6.72           C
+ATOM    271  C   GLY A  35      35.712  20.685  33.715  1.00  6.95           C
+ATOM    272  O   GLY A  35      34.635  20.125  33.925  1.00  7.12           O
+ATOM    273  N   ILE A  36      35.845  21.785  32.975  1.00  7.18           N
+ATOM    274  CA  ILE A  36      34.712  22.435  32.325  1.00  7.42           C
+ATOM    275  C   ILE A  36      34.512  21.865  30.925  1.00  7.58           C
+ATOM    276  O   ILE A  36      35.465  21.415  30.285  1.00  7.71           O
+ATOM    281  N   PRO A  37      33.265  21.885  30.435  1.00  7.82           N
+ATOM    282  CA  PRO A  37      32.945  21.365  29.105  1.00  7.98           C
+ATOM    283  C   PRO A  37      33.465  22.265  27.985  1.00  8.12           C
+ATOM    284  O   PRO A  37      33.545  23.485  28.145  1.00  8.24           O
+ATOM    288  N   PRO A  38      33.812  21.655  26.845  1.00  8.18           N
+ATOM    289  CA  PRO A  38      34.325  22.395  25.695  1.00  8.12           C
+ATOM    290  C   PRO A  38      33.285  23.345  25.105  1.00  7.98           C
+ATOM    291  O   PRO A  38      32.115  22.985  24.945  1.00  7.85           O
+ATOM    295  N   ASP A  39      33.725  24.555  24.785  1.00  7.74           N
+ATOM    296  CA  ASP A  39      32.845  25.565  24.205  1.00  7.52           C
+ATOM    297  C   ASP A  39      32.512  25.185  22.765  1.00  7.28           C
+ATOM    298  O   ASP A  39      33.365  24.645  22.055  1.00  7.12           O
+ATOM    303  N   GLN A  40      31.265  25.465  22.355  1.00  6.98           N
+ATOM    304  CA  GLN A  40      30.785  25.165  21.005  1.00  6.72           C
+ATOM    305  C   GLN A  40      30.465  26.465  20.265  1.00  6.48           C
+ATOM    306  O   GLN A  40      29.745  27.315  20.795  1.00  6.32           O
+ATOM    312  N   GLN A  41      31.012  26.615  19.055  1.00  6.18           N
+ATOM    313  CA  GLN A  41      30.785  27.815  18.245  1.00  5.92           C
+ATOM    314  C   GLN A  41      29.885  27.465  17.065  1.00  5.68           C
+ATOM    315  O   GLN A  41      30.265  26.645  16.225  1.00  5.54           O
+ATOM    321  N   ARG A  42      28.685  28.065  17.015  1.00  5.42           N
+ATOM    322  CA  ARG A  42      27.712  27.815  15.945  1.00  5.18           C
+ATOM    323  C   ARG A  42      27.365  29.125  15.245  1.00  4.98           C
+ATOM    324  O   ARG A  42      26.885  30.065  15.885  1.00  4.86           O
+ATOM    332  N   LEU A  43      27.612  29.185  13.935  1.00  4.75           N
+ATOM    333  CA  LEU A  43      27.325  30.385  13.145  1.00  4.58           C
+ATOM    334  C   LEU A  43      26.265  30.065  12.095  1.00  4.46           C
+ATOM    335  O   LEU A  43      26.465  29.185  11.255  1.00  4.38           O
+ATOM    340  N   ILE A  44      25.145  30.785  12.145  1.00  4.32           N
+ATOM    341  CA  ILE A  44      24.045  30.585  11.205  1.00  4.24           C
+ATOM    342  C   ILE A  44      23.265  31.885  11.045  1.00  4.21           C
+ATOM    343  O   ILE A  44      22.885  32.515  12.035  1.00  4.19           O
+ATOM    348  N   PHE A  45      23.045  32.285   9.795  1.00  4.22           N
+ATOM    349  CA  PHE A  45      22.312  33.515   9.485  1.00  4.26           C
+ATOM    350  C   PHE A  45      21.145  33.185   8.565  1.00  4.32           C
+ATOM    351  O   PHE A  45      21.325  32.515   7.545  1.00  4.38           O
+ATOM    359  N   ALA A  46      19.945  33.665   8.915  1.00  4.46           N
+ATOM    360  CA  ALA A  46      18.745  33.415   8.125  1.00  4.58           C
+ATOM    361  C   ALA A  46      18.465  34.615   7.225  1.00  4.72           C
+ATOM    362  O   ALA A  46      18.885  35.725   7.545  1.00  4.81           O
+ATOM    364  N   GLY A  47      17.745  34.385   6.125  1.00  4.95           N
+ATOM    365  CA  GLY A  47      17.412  35.445   5.185  1.00  5.14           C
+ATOM    366  C   GLY A  47      18.612  35.865   4.345  1.00  5.32           C
+ATOM    367  O   GLY A  47      19.685  35.265   4.465  1.00  5.45           O
+ATOM    368  N   LYS A  48      18.425  36.885   3.505  1.00  5.58           N
+ATOM    369  CA  LYS A  48      19.485  37.385   2.635  1.00  5.76           C
+ATOM    370  C   LYS A  48      20.265  36.225   2.025  1.00  5.92           C
+ATOM    371  O   LYS A  48      19.745  35.125   1.825  1.00  6.04           O
+ATOM    377  N   GLN A  49      21.512  36.485   1.725  1.00  6.12           N
+ATOM    378  CA  GLN A  49      22.365  35.465   1.125  1.00  6.28           C
+ATOM    379  C   GLN A  49      22.845  34.465   2.175  1.00  6.41           C
+ATOM    380  O   GLN A  49      23.265  34.865   3.265  1.00  6.52           O
+ATOM    386  N   LEU A  50      22.765  33.185   1.825  1.00  6.58           N
+ATOM    387  CA  LEU A  50      23.185  32.115   2.725  1.00  6.72           C
+ATOM    388  C   LEU A  50      24.512  31.515   2.265  1.00  6.85           C
+ATOM    389  O   LEU A  50      24.685  31.125   1.105  1.00  6.94           O
+ATOM    394  N   GLU A  51      25.445  31.445   3.205  1.00  7.02           N
+ATOM    395  CA  GLU A  51      26.765  30.885   2.925  1.00  7.18           C
+ATOM    396  C   GLU A  51      27.612  31.965   2.265  1.00  7.31           C
+ATOM    397  O   GLU A  51      27.885  33.015   2.845  1.00  7.42           O
+ATOM    403  N   ASP A  52      28.012  31.685   1.025  1.00  7.54           N
+ATOM    404  CA  ASP A  52      28.812  32.615   0.245  1.00  7.68           C
+ATOM    405  C   ASP A  52      30.265  32.685   0.715  1.00  7.79           C
+ATOM    406  O   ASP A  52      30.945  33.715   0.645  1.00  7.88           O
+ATOM    411  N   GLY A  53      30.725  31.565   1.265  1.00  7.92           N
+ATOM    412  CA  GLY A  53      32.085  31.485   1.765  1.00  8.01           C
+ATOM    413  C   GLY A  53      32.365  30.145   2.425  1.00  8.08           C
+ATOM    414  O   GLY A  53      31.512  29.265   2.465  1.00  8.14           O
+ATOM    415  N   ARG A  54      33.565  29.985   2.975  1.00  8.12           N
+ATOM    416  CA  ARG A  54      33.965  28.745   3.635  1.00  8.08           C
+ATOM    417  C   ARG A  54      33.812  28.865   5.145  1.00  7.98           C
+ATOM    418  O   ARG A  54      33.865  29.965   5.695  1.00  7.91           O
+ATOM    426  N   THR A  55      33.612  27.725   5.805  1.00  7.82           N
+ATOM    427  CA  THR A  55      33.445  27.685   7.255  1.00  7.68           C
+ATOM    428  C   THR A  55      32.112  28.315   7.665  1.00  7.52           C
+ATOM    429  O   THR A  55      31.065  27.685   7.485  1.00  7.41           O
+ATOM    433  N   LEU A  56      32.165  29.545   8.175  1.00  7.28           N
+ATOM    434  CA  LEU A  56      30.965  30.265   8.585  1.00  7.08           C
+ATOM    435  C   LEU A  56      30.465  29.685   9.905  1.00  6.89           C
+ATOM    436  O   LEU A  56      31.212  29.585  10.875  1.00  6.76           O
+ATOM    441  N   SER A  57      29.185  29.315   9.925  1.00  6.62           N
+ATOM    442  CA  SER A  57      28.565  28.745  11.115  1.00  6.45           C
+ATOM    443  C   SER A  57      28.465  27.225  10.985  1.00  6.31           C
+ATOM    444  O   SER A  57      27.945  26.565  11.885  1.00  6.21           O
+ATOM    447  N   ASP A  58      28.965  26.685   9.875  1.00  6.08           N
+ATOM    448  CA  ASP A  58      28.945  25.245   9.635  1.00  5.92           C
+ATOM    449  C   ASP A  58      30.265  24.645  10.115  1.00  5.78           C
+ATOM    450  O   ASP A  58      31.325  25.245   9.945  1.00  5.69           O
+ATOM    455  N   TYR A  59      30.185  23.465  10.725  1.00  5.58           N
+ATOM    456  CA  TYR A  59      31.365  22.765  11.225  1.00  5.45           C
+ATOM    457  C   TYR A  59      31.945  21.865  10.135  1.00  5.34           C
+ATOM    458  O   TYR A  59      31.265  21.015   9.565  1.00  5.28           O
+ATOM    467  N   ASN A  60      33.212  22.065   9.825  1.00  5.21           N
+ATOM    468  CA  ASN A  60      33.885  21.265   8.805  1.00  5.12           C
+ATOM    469  C   ASN A  60      33.512  21.745   7.405  1.00  5.06           C
+ATOM    470  O   ASN A  60      33.765  21.045   6.425  1.00  5.02           O
+ATOM    475  N   ILE A  61      32.912  22.925   7.315  1.00  4.98           N
+ATOM    476  CA  ILE A  61      32.512  23.485   6.025  1.00  4.94           C
+ATOM    477  C   ILE A  61      31.045  23.885   6.045  1.00  4.91           C
+ATOM    478  O   ILE A  61      30.365  23.665   7.045  1.00  4.89           O
+ATOM    483  N   GLN A  62      30.565  24.465   4.945  1.00  4.88           N
+ATOM    484  CA  GLN A  62      29.185  24.915   4.825  1.00  4.87           C
+ATOM    485  C   GLN A  62      28.612  25.265   6.195  1.00  4.88           C
+ATOM    486  O   GLN A  62      29.325  25.745   7.075  1.00  4.91           O
+ATOM    492  N   LYS A  63      27.325  25.015   6.365  1.00  4.94           N
+ATOM    493  CA  LYS A  63      26.645  25.285   7.625  1.00  4.99           C
+ATOM    494  C   LYS A  63      26.325  26.765   7.745  1.00  5.06           C
+ATOM    495  O   LYS A  63      25.845  27.365   6.785  1.00  5.12           O
+ATOM    501  N   GLU A  64      26.585  27.345   8.915  1.00  5.19           N
+ATOM    502  CA  GLU A  64      26.325  28.765   9.145  1.00  5.28           C
+ATOM    503  C   GLU A  64      25.265  28.945  10.225  1.00  5.38           C
+ATOM    504  O   GLU A  64      25.465  28.485  11.345  1.00  5.46           O
+ATOM    510  N   SER A  65      24.145  29.585   9.885  1.00  5.56           N
+ATOM    511  CA  SER A  65      23.045  29.845  10.805  1.00  5.68           C
+ATOM    512  C   SER A  65      22.365  31.145  10.385  1.00  5.81           C
+ATOM    513  O   SER A  65      22.265  31.465   9.205  1.00  5.92           O
+ATOM    516  N   THR A  66      21.885  31.885  11.375  1.00  6.04           N
+ATOM    517  CA  THR A  66      21.212  33.145  11.125  1.00  6.18           C
+ATOM    518  C   THR A  66      20.265  33.465  12.275  1.00  6.32           C
+ATOM    519  O   THR A  66      20.465  32.985  13.385  1.00  6.44           O
+ATOM    523  N   LEU A  67      19.245  34.265  11.985  1.00  6.58           N
+ATOM    524  CA  LEU A  67      18.265  34.665  12.985  1.00  6.74           C
+ATOM    525  C   LEU A  67      17.412  35.815  12.465  1.00  6.91           C
+ATOM    526  O   LEU A  67      17.265  35.985  11.255  1.00  7.04           O
+ATOM    531  N   HIS A  68      16.845  36.585  13.385  1.00  7.18           N
+ATOM    532  CA  HIS A  68      15.985  37.715  13.025  1.00  7.36           C
+ATOM    533  C   HIS A  68      15.265  38.265  14.245  1.00  7.54           C
+ATOM    534  O   HIS A  68      15.465  37.765  15.345  1.00  7.68           O
+ATOM    541  N   LEU A  69      14.425  39.285  14.045  1.00  7.84           N
+ATOM    542  CA  LEU A  69      13.665  39.915  15.125  1.00  8.04           C
+ATOM    543  C   LEU A  69      12.765  41.015  14.585  1.00  8.24           C
+ATOM    544  O   LEU A  69      12.685  41.185  13.365  1.00  8.38           O
+ATOM    549  N   VAL A  70      12.085  41.745  15.465  1.00  8.56           N
+ATOM    550  CA  VAL A  70      11.185  42.825  15.085  1.00  8.78           C
+ATOM    551  C   VAL A  70      10.465  43.365  16.315  1.00  8.98           C
+ATOM    552  O   VAL A  70      10.685  42.865  17.415  1.00  9.14           O
+ATOM    556  N   LEU A  71       9.612  44.365  16.125  1.00  9.36           N
+ATOM    557  CA  LEU A  71       8.865  44.985  17.215  1.00  9.62           C
+ATOM    558  C   LEU A  71       8.165  46.245  16.715  1.00  9.88           C
+ATOM    559  O   LEU A  71       8.085  46.465  15.505  1.00 10.08           O
+ATOM    564  N   ARG A  72       7.665  47.065  17.635  1.00 10.34           N
+ATOM    565  CA  ARG A  72       6.965  48.315  17.315  1.00 10.68           C
+ATOM    566  C   ARG A  72       6.265  48.865  18.545  1.00 11.02           C
+ATOM    567  O   ARG A  72       6.465  48.365  19.655  1.00 11.28           O
+ATOM    575  N   LEU A  73       5.445  49.885  18.345  1.00 11.64           N
+ATOM    576  CA  LEU A  73       4.712  50.515  19.445  1.00 12.04           C
+ATOM    577  C   LEU A  73       4.012  51.765  18.945  1.00 12.44           C
+ATOM    578  O   LEU A  73       3.945  51.985  17.735  1.00 12.76           O
+ATOM    583  N   ARG A  74       3.485  52.585  19.865  1.00 13.18           N
+ATOM    584  CA  ARG A  74       2.785  53.815  19.525  1.00 13.64           C
+ATOM    585  C   ARG A  74       2.085  54.365  20.765  1.00 14.12           C
+ATOM    586  O   ARG A  74       2.285  53.865  21.875  1.00 14.48           O
+ATOM    594  N   GLY A  75       1.265  55.385  20.565  1.00 14.96           N
+ATOM    595  CA  GLY A  75       0.545  56.015  21.665  1.00 15.48           C
+ATOM    596  C   GLY A  75      -0.155  57.265  21.165  1.00 16.02           C
+ATOM    597  O   GLY A  75      -0.225  57.485  19.955  1.00 16.44           O
+ATOM    598  N   GLY A  76      -0.675  58.085  22.085  1.00 16.98           N
+ATOM    599  CA  GLY A  76      -1.365  59.315  21.745  1.00 17.56           C
+ATOM    600  C   GLY A  76      -2.065  59.865  22.985  1.00 18.14           C
+ATOM    601  O   GLY A  76      -1.865  59.365  24.095  1.00 18.62           O
+END</script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(v * 10) / 10));
+const cleanDNA = s => (s || "").toUpperCase().replace(/[^ACGT]/g, "");
+const toast = msg => { const el = $("toast"); el.textContent = msg; el.style.display = "block"; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = "none", 2600); };
+let rafId = 0, viewToken = 0;
+const scheduleFrame = fn => { if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(() => { rafId = 0; fn(); }); };
+const cleanupView = () => {
+viewToken++;
+if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+if (S.molViewer) {
+try { S.molViewer.spin(false); S.molViewer.removeAllSurfaces(); S.molViewer.clear(); } catch (_) {}
+S.molViewer = null; S.molSurf = null; S.molSpin = false; S.molLastSurf = "none";
+}
+if (window.Plotly) {
+document.querySelectorAll("#workspace .plot").forEach(el => { try { Plotly.purge(el); } catch (_) {} });
+}
+};
+const AA3TO1 = {ALA:"A",ARG:"R",ASN:"N",ASP:"D",CYS:"C",CYX:"C",CYM:"C",GLN:"Q",GLU:"E",GLY:"G",HIS:"H",HID:"H",HIE:"H",HIP:"H",ILE:"I",LEU:"L",LYS:"K",MET:"M",MSE:"M",PHE:"F",PRO:"P",SER:"S",THR:"T",TRP:"W",TYR:"Y",VAL:"V",SEC:"U",PYL:"O"};
+const HYDRO = new Set("AVILMFYW"), CHARGED = new Set("KRDE"), BETA_FAV = new Set("VITYF");
+const HYDRO_C = {A:1,V:3,I:4,L:4,M:4,F:7,W:9,Y:7,P:3,C:1,G:0,S:1,T:2,N:2,Q:3,D:2,E:3,H:4,K:4,R:4};
+const AA_MASS = {A:89.09,R:174.2,N:132.12,D:133.1,C:121.15,Q:146.15,E:147.13,G:75.07,H:155.16,I:131.17,L:131.17,K:146.19,M:149.21,F:165.19,P:115.13,S:105.09,T:119.12,W:204.23,Y:181.19,V:117.15};
+const KD_HYD = {A:1.8,R:-4.5,N:-3.5,D:-3.5,C:2.5,Q:-3.5,E:-3.5,G:-.4,H:-3.2,I:4.5,L:3.8,K:-3.9,M:1.9,F:2.8,P:-1.6,S:-.8,T:-.7,W:-.9,Y:-1.3,V:4.2};
+const CODONS = {
+ecoli:{A:"GCG",R:"CGU",N:"AAC",D:"GAU",C:"UGC",Q:"CAG",E:"GAA",G:"GGU",H:"CAC",I:"AUU",L:"CUG",K:"AAA",M:"AUG",F:"UUU",P:"CCG",S:"UCU",T:"ACC",W:"UGG",Y:"UAU",V:"GUU","*":"UAA",X:"NNN"},
+human:{A:"GCC",R:"AGA",N:"AAC",D:"GAC",C:"UGC",Q:"CAG",E:"GAG",G:"GGC",H:"CAC",I:"AUC",L:"CUG",K:"AAG",M:"AUG",F:"UUC",P:"CCC",S:"AGC",T:"ACC",W:"UGG",Y:"UAC",V:"GUG","*":"UGA",X:"NNN"},
+deg:{A:"GCN",R:"CGN",N:"AAY",D:"GAY",C:"UGY",Q:"CAR",E:"GAR",G:"GGN",H:"CAY",I:"AUH",L:"CUN",K:"AAR",M:"AUG",F:"UUY",P:"CCN",S:"UCN",T:"ACN",W:"UGG",Y:"UAY",V:"GUN","*":"UAR",X:"NNN"}
+};
+const CWEIGHT = {
+ecoli:{GCG:1,GCC:.65,GCU:.45,GCA:.5,CGU:1,CGC:.9,CGG:.15,CGA:.1,AGA:.08,AGG:.05,AAC:1,AAU:.45,GAU:1,GAC:.65,UGC:1,UGU:.75,CAG:1,CAA:.4,GAA:1,GAG:.45,GGU:1,GGC:.85,GGG:.25,GGA:.15,CAC:1,CAU:.7,AUU:1,AUC:.85,AUA:.1,CUG:1,CUC:.2,CUU:.2,CUA:.08,UUG:.25,UUA:.2,AAA:1,AAG:.35,AUG:1,UUU:1,UUC:.8,CCG:1,CCA:.35,CCU:.25,CCC:.12,UCU:1,UCC:.85,AGC:.8,AGU:.3,UCA:.25,UCG:.3,ACC:1,ACU:.4,ACG:.55,ACA:.2,UGG:1,UAU:1,UAC:.8,GUU:1,GUG:.9,GUC:.4,GUA:.45},
+human:{GCC:1,GCU:.65,GCA:.55,GCG:.25,AGA:1,AGG:.95,CGG:.9,CGC:.85,CGA:.5,CGU:.35,AAC:1,AAU:.85,GAC:1,GAU:.85,UGC:1,UGU:.8,CAG:1,CAA:.35,GAG:1,GAA:.7,GGC:1,GGG:.75,GGA:.7,GGU:.45,CAC:1,CAU:.7,AUC:1,AUU:.75,AUA:.35,CUG:1,CUC:.48,GUG:1,UUG:.3,CUU:.3,UUA:.15,CUA:.15,AAG:1,AAA:.75,AUG:1,UUC:1,UUU:.8,CCC:1,CCU:.85,CCA:.8,CCG:.35,AGC:1,UCC:.9,UCU:.75,AGU:.6,UCA:.55,UCG:.2,ACC:1,ACA:.75,ACU:.65,ACG:.3,UGG:1,UAC:1,UAU:.75,GUC:.5,GUU:.35,GUA:.22}
+};
+const RSITES = {EcoRI:"GAATTC",BamHI:"GGATCC",HindIII:"AAGCTT",NdeI:"CATATG",XhoI:"CTCGAG",NotI:"GCGGCCGC",NcoI:"CCATGG",SalI:"GTCGAC",BsaI:"GGTCTC",BsmBI:"CGTCTC"};
+const TAGS = {"6xHis":"HHHHHH",FLAG:"DYKDDDDK",HA:"YPYDVPDYA","c-Myc":"EQKLISEEDL","Strep-II":"WSHPQFEK",GST:"MSPILGYWKIKGLVQPTRLLLEYLEEKYEEHLYERDEGDKWRNKKFELGLEFPNLPYYIDGDVKLTQSMAIIRYIADKHNMLGGCPKERAEISMLEGAVLDIRYGVSRIAYSKDFETLKVDFLSKLPEMLKMFEDRLCHKTYLNGDHVTHPDFMLYDALDVVLYMDPMCLDAFPKLVCFKKRIEAIPQIDKYLKSSKYIAWPLQGWQATFGGGDHPPK"};
+const PROT = {None:"","TEV (ENLYFQ↓G)":"ENLYFQG","Thrombin (LVPR↓GS)":"LVPRGS","HRV 3C (LEVLFQ↓GP)":"LEVLFQGP","Enterokinase (DDDDK↓)":"DDDDK"};
+const RC_MAP = {A:"T",T:"A",U:"A",C:"G",G:"C",R:"Y",Y:"R",K:"M",M:"K",S:"S",W:"W",B:"V",V:"B",D:"H",H:"D",N:"N"};
+const VECTORS = {
+pet28:{name:"pET-28a(+) | E. coli BL21(DE3)",host:"ecoli",ab:"Kanamycin (50 µg/mL)",ind:"0.2–0.5 mM IPTG @ 18°C, 16 h (OD600=0.6–0.8)",note:"標準原核高表現系統，適合無雙硫鍵可溶性蛋白。"},
+shuffle:{name:"pET-28a(+) | SHuffle T7 / Origami B",host:"ecoli",ab:"Kanamycin (50 µg/mL)",ind:"0.2 mM IPTG @ 16°C, 18 h (OD600=0.6)",note:"氧化型胞質＋DsbC 異構酶，專為含二硫鍵蛋白設計。"},
+pgex:{name:"pGEX-4T-1 | E. coli BL21(DE3) (GST)",host:"ecoli",ab:"Ampicillin (100 µg/mL)",ind:"0.2 mM IPTG @ 18°C, 16 h",note:"N 端 GST 助溶標籤，顯著降低包涵體風險。"},
+pcdna:{name:"pcDNA3.1(+) | Expi293F (Mammalian)",host:"human",ab:"Ampicillin (質體) / Expi293 無血清",ind:"PEI / ExpiFectamine 轉染後 37°C 8% CO2 培養 5 天",note:"真核折疊與糖基化系統，適合複雜雙硫鍵與人類蛋白。"},
+ppicz:{name:"pPICZαA | Pichia pastoris (Yeast)",host:"human",ab:"Zeocin (100 µg/mL)",ind:"0.5% Methanol 每 24 h 誘導，28°C 72 h",note:"分泌型真核高密度發酵，純化背景極低。"}
+};
+const I18N = {
+zh:{
+title:"🧬 蛋白質熱力學與完整實驗流程平台",
+sub:"單檔即時互動｜60fps WebGL 3D 結構、三態折疊能量地景、突變 ΔΔG、分子選殖與五階段濕實驗 SOP 工作流。",
+src:"📁 蛋白質結構來源",params:"⚙️ 當前熱力學參數",
+hint:"⚡ 已啟用 WebGL 資源回收與預計算漏斗網格，拖動滑桿與切換分頁皆不卡頓。",
+rco:"相對接觸序 (RCO)",lr:"長程接觸比例 (≥12)",rg:"迴轉半徑 (Rg)",core:"疏水核心埋藏率",
+syncA:"⚡ 套用結構推算值至 Model A (TS={ts}, N={n} kJ/mol)",
+nav:[["3d","🌟 3D 結構"],["cm","🗺️ 接觸圖"],["rama","🧭 拉氏圖"],["mut","🔬 突變與二硫鍵"],["fasta","🧪 理化/FASTA"],["nt","🧬 密碼子/mRNA"],["clone","✂️ 選殖/引子"],["thermo","🌋 熱力學即時互動"],["lab","🧪 完整實驗流程 SOP"],["exp","📥 匯出報告"]],
+cls:["全 α-螺旋型 (All-α)","全 β-折板型 (All-β)","α/β 混合型 (α+β)","無規捲曲型 (Coil)"]
+},
+en:{
+title:"🧬 Protein Thermodynamics & Wet-Lab Engineering Studio",
+sub:"60fps standalone PDB biophysics, folding funnels, mutation ΔΔG, cloning & 5-stage wet-lab experimental workflow.",
+src:"📁 Structure Source",params:"⚙️ Active Energy Params",
+hint:"⚡ WebGL cleanup + precomputed funnel grids enabled for smooth 60fps dragging & tab switching.",
+rco:"Relative Contact Order",lr:"Long-Range Contacts",rg:"Radius of Gyration (Rg)",core:"Hydrophobic Burial",
+syncA:"⚡ Apply Biophysics to Model A (TS={ts}, N={n} kJ/mol)",
+nav:[["3d","🌟 3D Structure"],["cm","🗺️ Contact Map"],["rama","🧭 Ramachandran"],["mut","🔬 Mutations & S-S"],["fasta","🧪 Biochem/FASTA"],["nt","🧬 Codon/mRNA"],["clone","✂️ Cloning/Primers"],["thermo","🌋 Live Thermodynamics"],["lab","🧪 Wet-Lab Workflow"],["exp","📥 Export"]],
+cls:["All-α Protein","All-β Protein","α/β Mixed Fold","Coil Dominated"]
+}
+};
+const HANDBOOK = {
+  zh:{
+    "3d":["3D 結構檢視與二級結構判讀","觀察蛋白質三維折疊、活性口袋與 N/C 端位置，決定融合標籤要接在 N 端還是 C 端。","球狀蛋白通常含 40–70% α/β 結構；N/C 端若埋在核心內，接標籤容易影響折疊。","實戰建議：載入 RCSB 或 AlphaFold 完整結構後開啟「表面 (SAS)」確認標籤接點是否暴露在溶劑外。"],
+    cm:["殘基接觸圖與拓撲診斷","快速判斷折疊緊密度與長程交互作用（|i-j| ≥ 12）。","對角線旁密集帶＝α-螺旋；垂直對角線條紋＝反平行 β-折板；長程接觸 > 45% 代表高度協同折疊。","實戰建議：拖動 Cutoff 至 8.0 Å（標準 Cα 接觸定義）觀察核心穩定度。"],
+    rama:["拉氏圖立體化學品管 (QC)","驗證 PDB 或 AlphaFold 預測結構的主鏈二面角 (φ, ψ) 是否合理。","高品質晶體結構核心允許區應 > 90%；Gly 具高彈性、Pro 受環狀側鏈限制屬正常現象。","實戰建議：若異常殘基過多，設計突變前應先檢查該區是否為柔性環區 (Loop) 或低解析度區。"],
+    mut:["定點突變與二硫鍵穩定化設計","篩選能提高熱穩定性 (ΔΔG < 0, ΔTm > 0) 或避免破壞核心的突變位點。","ΔΔG < -3 kJ/mol 為顯著穩定化；> +10 kJ/mol 為嚴重破壞。二硫鍵理想幾何：Cα 4.5–6.8 Å、Cβ 3.4–4.8 Å。","實戰建議：點「⚡ 套用至 Model B」比對熱力學，點「🧪 加入實驗流程」會自動串聯至 SDM 引子與 SOP。"],
+    fasta:["理化參數與 NanoDrop 定量基準","計算表現與純化前必備的分子量 (MW)、等電點 (pI)、親疏水性與 UV280 消光係數。","GRAVY < 0 偏親水易溶；緩衝液 pH 應距離 pI 至少 ±1.2 避免等電點沉澱；NanoDrop 濃度 = A280 / A280(0.1%)。","實戰建議：若 Cys ≥ 2 且需形成二硫鍵，表現宿主請避開一般 BL21(DE3) 改用 SHuffle T7。"],
+    nt:["密碼子優化與 mRNA 5' 翻譯起始評估","將胺基酸逆轉譯為目標宿主偏好 cDNA，排查轉譯停頓風險。","高表現 CAI 建議 > 0.80；GC% 維持 45–60%；mRNA 5' 前 30 nt 折疊 ΔG 若過負（< -8 kcal/mol）易阻礙核糖體結合。","實戰建議：若偵測到稀有密碼子簇，建議改用宿主優化序列或 Rosetta(DE3) 菌株。"],
+    clone:["分子選殖與 SDM 定點突變引子設計","同時支援整段基因選殖（Sticky-End / Gibson / Golden Gate）與現有質體定點突變（QuikChange / Q5 SDM）。","PCR 退火區建議 18–24 bp、Tm 55–65°C、正反引子 ΔTm < 3°C；SDM 突變點置中（QuikChange）或位於 5' 端（Q5）。","實戰建議：設計完的引子與 Ta 會自動同步到「完整實驗流程 SOP」的 PCR 配方計算器。"],
+    thermo:["三態折疊熱力學與熱熔解動力學","即時模擬未折疊態 (U)、過渡態 (TS) 與天然態 (N) 能量變化對折疊速率與 Tm 的影響。","自發折疊需 ΔG < 0；過渡態 TS 必須高於 U 與 N；ΔG‡ 每降低 5.7 kJ/mol，25°C 折疊速率約快 10 倍。","實戰建議：先按上方「套用結構推算值至 Model A」，再到突變頁把突變套用至 Model B 直接比較 ΔTm。"],
+    lab:["五階段濕實驗標準作業流程 (SOP)","整合突變構築體、宿主載體、Q5 PCR 配方、純化緩衝液 pH 與 DSF/NanoDSF 驗證的完整實驗單。","延伸時間以 Q5 30 s/kb 估算；IMAC 鎳柱洗脫常採 20 → 40 → 250 mM Imidazole；DSF 蛋白濃度約 0.2 mg/mL。","實戰建議：所有勾選進度與實驗筆記會自動存於本機瀏覽器，完成後可一鍵匯出離線 SOP 帶進實驗室。"],
+    exp:["成果封裝與跨軟體交接","匯出獨立可列印報告 (.html)、SnapGene/Benchling 質體圖譜 (.gb) 與機器可讀專案檔 (.json)。","GenBank (.gb) 已包含 CDS 轉譯區與融合標籤特徵註解，直接拖入 SnapGene 即可畫圖譜。","實戰建議：保留 .json 專案檔方便日後比對或交給 AI 進行下游分析。"]
+  },
+  en:{
+    "3d":["3D Structure & Fold Inspection","Inspect 3D architecture and N/C-termini exposure before choosing fusion tag placement.","Globular domains typically have 40–70% α/β content; buried termini should avoid bulky tags.","Lab Tip: Load full-atom RCSB or AlphaFold structures and toggle SAS surface to verify accessible termini."],
+    cm:["Contact Map & Topology","Evaluate fold compactness and long-range tertiary contacts (|i-j| ≥ 12).","Diagonal bands = α-helices; anti-diagonal stripes = antiparallel β-sheets; >45% long-range indicates cooperative folding.","Lab Tip: Standard Cα contact cutoff is 8.0 Å."],
+    rama:["Ramachandran Stereochemistry QC","Validate backbone (φ, ψ) geometry of crystal or AlphaFold models.","High-res structures have >90% residues in favored regions; Gly/Pro follow distinct geometry.","Lab Tip: Check outlier loops before introducing stabilizing mutations."],
+    mut:["In Silico Mutation & Disulfide Design","Screen point mutations (ΔΔG, ΔTm) and De Novo disulfide pairs (Hazes & Dijkstra geometry).","ΔΔG < -3 kJ/mol stabilizing; > +10 kJ/mol strongly destabilizing. Ideal S-S: Cα 4.5–6.8 Å, Cβ 3.4–4.8 Å.","Lab Tip: Click '+ 加入實驗' to lock mutations into SDM primers and the Wet-Lab SOP."],
+    fasta:["Biochemistry & NanoDrop Reference","Compute MW, pI, GRAVY hydropathy, and Pace (1995) ε280 for UV280 quantification.","GRAVY < 0 favors solubility; set buffer pH ≥ 1.2 units away from pI; Conc (mg/mL) = A280 / A280(0.1%).","Lab Tip: If Cys ≥ 2 with disulfides, use oxidizing SHuffle T7 or mammalian expression."],
+    nt:["Codon Optimization & mRNA 5' ΔG","Reverse-translate for host expression and detect rare codon clusters.","Target CAI > 0.80, GC 45–60%; avoid overly stable 5' 30 nt mRNA hairpins (ΔG < -8 kcal/mol).","Lab Tip: Switch host strategy to match your expression vector."],
+    clone:["Cloning & SDM Primer Designer","Design full-gene cloning primers (Sticky-End/Gibson/Golden Gate) or site-directed mutagenesis (QuikChange/Q5 SDM).","Annealing region 18–24 bp, Tm 55–65°C, ΔTm < 3°C between Fwd and Rev.","Lab Tip: Primers and Ta auto-sync with the PCR Master Mix calculator in Wet-Lab SOP."],
+    thermo:["3-State Folding Thermodynamics & Kinetics","Explore how U/TS/N energy shifts affect folding barriers, Eyring rates, and melting temp (Tm).","Spontaneous folding requires ΔG < 0 and TS > max(U, N).","Lab Tip: Sync structure to Model A and mutation to Model B for live ΔTm comparison."],
+    lab:["5-Stage Wet-Lab SOP Pipeline","End-to-end protocol linking construct, host/vector, Q5 PCR mix, purification buffers, and DSF QC.","Q5 extension ~30 s/kb; buffer pH offset from pI prevents precipitation; DSF target ~0.2 mg/mL.","Lab Tip: Checklist & notes auto-save in browser localStorage."],
+    exp:["Export & Software Handoff","Export printable HTML report, SnapGene GenBank (.gb), and structured JSON.","GenBank includes annotated CDS, tags, linkers, and protease sites.","Lab Tip: Save JSON to archive full experiment state."]
+  }
+};
+const hbHtml = key => {
+  if(!S.handbook) return "";
+  const item=(HANDBOOK[S.lang]||HANDBOOK.zh)[key]; if(!item) return "";
+  const isZh=S.lang==="zh";
+  return `<div class="hb"><div class="hb-t"><span>📖 ${isZh?"實驗室手冊":"Lab Handbook"} — ${item[0]}</span></div><div class="hb-g">
+    <div class="hb-i"><b>${isZh?"🎯 操作目的":"🎯 Purpose"}</b><span>${item[1]}</span></div>
+    <div class="hb-i"><b>${isZh?"📏 標準判讀基準":"📏 Reference Criteria"}</b><span>${item[2]}</span></div>
+    <div class="hb-i"><b>${isZh?"⚠️ 實驗室避坑提醒":"⚠️ Lab Protocol Tip"}</b><span>${item[3]}</span></div>
+  </div></div>`;
+};
+const STORE_KEY = "protein_studio_pro_v1";
+const S = {
+lang:"zh", handbook:true, tab:"3d", bundle:null, title:"", chainIdx:0,
+a:{u:0,ts:25,n:-20}, b:{u:0,ts:18,n:-12},
+dmCache:new WeakMap(), bpCache:new WeakMap(), ssCache:new WeakMap(), patchCache:new WeakMap(),
+molViewer:null, molSurf:null, molSpin:false, molLastSurf:"none",
+v3d:"3dmol", caColor:"ribbon", caNodes:false,
+cmMode:"binary", cmCut:8.0,
+mutRes:null, mutAa:"A",
+ntStrat:"ecoli", ntWin:15, ntEnds:true,
+clN:"6xHis", clC:"None", clP:"TEV (ENLYFQ↓G)", clL:"GGGGS", clM:"sticky", clFe:null, clRe:null, clAl:21,
+clV5:"CGCCATGGGGATCCGAATTC", clV3:"CTCGAGTCTAGAAAGCTTGC", clGe:"BsaI", clO5:"AATG", clO3:"GCTT",
+sdmRes:null, sdmAa:"A", sdmFlank:15,
+thSub:"2d", fType:"smooth", fTgt:"Model A", fRough:2.5, fDepth:9.0, kMin:275, kMax:420, kDs:-0.25,
+pipe:{ mutations:[], vector:"pet28", pcrN:4, pcrVol:50, notes:"", checks:{} },
+lastPrimers:null
+};
+const saveState = () => {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({lang:S.lang,handbook:S.handbook,a:S.a,b:S.b,clN:S.clN,clC:S.clC,clP:S.clP,clL:S.clL,clM:S.clM,clAl:S.clAl,pipe:S.pipe})); } catch(_) {}
+};
+const loadSavedState = () => {
+  try {
+    const raw=localStorage.getItem(STORE_KEY); if(!raw) return;
+    const d=JSON.parse(raw);
+    if(d.lang) S.lang=d.lang;
+    if(typeof d.handbook==="boolean") S.handbook=d.handbook;
+    if(d.a) Object.assign(S.a,d.a);
+    if(d.b) Object.assign(S.b,d.b);
+    ["clN","clC","clP","clL","clM","clAl"].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; });
+    if(d.pipe) Object.assign(S.pipe,d.pipe);
+  } catch(_) {}
+};
+const dihedralDeg = (p0, p1, p2, p3) => {
+const b0x=p0[0]-p1[0],b0y=p0[1]-p1[1],b0z=p0[2]-p1[2];
+const b1x=p2[0]-p1[0],b1y=p2[1]-p1[1],b1z=p2[2]-p1[2];
+const b2x=p3[0]-p2[0],b2y=p3[1]-p2[1],b2z=p3[2]-p2[2];
+const b1n=Math.hypot(b1x,b1y,b1z); if(b1n<1e-5) return null;
+const u1x=b1x/b1n,u1y=b1y/b1n,u1z=b1z/b1n;
+const d0=b0x*u1x+b0y*u1y+b0z*u1z, d2=b2x*u1x+b2y*u1y+b2z*u1z;
+const vx=b0x-d0*u1x,vy=b0y-d0*u1y,vz=b0z-d0*u1z;
+const wx=b2x-d2*u1x,wy=b2y-d2*u1y,wz=b2z-d2*u1z;
+const x=vx*wx+vy*wy+vz*wz;
+const cx=u1y*vz-u1z*vy,cy=u1z*vx-u1x*vz,cz=u1x*vy-u1y*vx;
+return Math.atan2(cx*wx+cy*wy+cz*wz, x)*57.2957795;
+};
+const getDM = ch => {
+if(S.dmCache.has(ch)) return S.dmCache.get(ch);
+const L=ch.n, c=ch.ca, dm=new Float32Array(L*L);
+for(let i=0;i<L;i++){
+const ix=c[i*3],iy=c[i*3+1],iz=c[i*3+2];
+for(let j=i+1;j<L;j++){
+const d=Math.hypot(ix-c[j*3],iy-c[j*3+1],iz-c[j*3+2]);
+dm[i*L+j]=d; dm[j*L+i]=d;
+}
+}
+S.dmCache.set(ch,dm); return dm;
+};
+const parsePDB = (txt, sourceName) => {
+const lines=txt.split(/\r?\n/), map=new Map();
+let model=0, hasSidechains=false;
+for(let i=0;i<lines.length;i++){
+const ln=lines[i];
+if(ln.startsWith("MODEL")){ model=parseInt(ln.slice(10).trim())||0; continue; }
+if(!ln.startsWith("ATOM  ")) continue;
+const alt=ln[16]; if(alt!==" "&&alt!=="A") continue;
+const atom=ln.slice(12,16).trim();
+if(atom==="CB"||atom==="CG"||atom==="SG") hasSidechains=true;
+if(atom!=="N"&&atom!=="CA"&&atom!=="C"&&atom!=="CB"&&atom!=="SG") continue;
+const resn=ln.slice(17,20).trim(), ch=ln[21].trim()||"A";
+const resi=parseInt(ln.slice(22,26)), icode=ln[26];
+if(Number.isNaN(resi)) continue;
+const x=parseFloat(ln.slice(30,38)),y=parseFloat(ln.slice(38,46)),z=parseFloat(ln.slice(46,54));
+if(Number.isNaN(x)) continue;
+const ck=`${model}:${ch}`;
+let cObj=map.get(ck);
+if(!cObj){ cObj={model,chain:ch,resMap:new Map(),order:[]}; map.set(ck,cObj); }
+const rk=`${resi}${icode}`;
+let r=cObj.resMap.get(rk);
+if(!r){ r={resi,resn,N:null,CA:null,C:null,CB:null,SG:null}; cObj.resMap.set(rk,r); cObj.order.push(r); }
+r[atom]=[x,y,z];
+}
+const chains=[];
+for(const cObj of map.values()){
+const res=cObj.order.filter(r=>r.CA && (AA3TO1[r.resn]||r.resn==="UNK"));
+const n=res.length; if(!n) continue;
+const ca=new Float32Array(n*3), cb=new Float32Array(n*3), rnums=new Int32Array(n);
+const rnames=[], seqArr=[], sgNums=[], sgPts=[];
+for(let i=0;i<n;i++){
+const r=res[i], a=r.CA;
+ca[i*3]=a[0]; ca[i*3+1]=a[1]; ca[i*3+2]=a[2];
+rnums[i]=r.resi; rnames.push(r.resn); seqArr.push(AA3TO1[r.resn]||"X");
+if(r.CB){ cb[i*3]=r.CB[0]; cb[i*3+1]=r.CB[1]; cb[i*3+2]=r.CB[2]; }
+else if(r.N && r.C){
+const vx=-(r.N[0]+r.C[0]-2*a[0]),vy=-(r.N[1]+r.C[1]-2*a[1]),vz=-(r.N[2]+r.C[2]-2*a[2]);
+const nv=Math.hypot(vx,vy,vz);
+if(nv>1e-4){ cb[i*3]=a[0]+vx/nv*1.52; cb[i*3+1]=a[1]+vy/nv*1.52; cb[i*3+2]=a[2]+vz/nv*1.52; }
+else { cb[i*3]=a[0]; cb[i*3+1]=a[1]; cb[i*3+2]=a[2]; }
+} else { cb[i*3]=a[0]; cb[i*3+1]=a[1]; cb[i*3+2]=a[2]; }
+if((r.resn==="CYS"||r.resn==="CYX"||r.resn==="CYM")&&r.SG){ sgNums.push(r.resi); sgPts.push(...r.SG); }
+}
+const rawSS=new Array(n).fill("C"), rPhi=[], rPsi=[], rNum=[], rNam=[], rAa=[];
+for(let i=0;i<n;i++){
+const r=res[i], prev=i>0?res[i-1]:null, next=i<n-1?res[i+1]:null;
+let phi=null, psi=null;
+if(prev&&prev.C&&r.N&&r.CA&&r.C && Math.hypot(prev.C[0]-r.N[0],prev.C[1]-r.N[1],prev.C[2]-r.N[2])<2.1) phi=dihedralDeg(prev.C,r.N,r.CA,r.C);
+if(next&&r.N&&r.CA&&r.C&&next.N && Math.hypot(r.C[0]-next.N[0],r.C[1]-next.N[1],r.C[2]-next.N[2])<2.1) psi=dihedralDeg(r.N,r.CA,r.C,next.N);
+if(phi!==null&&psi!==null){
+rPhi.push(phi); rPsi.push(psi); rNum.push(r.resi); rNam.push(r.resn); rAa.push(seqArr[i]);
+if(phi>=-115&&phi<=-30&&psi>=-75&&psi<=-10) rawSS[i]="H";
+else if(phi>=-175&&phi<=-45&&(psi>=85||psi<=-150)) rawSS[i]="E";
+}
+}
+const ss=new Array(n).fill("C");
+for(let i=0;i<n;){
+let j=i+1; while(j<n&&rawSS[j]===rawSS[i]) j++;
+if((rawSS[i]==="H"&&j-i>=4)||(rawSS[i]==="E"&&j-i>=3)) for(let k=i;k<j;k++) ss[k]=rawSS[i];
+i=j;
+}
+chains.push({
+model:cObj.model, chain:cObj.chain, n, sequence:seqArr.join(""),
+ca, cb, resNums:rnums, resNames:rnames, ss:ss.join(""),
+sgNums:new Int32Array(sgNums), sg:new Float32Array(sgPts),
+rama:{phi:new Float32Array(rPhi),psi:new Float32Array(rPsi),nums:new Int32Array(rNum),names:rNam,aa:rAa.join("")}
+});
+}
+return {sourceName, rawPdb:txt, hasSidechains, chains};
+};
+const getBiophys = ch => {
+if(S.bpCache.has(ch)) return S.bpCache.get(ch);
+const L=ch.n; if(L<4) return null;
+const dm=getDM(ch);
+let nC=0, sepSum=0, lrC=0;
+for(let i=0;i<L;i++) for(let j=i+3;j<L;j++){
+if(dm[i*L+j]<=8.0){ nC++; const s=j-i; sepSum+=s; if(s>=12) lrC++; }
+}
+const rco=nC?sepSum/(L*nC):0, lr=nC?lrC/nC:0;
+let mx=0,my=0,mz=0; const c=ch.ca;
+for(let i=0;i<L;i++){ mx+=c[i*3]; my+=c[i*3+1]; mz+=c[i*3+2]; }
+mx/=L; my/=L; mz/=L;
+const rad=new Float32Array(L); let r2s=0;
+for(let i=0;i<L;i++){ const d2=(c[i*3]-mx)**2+(c[i*3+1]-my)**2+(c[i*3+2]-mz)**2; rad[i]=Math.sqrt(d2); r2s+=d2; }
+const rg=Math.sqrt(r2s/L);
+let hTot=0, hBur=0;
+for(let i=0;i<L;i++) if(HYDRO.has(ch.sequence[i])){ hTot++; if(rad[i]<0.75*rg) hBur++; }
+const burial=hTot&&rg>0?hBur/hTot:0;
+const res={L,nContacts:nC,rco,lr,rg,burial,estU:0,estTs:clamp(10+120*rco,5,55),estN:clamp(-0.25*L*(0.6+0.8*burial),-55,-5)};
+S.bpCache.set(ch,res); return res;
+};
+const getDisulfide = ch => {
+if(S.ssCache.has(ch)) return S.ssCache.get(ch);
+const native=[]; const K=ch.sgNums.length;
+for(let i=0;i<K;i++) for(let j=i+1;j<K;j++){
+const d=Math.hypot(ch.sg[i*3]-ch.sg[j*3],ch.sg[i*3+1]-ch.sg[j*3+1],ch.sg[i*3+2]-ch.sg[j*3+2]);
+if(d<=2.5) native.push({r1:ch.sgNums[i],r2:ch.sgNums[j],d:+d.toFixed(2)});
+}
+const nSet=new Set(native.flatMap(b=>[`${b.r1}:${b.r2}`,`${b.r2}:${b.r1}`]));
+const L=ch.n, dm=getDM(ch), cb=ch.cb, cands=[];
+for(let i=0;i<L;i++){
+const a1=ch.sequence[i]; if(a1==="C"||a1==="P") continue;
+for(let j=i+4;j<L;j++){
+const a2=ch.sequence[j]; if(a2==="C"||a2==="P") continue;
+const dca=dm[i*L+j]; if(dca<4.5||dca>6.8) continue;
+if(nSet.has(`${ch.resNums[i]}:${ch.resNums[j]}`)) continue;
+const dcb=Math.hypot(cb[i*3]-cb[j*3],cb[i*3+1]-cb[j*3+1],cb[i*3+2]-cb[j*3+2]);
+if(dcb>=3.4&&dcb<=4.8){
+const pen=Math.abs(dca-5.6)+1.2*Math.abs(dcb-3.8), sd=j-i;
+const ddg=+(-6-2.5*Math.log(Math.max(4,sd))).toFixed(1);
+cands.push({r1:ch.resNums[i],a1,s1:ch.ss[i],r2:ch.resNums[j],a2,s2:ch.ss[j],dca:+dca.toFixed(2),dcb:+dcb.toFixed(2),pen,sd,ddg,tm:+(Math.abs(ddg)*0.4).toFixed(1)});
+}
+}
+}
+cands.sort((a,b)=>a.pen-b.pen);
+const out={native,cands:cands.slice(0,10)};
+S.ssCache.set(ch,out); return out;
+};
+const getPatches = ch => {
+if(S.patchCache.has(ch)) return S.patchCache.get(ch);
+const L=ch.n, c=ch.ca; let mx=0,my=0,mz=0;
+for(let i=0;i<L;i++){ mx+=c[i*3]; my+=c[i*3+1]; mz+=c[i*3+2]; }
+mx/=L; my/=L; mz/=L;
+const rad=new Float32Array(L); let r2=0;
+for(let i=0;i<L;i++){ const d2=(c[i*3]-mx)**2+(c[i*3+1]-my)**2+(c[i*3+2]-mz)**2; rad[i]=Math.sqrt(d2); r2+=d2; }
+const thr=0.85*Math.sqrt(r2/L), exp=[];
+for(let i=0;i<L;i++) if(HYDRO.has(ch.sequence[i])&&rad[i]>=thr) exp.push(i);
+const vis=new Uint8Array(exp.length), patches=[];
+for(let a=0;a<exp.length;a++){
+if(vis[a]) continue; vis[a]=1; const grp=[exp[a]], ia=exp[a];
+for(let b=a+1;b<exp.length;b++){
+if(vis[b]) continue; const ib=exp[b];
+if(Math.hypot(c[ia*3]-c[ib*3],c[ia*3+1]-c[ib*3+1],c[ia*3+2]-c[ib*3+2])<=7.0){ vis[b]=1; grp.push(ib); }
+}
+if(grp.length>=3) patches.push(grp);
+}
+const nE=exp.length, pct=+(nE/Math.max(1,L)*100).toFixed(1);
+const risk=patches.length>=2||nE>=12?["高聚集傾向 (High Risk)","b-warn"]:(patches.length===1||nE>=6?["中度聚集傾向 (Moderate)","b-info"]:["低聚集傾向 / 可溶性佳 (Low Risk)","b-ok"]);
+const out={nE,pct,nP:patches.length,risk:risk[0],cls:risk[1]};
+S.patchCache.set(ch,out); return out;
+};
+const predictMut = (ch, resNum, tgtAa) => {
+const idx=ch.resNums.indexOf(resNum); if(idx<0) return null;
+const orig=ch.sequence[idx], ss=ch.ss[idx], L=ch.n, c=ch.ca;
+let mx=0,my=0,mz=0; for(let i=0;i<L;i++){ mx+=c[i*3]; my+=c[i*3+1]; mz+=c[i*3+2]; }
+mx/=L; my/=L; mz/=L;
+let r2=0; for(let i=0;i<L;i++) r2+=(c[i*3]-mx)**2+(c[i*3+1]-my)**2+(c[i*3+2]-mz)**2;
+const rg=Math.sqrt(r2/L), rad=Math.hypot(c[idx*3]-mx,c[idx*3+1]-my,c[idx*3+2]-mz);
+let loc=0, salt=false;
+const opp=orig==="K"||orig==="R"?"DE":"KR";
+for(let k=0;k<L;k++){
+if(k===idx) continue;
+const d=Math.hypot(c[k*3]-c[idx*3],c[k*3+1]-c[idx*3+1],c[k*3+2]-c[idx*3+2]);
+if(d<=8.5) loc++;
+if(CHARGED.has(orig)&&!CHARGED.has(tgtAa)&&d<=4.5&&opp.includes(ch.sequence[k])) salt=true;
+}
+const buried=rad<0.75*rg||loc>=8;
+if(orig===tgtAa) return {mut:`${orig}${resNum}${tgtAa}`,resNum,orig,tgtAa,ss,buried,loc,ddg:0,kcal:0,dtm:0,imp:"野生型無變化 (Wild-Type)",cls:"b-info"};
+const co=HYDRO_C[orig]??2, ct=HYDRO_C[tgtAa]??1;
+let ddg=0;
+if(co>ct) ddg+=(co-ct)*(buried?4.8:1.5);
+else if(buried&&ct>co) ddg+=(ct-co)*2.2;
+if(ss==="H"){ if(tgtAa==="P") ddg+=14.5; else if(orig==="G"&&tgtAa==="A") ddg-=3.5; else if(tgtAa==="G") ddg+=6.5; }
+else if(ss==="E"){ if(tgtAa==="P") ddg+=12.0; else if(BETA_FAV.has(tgtAa)&&!BETA_FAV.has(orig)) ddg-=2.5; }
+if(salt) ddg+=10.5;
+if(orig==="P"&&ss!=="H") ddg+=3.0;
+const dtm=+(-ddg*0.4).toFixed(1), kcal=+(ddg/4.184).toFixed(2); ddg=+ddg.toFixed(1);
+const imp=ddg>=10?["顯著去穩定 (Highly Destabilizing)","b-err"]:ddg>=3?["中度去穩定 (Moderately Destabilizing)","b-warn"]:ddg<=-3?["顯著穩定化 (Stabilizing)","b-ok"]:["近中性 (Neutral)","b-info"];
+return {mut:`${orig}${resNum}${tgtAa}`,resNum,orig,tgtAa,ss,buried,loc,ddg,kcal,dtm,imp:imp[0],cls:imp[1]};
+};
+const revComp = s => [...s.toUpperCase()].reverse().map(c=>RC_MAP[c]||c).join("");
+const primerTm = s => {
+const u=s.toUpperCase(), n=u.length; if(!n) return 0;
+let gc=0; for(const c of u) if(c==="G"||c==="C") gc++;
+return +(n<14 ? 2*(n-gc)+4*gc : 64.9+41*(gc-16.4)/n).toFixed(1);
+};
+const revTranslate = (aa, strat="ecoli", ends=false) => {
+const tbl=CODONS[strat]||CODONS.ecoli, u=aa.toUpperCase();
+const out=[...u].map(c=>tbl[c]||"NNN");
+if(ends){ if(!u.startsWith("M")) out.unshift("AUG"); out.push("UAA"); }
+const mrna=out.join(""); return [mrna, mrna.replace(/U/g,"T")];
+};
+const caiAnd5Dg = (mrna, strat="ecoli") => {
+const tbl=CWEIGHT[strat==="human"?"human":"ecoli"];
+let ls=0, cnt=0;
+for(let i=0;i<=mrna.length-3;i+=3){ const w=tbl[mrna.slice(i,i+3)]; if(w){ ls+=Math.log(w); cnt++; } }
+const head=mrna.slice(0,30); let gc=0, au=0;
+for(const c of head){ if(c==="G"||c==="C") gc++; else if(c==="A"||c==="U") au++; }
+return [cnt?Math.exp(ls/cnt):0, +(-0.55*gc-0.15*au+4.2).toFixed(2)];
+};
+const scanRare = (mrna, host="ecoli") => {
+const tbl=CWEIGHT[host]||CWEIGHT.ecoli, rare=[];
+for(let i=0,k=0;i<=mrna.length-3;i+=3,k++) if((tbl[mrna.slice(i,i+3)]??1)<=0.15) rare.push(k);
+let clusters=0;
+for(let i=0;i<rare.length;){ let j=i+1; while(j<rare.length&&rare[j]-rare[j-1]<=4) j++; if(j-i>=2){ clusters++; i=j; } else i++; }
+return {total:rare.length, clusters};
+};
+const scanRE = cdna => {
+const hits={}, zeros=[];
+for(const [e,site] of Object.entries(RSITES)){
+const pos=[]; let i=cdna.indexOf(site);
+while(i!==-1){ pos.push(i+1); i=cdna.indexOf(site,i+1); }
+if(pos.length) hits[e]=pos; else zeros.push(e);
+}
+return [hits,zeros];
+};
+const buildConstruct = (core, nTag, cTag, prot, lnk) => {
+const parts=[], feats=[]; let pos=1;
+const add=(name,seq,type)=>{ parts.push(seq); feats.push({name,start:pos,end:pos+seq.length-1,type}); pos+=seq.length; };
+const ps=PROT[prot]||"";
+if(TAGS[nTag]){ add(`N-term ${nTag}`,TAGS[nTag],"tag"); if(ps) add(`Cleavage (${prot.split(" ")[0]})`,ps,"protease"); if(lnk) add("Linker",lnk,"linker"); }
+add("Target Core",core,"core");
+if(TAGS[cTag]){ if(lnk) add("Linker",lnk,"linker"); if(nTag==="None"&&ps) add(`Cleavage (${prot.split(" ")[0]})`,ps,"protease"); add(`C-term ${cTag}`,TAGS[cTag],"tag"); }
+return {fullAa:parts.join(""), feats};
+};
+const biochem = seq => {
+const s=[...seq.toUpperCase()].filter(c=>AA_MASS[c]); const L=s.length; if(!L) return null;
+let mw=-(L-1)*18.015, gr=0, ar=0, pos=0, neg=0, his=0, cys=0, tyr=0, trp=0;
+for(const c of s){
+mw+=AA_MASS[c]; gr+=KD_HYD[c];
+if("FWY".includes(c)) ar++;
+if(c==="K"||c==="R") pos++; else if(c==="D"||c==="E") neg++;
+else if(c==="H") his++; else if(c==="C") cys++; else if(c==="Y") tyr++;
+if(c==="W") trp++;
+}
+const q=ph=>1/(1+10**(ph-9.6))+pos/(1+10**(ph-10.5))+his/(1+10**(ph-6))-1/(1+10**(3.6-ph))-neg/(1+10**(4.2-ph))-cys/(1+10**(8.3-ph))-tyr/(1+10**(10.1-ph));
+let lo=0,hi=14; for(let i=0;i<30;i++){ const m=.5*(lo+hi); if(q(m)>0) lo=m; else hi=m; }
+const epsRed=trp*5500+tyr*1490, epsOx=epsRed+Math.floor(cys/2)*125;
+return {mw:mw/1000, pi:.5*(lo+hi), gravy:gr/L, chg:q(7.4), arom:ar/L*100, epsRed, epsOx, abs01:mw>0?epsOx/mw:0, cys};
+};
+const getEngineeredSeq = ch => {
+const arr=[...ch.sequence];
+for(const m of S.pipe.mutations){
+const idx=ch.resNums.indexOf(m.resNum);
+if(idx>=0) arr[idx]=m.tgtAa;
+}
+return arr.join("");
+};
+const energyCurve = (u, ts, n) => {
+const N=80, x=new Float32Array(2*N-1), y=new Float32Array(2*N-1);
+for(let i=0;i<N;i++){
+const t=i/(N-1), sm=t*t*(3-2*t);
+x[i]=.5*t; y[i]=u+(ts-u)*sm;
+if(i>0){ x[N-1+i]=.5+.5*t; y[N-1+i]=ts+(n-ts)*sm; }
+}
+return [x,y];
+};
+const tempSweep = (dgF, dgU, ds=-0.25, tMin=275, tMax=420, steps=100) => {
+const T=new Float32Array(steps), invT=new Float32Array(steps), lkF=new Float32Array(steps), lkU=new Float32Array(steps), lnF=new Float32Array(steps), lnU=new Float32Array(steps);
+const R=8.3144626e-3, prefC=1e-6*2.0836619e10;
+for(let i=0;i<steps;i++){
+const t=tMin+(tMax-tMin)*i/(steps-1), dT=t-298.15;
+const ef=Math.max(-80,Math.min(50,-(dgF-dT*0.6*ds)/(R*t)));
+const eu=Math.max(-80,Math.min(50,-(dgU-dT*(-0.4)*ds)/(R*t)));
+const kf=prefC*t*Math.exp(ef), ku=prefC*t*Math.exp(eu);
+T[i]=t; invT[i]=1000/t; lkF[i]=Math.log10(kf); lkU[i]=Math.log10(ku); lnF[i]=Math.log(kf); lnU[i]=Math.log(ku);
+}
+let tm=null; const dgr=dgF-dgU;
+if(ds<0&&dgr<0){ const c=298.15+dgr/ds; if(c>=tMin&&c<=tMax) tm=c; }
+return {T,invT,lkF,lkU,lnF,lnU,tm};
+};
+const FUNNEL_GRIDS = {};
+const getFunnelGrid = N => {
+if(FUNNEL_GRIDS[N]) return FUNNEL_GRIDS[N];
+const ax=new Array(N), out=new Uint8Array(N*N), rPow=new Float32Array(N*N), sh=new Float32Array(N*N), rug=new Float32Array(N*N), mul=new Float32Array(N*N), f1=new Float32Array(N*N), f2=new Float32Array(N*N);
+let seed=42; const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+const hills=[]; for(let k=0;k<24;k++){ const rp=.22+rnd()*.63, th=rnd()*6.2832, ang=rnd()*6.2832; hills.push([rp*Math.cos(th),rp*Math.sin(th),Math.cos(ang),Math.sin(ang),.06+rnd()*.1,.035+rnd()*.055,-1.6+rnd()*2.8]); }
+for(let i=0;i<N;i++) ax[i]=+((-1+2*i/(N-1))*1.2).toFixed(3);
+for(let iy=0;iy<N;iy++){
+const v=-1+2*iy/(N-1);
+for(let ix=0;ix<N;ix++){
+const idx=iy*N+ix, u=-1+2*ix/(N-1), r=Math.hypot(u,v);
+if(r>1){ out[idx]=1; continue; }
+rPow[idx]=r**1.4;
+sh[idx]=Math.exp(-(((r-.55)/.14)**2));
+let loc=0;
+for(const h of hills){ const dx=u-h[0], dy=v-h[1], xr=(dx*h[2]+dy*h[3])/h[4], yr=(-dx*h[3]+dy*h[2])/h[5]; loc+=h[6]*Math.exp(-0.5*(xr*xr+yr*yr)); }
+const r55=(r/.55)**2, env=Math.min(1.1,r55*Math.exp(1-r55));
+rug[idx]=env*(0.45*Math.sin(5*u+3*v)+0.35*Math.cos(9*u-7*v)+0.2*Math.sin(15*u+13*v)+0.65*loc);
+mul[idx]=-Math.exp(-(((u+.35)**2+(v-.2)**2)/.08))-Math.exp(-(((u-.25)**2+(v+.4)**2)/.08))-0.7*Math.exp(-(((u-.55)**2+(v-.15)**2)/.08));
+f1[idx]=5*Math.exp(-((r/.15)**2)); f2[idx]=1-Math.exp(-((r/.25)**2));
+}
+}
+return FUNNEL_GRIDS[N]={N,ax,out,rPow,sh,rug,mul,f1,f2};
+};
+const makeFunnelTrace = (m, type, rough, depth, zRange, N=56) => {
+const g=getFunnelGrid(N), Z=new Array(N);
+const shH=Math.max(0,m.ts-m.u)*0.15, du=m.u-m.n, minGap=0.15*Math.max(2,Math.abs(du));
+for(let iy=0;iy<N;iy++){
+const row=new Array(N), base=iy*N;
+for(let ix=0;ix<N;ix++){
+const idx=base+ix; if(g.out[idx]){ row[ix]=null; continue; }
+let z=m.n+du*g.rPow[idx]+shH*g.sh[idx];
+if(type==="rugged"){
+const zr=z+rough*g.rug[idx], fl=m.n-g.f1[idx]+minGap*g.f2[idx];
+z=Math.max(zr,fl)+Math.log1p(Math.exp(-5*Math.abs(zr-fl)))/5;
+} else if(type==="multi") z+=depth*g.mul[idx];
+row[ix]=+z.toFixed(2);
+}
+Z[iy]=row;
+}
+const tr={type:"surface",x:g.ax,y:g.ax,z:Z,colorscale:"Viridis",colorbar:{title:"kJ/mol"},connectgaps:false};
+if(zRange){ tr.cmin=zRange[0]; tr.cmax=zRange[1]; }
+return tr;
+};
+const sciLayout = (extra={}) => Object.assign({
+paper_bgcolor:"#ffffff", plot_bgcolor:"#ffffff", font:{color:"#0f172a",size:12,family:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"},
+margin:{l:56,r:24,t:50,b:48},
+xaxis:{gridcolor:"#e2e8f0",zerolinecolor:"#cbd5e1",linecolor:"#94a3b8"},
+yaxis:{gridcolor:"#e2e8f0",zerolinecolor:"#cbd5e1",linecolor:"#94a3b8"}
+}, extra);
+const ssSummary = (ss, t) => {
+const n=Math.max(1,ss.length); let h=0,e=0,c=0;
+for(const ch of ss){ if(ch==="H") h++; else if(ch==="E") e++; else c++; }
+const hp=h/n*100, ep=e/n*100, cp=c/n*100;
+const cls=hp>=15&&ep>=15?t.cls[2]:hp>=20?t.cls[0]:ep>=20?t.cls[1]:t.cls[3];
+return {hp,ep,cp,cls};
+};
+const updateSidebarParams = () => {
+$("sideA").textContent=`U=${S.a.u.toFixed(1)} | TS=${S.a.ts.toFixed(1)} | N=${S.a.n.toFixed(1)}`;
+$("sideB").textContent=`U=${S.b.u.toFixed(1)} | TS=${S.b.ts.toFixed(1)} | N=${S.b.n.toFixed(1)}`;
+$("sidePipe").textContent=S.pipe.mutations.length?S.pipe.mutations.map(m=>m.label).join(", "):"Wild-Type (無突變)";
+};
+const renderHeader = () => {
+const t=I18N[S.lang];
+$("appTitle").textContent=t.title; $("appSub").textContent=t.sub;
+$("lbSrc").textContent=t.src; $("lbParams").textContent=t.params; $("sideHint").textContent=t.hint;
+updateSidebarParams();
+$("navBar").innerHTML=t.nav.map(([k,l])=>`<button data-t="${k}" class="${S.tab===k?"act":""}">${l}</button>`).join("");
+$("navBar").querySelectorAll("button").forEach(b=>b.onclick=()=>{ if(S.tab===b.dataset.t) return; S.tab=b.dataset.t; renderHeader(); renderTab(); });
+$("btnHandbook").textContent=S.lang==="zh"?`📖 實驗室手冊：${S.handbook?"開":"關"}`:`📖 Handbook: ${S.handbook?"ON":"OFF"}`;
+$("btnHandbook").classList.toggle("pri", S.handbook);
+if(!S.bundle||!S.bundle.chains.length){ $("topSummary").style.display="none"; return; }
+$("topSummary").style.display="block";
+$("structHdr").textContent=`🔬 ${S.title}`;
+const sel=$("topChainSel");
+sel.innerHTML=S.bundle.chains.map((c,i)=>`<option value="${i}" ${i===S.chainIdx?"selected":""}>Model ${c.model} - Chain ${c.chain} (${c.n} aa)</option>`).join("");
+const ch=S.bundle.chains[S.chainIdx], bp=S.bundle.seqOnly?null:getBiophys(ch);
+if(bp){
+$("bpMetrics").innerHTML=[[t.rco,bp.rco.toFixed(3)],[t.lr,(bp.lr*100).toFixed(1)+"%"],[t.rg,bp.rg.toFixed(2)+" Å"],[t.core,(bp.burial*100).toFixed(1)+"%"]]
+.map(([l,v])=>`<div class="m"><div class="l">${l}</div><div class="v">${v}</div></div>`).join("");
+$("btnSyncA").style.display="block";
+$("btnSyncA").textContent=t.syncA.replace("{ts}",bp.estTs.toFixed(1)).replace("{n}",bp.estN.toFixed(1));
+$("btnSyncA").onclick=()=>{
+S.a.u=bp.estU; S.a.ts=bp.estTs; S.a.n=bp.estN; updateSidebarParams(); saveState();
+toast(`Model A → TS=${bp.estTs}, N=${bp.estN} kJ/mol`);
+if(S.tab==="thermo") renderTab();
+};
+} else {
+const bio=biochem(ch.sequence)||{mw:0,pi:0,gravy:0,epsOx:0};
+$("bpMetrics").innerHTML=[["模式","純序列 (FASTA)"],["分子量 (MW)",`${bio.mw.toFixed(2)} kDa`],["理論 pI",bio.pi.toFixed(2)],["ε₂₈₀ (M⁻¹cm⁻¹)",String(bio.epsOx)]]
+.map(([l,v])=>`<div class="m"><div class="l">${l}</div><div class="v">${v}</div></div>`).join("");
+$("btnSyncA").style.display="none";
+}
+};
+const renderTab = () => {
+cleanupView();
+const tok=viewToken, ws=$("workspace"), t=I18N[S.lang];
+if(!S.bundle||!S.bundle.chains.length){ ws.innerHTML=`<div class="card">請於左側選擇結構來源。</div>`; return; }
+const ch=S.bundle.chains[S.chainIdx], hb=hbHtml(S.tab);
+if(S.tab==="3d") render3D(ws, ch, t, tok);
+else if(S.tab==="cm") renderCM(ws, ch, tok);
+else if(S.tab==="rama") renderRama(ws, ch, tok);
+else if(S.tab==="mut") renderMut(ws, ch);
+else if(S.tab==="fasta") renderFasta(ws);
+else if(S.tab==="nt") renderNT(ws, ch, tok);
+else if(S.tab==="clone") renderClone(ws, ch);
+else if(S.tab==="thermo") renderThermo(ws, tok);
+else if(S.tab==="lab") renderLab(ws, ch, t);
+else if(S.tab==="exp") renderExport(ws, ch, t);
+if(hb) ws.insertAdjacentHTML("afterbegin", hb);
+};
+const render3D = (ws, ch, t, tok) => {
+if(S.bundle.seqOnly){ ws.innerHTML=`<div class="card"><span class="badge b-info">📄 純序列模式 (FASTA) 無 3D 座標</span><p class="sub" style="margin-top:8px">若需要 3D 結構與接觸圖分析，請於左側切換至 <b>AFDB</b> 輸入 UniProt ID 自動抓取 AlphaFold 預測結構，其餘生化、密碼子、選殖/SDM、熱力學與 SOP 功能皆可直接使用！</p></div>`; return; }
+const ss=ssSummary(ch.ss, t);
+  ws.innerHTML=`
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div class="seg" id="v3Seg">
+          <button data-v="3dmol" class="${S.v3d==="3dmol"?"act":""}">🌟 3Dmol.js WebGL</button>
+          <button data-v="plotly" class="${S.v3d==="plotly"?"act":""}">🎀 Plotly Cα Ribbon / GC%</button>
+        </div>
+        <div id="pl3Ctrl" class="row" style="display:${S.v3d==="plotly"?"flex":"none"}">
+          <select id="caCol" style="width:auto">
+            <option value="ribbon" ${S.caColor==="ribbon"?"selected":""}>🎀 二級結構飄帶</option>
+            <option value="sequence" ${S.caColor==="sequence"?"selected":""}>N → C 序列漸層</option>
+            <option value="codon_gc" ${S.caColor==="codon_gc"?"selected":""}>密碼子 GC% 映射</option>
+          </select>
+          <label style="margin:0;cursor:pointer"><input type="checkbox" id="caNd" ${S.caNodes?"checked":""}> Cα 點</label>
+        </div>
+      </div>
+      ${!S.bundle.hasSidechains?`<div style="font-size:12px;color:var(--warn);margin-bottom:8px">ℹ️ 目前結構為主鏈座標（無側鏈原子），建議使用 RCSB 下載完整結構（如 1CRN / 1UBQ / 4HHB）以檢視側鏈與配體。</div>`:""}
+      <div id="v3Host"></div>
+    </div>
+    <div class="card">
+      <h2>📊 二級結構組成與 SCOP 拓撲分類</h2>
+      <div class="g4">
+        <div class="m"><div class="l">α-Helix</div><div class="v">${ss.hp.toFixed(1)}%</div></div>
+        <div class="m"><div class="l">β-Sheet</div><div class="v">${ss.ep.toFixed(1)}%</div></div>
+        <div class="m"><div class="l">Coil / Loop</div><div class="v">${ss.cp.toFixed(1)}%</div></div>
+        <div class="m"><div class="l">SCOP Fold Class</div><div class="v" style="font-size:14px">${ss.cls}</div></div>
+      </div>
+</div>`;
+$("v3Seg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ if(S.v3d===b.dataset.v) return; S.v3d=b.dataset.v; renderTab(); });
+if(S.v3d==="3dmol"){
+    $("v3Host").innerHTML=`
+      <div id="molBox">
+        <div id="molBar">
+          <select id="mSt"><option value="cartoon">Cartoon</option><option value="stick">Sticks</option><option value="sphere">Spheres</option><option value="line">Lines</option></select>
+          <select id="mCo"><option value="spectrum">Spectrum</option><option value="ss">Secondary Struct</option><option value="chain">Chain</option><option value="amino">Hydrophobic</option></select>
+          <select id="mSf"><option value="none">No Surface</option><option value="sas">SAS Surface</option><option value="vdw">VDW Surface</option></select>
+          <label style="margin:0;cursor:pointer;color:#e2e8f0"><input type="checkbox" id="mSc"> 側鏈</label>
+          <label style="margin:0;cursor:pointer;color:#e2e8f0"><input type="checkbox" id="mSp"> 自轉</label>
+          <button id="mRst">🔄 重置</button>
+        </div>
+        <div id="molView"></div><div id="molTip"></div>
+</div>`;
+const initMol=()=>{
+if(tok!==viewToken||!$("molView")) return;
+if(!window.$3Dmol){ setTimeout(initMol,120); return; }
+const v=$3Dmol.createViewer($("molView"),{backgroundColor:"#070c18",antialias:true});
+S.molViewer=v; S.molLastSurf="none"; v.addModel(S.bundle.rawPdb,"pdb");
+const upd=(forceSurf=false)=>{
+if(!S.molViewer||tok!==viewToken) return;
+const sm=$("mSt").value, cm=$("mCo").value, sfm=$("mSf").value, side=$("mSc").checked;
+const cs=cm==="spectrum"?{color:"spectrum"}:cm==="ss"?{colorscheme:"ssJmol"}:cm==="chain"?{colorscheme:"chain"}:{colorscheme:"amino"};
+const ms={}; ms[sm]=sm==="sphere"?{scale:.35,...cs}:{...cs};
+v.setStyle({},{});
+v.setStyle({},ms);
+if(side&&sm==="cartoon") v.setStyle({hetflag:false},{cartoon:cs,stick:{radius:.16,colorscheme:"amino"}});
+v.setStyle({hetflag:true},{stick:{radius:.28,colorscheme:"element"},sphere:{scale:.3}});
+if(forceSurf||sfm!==S.molLastSurf){
+try{ v.removeAllSurfaces(); }catch(_){}
+S.molSurf=null;
+if(sfm==="sas") S.molSurf=v.addSurface($3Dmol.SurfaceType.SAS,{opacity:.62,color:cm==="spectrum"?"spectrum":"#38bdf8"});
+else if(sfm==="vdw") S.molSurf=v.addSurface($3Dmol.SurfaceType.VDW,{opacity:.52,color:"#818cf8"});
+S.molLastSurf=sfm;
+}
+v.render();
+};
+["mSt","mCo","mSc"].forEach(id=>$(id).onchange=()=>requestAnimationFrame(()=>upd(false)));
+$("mSf").onchange=()=>requestAnimationFrame(()=>upd(true));
+$("mSp").onchange=()=>{ S.molSpin=$("mSp").checked; v.spin(S.molSpin,[0,1,0]); };
+$("mRst").onclick=()=>{ v.zoomTo(); v.render(); };
+v.setHoverable({},true,a=>{ if(a&&$("molTip")){ const tp=$("molTip"); tp.style.display="block"; tp.innerHTML=`<strong>${a.resn} ${a.resi}</strong> (Chain ${a.chain}) - ${a.atom}`; }},()=>{ if($("molTip")) $("molTip").style.display="none"; });
+upd(false); v.zoomTo(); v.render();
+};
+initMol();
+} else {
+$("v3Host").innerHTML=`<div id="pl3" class="plot" style="height:550px"></div>`;
+const drawCa=(recreate=true)=>{
+if(tok!==viewToken||!$("pl3")) return;
+if(!window.Plotly){ setTimeout(()=>drawCa(true),120); return; }
+const c=ch.ca, n=ch.n, xs=[],ys=[],zs=[],txt=[];
+for(let i=0;i<n;i++){ xs.push(c[i*3]); ys.push(c[i*3+1]); zs.push(c[i*3+2]); txt.push(`${ch.resNames[i]} ${ch.resNums[i]} (${ch.sequence[i]}) | ${ch.ss[i]}`); }
+const traces=[];
+if(S.caColor==="ribbon"){
+const segs={H:{x:[],y:[],z:[]},E:{x:[],y:[],z:[]},C:{x:[],y:[],z:[]}};
+const stMap={H:["α-Helix","#e11d48",10],E:["β-Sheet","#2563eb",8],C:["Coil","#94a3b8",3.5]};
+for(let i=0;i<n;){
+let j=i+1; while(j<n&&ch.ss[j]===ch.ss[i]) j++;
+const g=segs[ch.ss[i]], e=Math.min(n,j+1);
+for(let k=i;k<e;k++){ g.x.push(xs[k]); g.y.push(ys[k]); g.z.push(zs[k]); }
+g.x.push(null); g.y.push(null); g.z.push(null);
+i=j;
+}
+for(const k of ["H","E","C"]) if(segs[k].x.length){
+traces.push({type:"scatter3d",mode:"lines",x:segs[k].x,y:segs[k].y,z:segs[k].z,name:stMap[k][0],line:{color:stMap[k][1],width:stMap[k][2]},hoverinfo:"skip"});
+}
+traces.push({type:"scatter3d",mode:"markers",x:xs,y:ys,z:zs,text:txt,hoverinfo:"text",showlegend:false,marker:{size:S.caNodes?4:2.5,color:[...ch.ss].map(s=>stMap[s][1]),opacity:S.caNodes?.95:.02}});
+} else {
+let col, cscale;
+if(S.caColor==="sequence"){ col=Array.from({length:n},(_,i)=>i+1); cscale="Turbo"; }
+else { const [,cdna]=revTranslate(ch.sequence,"human",false); col=Array.from({length:n},(_,i)=>{ const sub=cdna.slice(i*3,i*3+3); return ((sub.match(/[GC]/g)||[]).length/3*100); }); cscale="RdYlBu"; }
+traces.push({type:"scatter3d",mode:S.caNodes?"lines+markers":"lines",x:xs,y:ys,z:zs,text:txt,hoverinfo:"text",name:`Chain ${ch.chain}`,line:{width:6,color:col,colorscale:cscale},marker:{size:3.5,color:col,colorscale:cscale}});
+}
+traces.push({type:"scatter3d",mode:"markers+text",x:[xs[0],xs[n-1]],y:[ys[0],ys[n-1]],z:[zs[0],zs[n-1]],text:[`${ch.chain}:N`,`${ch.chain}:C`],textposition:"top center",marker:{size:6,symbol:"diamond",color:"#0f172a"},showlegend:false,hoverinfo:"skip"});
+const lay=sciLayout({margin:{l:0,r:0,t:42,b:0},title:`3D Cα Backbone — Chain ${ch.chain} (${n} aa)`,scene:{xaxis:{title:"X (Å)"},yaxis:{title:"Y (Å)"},zaxis:{title:"Z (Å)"},aspectmode:"data"}});
+if(recreate){ try{Plotly.purge("pl3");}catch(_){} Plotly.newPlot("pl3",traces,lay,{responsive:true}); }
+else Plotly.react("pl3",traces,lay);
+};
+$("caCol").onchange=()=>{ S.caColor=$("caCol").value; requestAnimationFrame(()=>drawCa(true)); };
+$("caNd").onchange=()=>{ S.caNodes=$("caNd").checked; requestAnimationFrame(()=>drawCa(true)); };
+drawCa(true);
+}
+};
+const renderCM = (ws, ch, tok) => {
+  if(S.bundle.seqOnly){ ws.innerHTML=`<div class="card"><span class="badge b-info">📄 純序列模式無 3D 座標，無法繪製 Cα 接觸圖。請使用 RCSB / AFDB 或上傳 PDB。</span></div>`; return; }
+  ws.innerHTML=`
+    <div class="card">
+      <div class="g3" style="margin-bottom:10px">
+        <div><label>顯示模式</label><select id="cmMd"><option value="binary" ${S.cmMode==="binary"?"selected":""}>二值化接觸圖 (Contact Map)</option><option value="distance" ${S.cmMode==="distance"?"selected":""}>連續距離矩陣 (Distance Å)</option></select></div>
+        <div style="grid-column:span 2"><div class="sl-hdr"><span>空間接觸閾值 (Cutoff Å)</span><b id="cmCutV">${S.cmCut.toFixed(1)} Å</b></div><input type="range" id="cmCut" min="4" max="15" step="0.5" value="${S.cmCut}"></div>
+      </div>
+      <div id="cmPlot" class="plot" style="height:500px"></div>
+    </div>
+<div class="g3" id="cmStats"></div>`;
+const draw=(recreate=false)=>{
+if(tok!==viewToken||!$("cmPlot")) return;
+if(!window.Plotly){ setTimeout(()=>draw(true),120); return; }
+const L=ch.n, dm=getDM(ch), step=Math.max(1,Math.ceil(L/280)), subN=Math.ceil(L/step);
+const Z=new Array(subN), lbl=new Array(subN);
+for(let i=0;i<subN;i++){
+const ri=i*step; lbl[i]=`${ch.resNums[ri]} (${ch.sequence[ri]})`;
+const row=new Array(subN);
+for(let j=0;j<subN;j++){ const d=dm[ri*L+j*step]; row[j]=S.cmMode==="binary"?(d<=S.cmCut?1:0):+d.toFixed(2); }
+Z[i]=row;
+}
+const cs=S.cmMode==="binary"?[[0,"#f8fafc"],[1,"#1e3a8a"]]:"Viridis";
+const lay=sciLayout({title:`Cα Contact Map — Chain ${ch.chain} ${S.cmMode==="binary"?`(Cutoff ≤ ${S.cmCut.toFixed(1)} Å)`:"(Distance Matrix Å)"}`,xaxis:{title:"Residue Index",constrain:"domain",nticks:15},yaxis:{title:"Residue Index",scaleanchor:"x",scaleratio:1,nticks:15}});
+const tr=[{type:"heatmap",z:Z,x:lbl,y:lbl,colorscale:cs,reversescale:S.cmMode==="distance"}];
+if(recreate){ try{Plotly.purge("cmPlot");}catch(_){} Plotly.newPlot("cmPlot",tr,lay,{responsive:true}); }
+else Plotly.react("cmPlot",tr,lay);
+let tot=0, lr=0;
+for(let i=0;i<L;i++) for(let j=i+3;j<L;j++) if(dm[i*L+j]<=S.cmCut){ tot++; if(j-i>=12) lr++; }
+const lpct=tot?(lr/tot*100).toFixed(1):"0.0";
+    $("cmStats").innerHTML=`
+      <div class="m"><div class="l">非相鄰接觸對</div><div class="v">${tot} (${(tot/Math.max(1,L)).toFixed(2)}/aa)</div></div>
+      <div class="m"><div class="l">局部接觸 (3≤|i-j|<12)</div><div class="v">${tot-lr} (${(100-lpct).toFixed(1)}%)</div></div>
+<div class="m"><div class="l">長程接觸 (|i-j|≥12)</div><div class="v">${lr} (${lpct}%)</div></div>`;
+};
+$("cmMd").onchange=()=>{ S.cmMode=$("cmMd").value; scheduleFrame(()=>draw(true)); };
+$("cmCut").oninput=()=>{ S.cmCut=+$("cmCut").value; $("cmCutV").textContent=S.cmCut.toFixed(1)+" Å"; scheduleFrame(()=>draw(false)); };
+draw(true);
+};
+const renderRama = (ws, ch, tok) => {
+  if(S.bundle.seqOnly){ ws.innerHTML=`<div class="card"><span class="badge b-info">📄 純序列模式無主鏈原子座標，無法計算拉氏圖。請使用 RCSB / AFDB 或上傳 PDB。</span></div>`; return; }
+const r=ch.rama, n=r.phi.length;
+let ac=0,bc=0,fav=0; const out=[];
+for(let i=0;i<n;i++){
+const p=r.phi[i], q=r.psi[i];
+if(p>=-110&&p<=-35&&q>=-70&&q<=-15) ac++;
+if(p>=-165&&p<=-45&&q>=90&&q<=175) bc++;
+const ok=(p>=-140&&p<=-30&&q>=-80&&q<=10)||(p>=-180&&p<=-40&&q>=80&&q<=180)||(p>=30&&p<=100&&q>=0&&q<=90)||r.names[i]==="GLY";
+if(ok) fav++; else out.push(`${r.names[i]}${r.nums[i]} (${p.toFixed(0)}°,${q.toFixed(0)}°)`);
+}
+  ws.innerHTML=`
+    <div class="g3" style="margin-bottom:12px">
+      <div class="m"><div class="l">右手 α-螺旋區</div><div class="v">${n?(ac/n*100).toFixed(1):0}%</div></div>
+      <div class="m"><div class="l">β-折板區</div><div class="v">${n?(bc/n*100).toFixed(1):0}%</div></div>
+      <div class="m"><div class="l">核心允許區佔比</div><div class="v">${n?(fav/n*100).toFixed(1):0}%</div></div>
+    </div>
+    <div class="card"><div id="rmPlot" class="plot" style="height:500px"></div></div>
+<div class="card">${out.length?`<span class="badge b-warn">偵測到 ${out.length} 個構象異常殘基</span> <span style="font-size:12px;color:var(--mu)">${out.slice(0,8).join(", ")}</span>`:`<span class="badge b-ok">所有非甘胺酸殘基皆位於立體化學核心允許區</span>`}</div>`;
+const draw=()=>{
+if(tok!==viewToken||!$("rmPlot")) return;
+if(!window.Plotly){ setTimeout(draw,120); return; }
+const mk=(name,fn,sym,col)=>{
+const x=[],y=[],t=[];
+for(let i=0;i<n;i++) if(fn(r.names[i])){ x.push(r.phi[i]); y.push(r.psi[i]); t.push(`${r.names[i]} ${r.nums[i]} (${r.aa[i]})<br>φ=${r.phi[i].toFixed(1)}°, ψ=${r.psi[i].toFixed(1)}°`); }
+return {type:"scatter",mode:"markers",name:`${name} (${x.length})`,x,y,text:t,hoverinfo:"text",marker:{size:8,symbol:sym,color:col,opacity:.88}};
+};
+const shapes=[
+{type:"rect",x0:-165,y0:90,x1:-45,y1:175,fillcolor:"rgba(59,130,246,.16)",line:{color:"rgba(59,130,246,.5)",dash:"dot"}},
+{type:"rect",x0:-110,y0:-70,x1:-35,y1:-15,fillcolor:"rgba(16,185,129,.18)",line:{color:"rgba(16,185,129,.55)",dash:"dot"}},
+{type:"rect",x0:30,y0:10,x1:90,y1:75,fillcolor:"rgba(245,158,11,.16)",line:{color:"rgba(245,158,11,.5)",dash:"dot"}}
+];
+Plotly.newPlot("rmPlot",[mk("General",m=>m!=="GLY"&&m!=="PRO","circle","#2563eb"),mk("GLY",m=>m==="GLY","diamond","#dc2626"),mk("PRO",m=>m==="PRO","square","#7c3aed")],
+sciLayout({title:`Ramachandran Plot — Chain ${ch.chain}`,xaxis:{title:"φ (Phi°)",range:[-180,180],dtick:60,gridcolor:"#e2e8f0",zerolinecolor:"#94a3b8"},yaxis:{title:"ψ (Psi°)",range:[-180,180],dtick:60,scaleanchor:"x",scaleratio:1,gridcolor:"#e2e8f0",zerolinecolor:"#94a3b8"},shapes}),{responsive:true});
+};
+draw();
+};
+const renderMut = (ws, ch) => {
+  if(S.bundle.seqOnly){ ws.innerHTML=`<div class="card"><span class="badge b-info">📄 純序列模式無 3D 座標（無法計算核心埋藏與二硫鍵距離），但可直接至「✂️ 選殖/引子 → SDM 定點突變」設計突變引子！</span></div>`; return; }
+if(!S.mutRes||!ch.resNums.includes(S.mutRes)) S.mutRes=ch.resNums[0];
+const ss=getDisulfide(ch), pat=getPatches(ch);
+  ws.innerHTML=`
+    <div class="card">
+      <h3>🧬 1. In Silico 點突變與 ΔΔG 即時預測（含核心空洞＋立體位阻模型）</h3>
+      <div class="g4" style="margin-bottom:10px">
+        <div><label>突變位點</label><select id="mRes">${Array.from(ch.resNums).map((rn,i)=>`<option value="${rn}" ${rn===S.mutRes?"selected":""}>#${rn} (${ch.sequence[i]}) [${ch.ss[i]}]</option>`).join("")}</select></div>
+        <div><label>目標胺基酸</label><select id="mAa">${[..."ACDEFGHIKLMNPQRSTVWY"].map(a=>`<option value="${a}" ${a===S.mutAa?"selected":""}>${a}</option>`).join("")}</select></div>
+        <div style="display:flex;align-items:flex-end"><button class="pri" id="btnMutB" style="width:100%">⚡ 套用至 Model B</button></div>
+        <div style="display:flex;align-items:flex-end"><button id="btnLockMut" style="width:100%">🧪 加入實驗流程</button></div>
+      </div>
+      <div id="mutOut"></div>
+    </div>
+    <div class="card">
+      <h3>🔗 2. 二硫鍵工程設計 (De Novo S-S)</h3>
+      <div style="font-size:12.5px;color:var(--mu);margin-bottom:6px">${ss.native.length?"天然二硫鍵: "+ss.native.map(b=>`CYS${b.r1}↔CYS${b.r2} (${b.d}Å)`).join(" | "):"未偵測到既有天然二硫鍵。"}</div>
+      ${ss.cands.length?`<table><thead><tr><th>位點 1</th><th>位點 2</th><th>Cα</th><th>Cβ</th><th>間距</th><th>預估 ΔΔG</th><th>預估 ΔTm</th><th>操作</th></tr></thead><tbody>${ss.cands.map((c,i)=>`<tr><td><b>${c.a1}${c.r1}</b> (${c.s1})</td><td><b>${c.a2}${c.r2}</b> (${c.s2})</td><td>${c.dca} Å</td><td>${c.dcb} Å</td><td>${c.sd} aa</td><td style="color:#34d399;font-weight:700">${c.ddg} kJ/mol</td><td style="color:#38bdf8;font-weight:700">+${c.tm} °C</td><td><button class="sm ssLock" data-i="${i}">+ 加入實驗</button></td></tr>`).join("")}</tbody></table>`:"<div style='color:var(--mu)'>未發現理想二硫鍵候選對。</div>"}
+    </div>
+    <div class="card">
+      <h3>⚠️ 3. 表面疏水斑塊與聚集風險</h3>
+      <div class="g3">
+        <div class="m"><div class="l">暴露疏水殘基</div><div class="v">${pat.nE} aa (${pat.pct}%)</div></div>
+        <div class="m"><div class="l">疏水叢集數</div><div class="v">${pat.nP} 個</div></div>
+        <div class="m"><div class="l">聚集風險</div><div style="margin-top:4px"><span class="badge ${pat.cls}">${pat.risk}</span></div></div>
+      </div>
+</div>`;
+const lockMut = (resNum, tgtAa, label, ddg) => {
+S.pipe.mutations=S.pipe.mutations.filter(m=>m.resNum!==resNum);
+S.pipe.mutations.push({resNum,tgtAa,label,ddg});
+S.sdmRes=resNum; S.sdmAa=tgtAa;
+updateSidebarParams(); saveState(); toast(`已鎖定 ${label} 至實驗流程！`);
+};
+ws.querySelectorAll(".ssLock").forEach(b=>b.onclick=()=>{
+const c=ss.cands[+b.dataset.i];
+lockMut(c.r1,"C",`${c.a1}${c.r1}C`,c.ddg/2); lockMut(c.r2,"C",`${c.a2}${c.r2}C`,c.ddg/2);
+S.pipe.vector="shuffle";
+S.b.u=clamp(S.a.u,-30,30); S.b.ts=clamp(S.a.ts+0.35*c.ddg,0,60); S.b.n=clamp(S.a.n+c.ddg,-60,10);
+updateSidebarParams(); toast(`已鎖定二硫鍵 ${c.a1}${c.r1}C+${c.a2}${c.r2}C 並切換宿主為 SHuffle T7！`);
+});
+const updMut=()=>{
+S.mutRes=+$("mRes").value; S.mutAa=$("mAa").value;
+const r=predictMut(ch,S.mutRes,S.mutAa); if(!r) return;
+    $("mutOut").innerHTML=`
+      <div class="g4" style="margin-bottom:8px">
+        <div class="m"><div class="l">突變標記</div><div class="v">${r.mut}</div></div>
+        <div class="m"><div class="l">預測 ΔΔG</div><div class="v">${r.ddg>=0?"+":""}${r.ddg} kJ/mol</div><div class="d">${r.kcal>=0?"+":""}${r.kcal} kcal/mol</div></div>
+        <div class="m"><div class="l">預估 ΔTm</div><div class="v">${r.dtm>=0?"+":""}${r.dtm} °C</div></div>
+        <div class="m"><div class="l">穩定度評估</div><div style="margin-top:4px"><span class="badge ${r.cls}">${r.imp}</span></div></div>
+      </div>
+<div style="font-size:12.5px;color:var(--mu)">殘基 #${S.mutRes} 位於<b>${r.buried?"疏水核心":"溶劑表面"}</b>（周邊接觸數: ${r.loc}）。</div>`;
+$("btnMutB").onclick=()=>{
+S.b.u=clamp(S.a.u,-30,30); S.b.ts=clamp(S.a.ts+0.35*r.ddg,0,60); S.b.n=clamp(S.a.n+r.ddg,-60,10);
+updateSidebarParams(); toast(`已同步 ${r.mut} 至 Model B！`);
+};
+$("btnLockMut").onclick=()=>{ if(r.orig===r.tgtAa){ toast("野生型無需加入突變"); return; } lockMut(r.resNum,r.tgtAa,r.mut,r.ddg); };
+};
+$("mRes").onchange=updMut; $("mAa").onchange=updMut; updMut();
+};
+const renderFasta = ws => {
+ws.innerHTML=S.bundle.chains.map(c=>{
+const b=biochem(c.sequence);
+return `<div class="card"><h2>Model ${c.model} | Chain ${c.chain} (${c.n} aa)</h2>${b?`<div class="g5" style="margin-bottom:8px">
+<div class="m"><div class="l">分子量 (MW)</div><div class="v">${b.mw.toFixed(2)} kDa</div></div>
+<div class="m"><div class="l">理論等電點 (pI)</div><div class="v">${b.pi.toFixed(2)}</div></div>
+<div class="m"><div class="l">GRAVY 疏水性</div><div class="v">${b.gravy>=0?"+":""}${b.gravy.toFixed(3)}</div></div>
+<div class="m"><div class="l">pH 7.4 淨電荷</div><div class="v">${b.chg>=0?"+":""}${b.chg.toFixed(1)}</div></div>
+<div class="m"><div class="l">ε₂₈₀ / A₂₈₀(0.1%)</div><div class="v" style="font-size:14px">${b.epsOx} / ${b.abs01.toFixed(2)}</div></div>
+</div><div style="font-size:12px;color:var(--mu);margin-bottom:6px">🧪 ${b.gravy<0?"親水可溶性佳":"偏疏水（包涵體風險）"} ｜ 芳香族 ${b.arom.toFixed(1)}% ｜ Cys: ${b.cys} 個</div>`:""}<pre class="seq">&gt;Model_${c.model}_Chain_${c.chain} | ${c.n} aa\n${c.sequence}</pre></div>`;
+}).join("");
+};
+const renderNT = (ws, ch, tok) => {
+  ws.innerHTML=`
+    <div class="card">
+      <div class="g3" style="margin-bottom:10px">
+        <div><label>宿主密碼子策略</label><select id="ntSt"><option value="ecoli" ${S.ntStrat==="ecoli"?"selected":""}>E. coli</option><option value="human" ${S.ntStrat==="human"?"selected":""}>Homo sapiens</option><option value="deg" ${S.ntStrat==="deg"?"selected":""}>IUPAC Degenerate</option></select></div>
+        <div><div class="sl-hdr"><span>GC% 視窗 (nt)</span><b id="ntWv">${S.ntWin} nt</b></div><input type="range" id="ntW" min="9" max="45" step="3" value="${S.ntWin}"></div>
+        <div style="display:flex;align-items:center"><label style="margin:0;cursor:pointer;color:#e2e8f0"><input type="checkbox" id="ntE" ${S.ntEnds?"checked":""}> 含起始 (ATG) 與終止碼</label></div>
+      </div>
+      <div class="g5" id="ntM" style="margin-bottom:10px"></div>
+      <div id="ntRare" style="margin-bottom:10px"></div>
+      <div id="ntPlot" class="plot" style="height:370px"></div>
+      <pre class="seq" id="ntSeq"></pre>
+</div>`;
+const upd=()=>{
+if(tok!==viewToken||!$("ntPlot")) return;
+S.ntStrat=$("ntSt").value; S.ntWin=+$("ntW").value; S.ntEnds=$("ntE").checked; $("ntWv").textContent=S.ntWin+" nt";
+const [mrna,cdna]=revTranslate(ch.sequence,S.ntStrat,S.ntEnds), n=Math.max(1,cdna.length);
+let gc=0,gc3=0,w3=0;
+for(let i=0;i<cdna.length;i++){ const c=cdna[i]; if(c==="G"||c==="C"){ gc++; if(i%3===2) gc3++; } if(i%3===2) w3++; }
+const [cai,dg5]=caiAnd5Dg(mrna,S.ntStrat), rare=scanRare(mrna,S.ntStrat==="human"?"human":"ecoli");
+$("ntM").innerHTML=[["cDNA 長度",`${cdna.length} bp`],["GC%",`${(gc/n*100).toFixed(1)}%`],["GC3%",`${(gc3/Math.max(1,w3)*100).toFixed(1)}%`],["CAI",cai.toFixed(3)],["5' 30nt ΔG",`${dg5} kcal/mol`]]
+.map(([l,v])=>`<div class="m"><div class="l">${l}</div><div class="v">${v}</div></div>`).join("");
+$("ntRare").innerHTML=rare.clusters?`<span class="badge b-warn">⚠️ 偵測到 ${rare.clusters} 處稀有密碼子簇（轉譯停頓風險）</span>`:`<span class="badge b-ok">✅ 未發現高風險稀有密碼子簇</span>`;
+$("ntSeq").textContent=cdna;
+if(!window.Plotly){ setTimeout(upd,120); return; }
+const w=Math.min(S.ntWin,Math.max(3,cdna.length)), pos=[], lgc=[];
+const sc=new Float32Array(cdna.length);
+for(let i=0;i<cdna.length;i++){ const c=cdna[i]; sc[i]=(c==="G"||c==="C"||c==="S")?1:("RYKMN".includes(c)?0.5:0); }
+let sum=0; for(let i=0;i<w;i++) sum+=sc[i];
+for(let i=0;i<=cdna.length-w;i++){ if(i>0) sum+=sc[i+w-1]-sc[i-1]; pos.push(i+1+(w>>1)); lgc.push(+(sum/w*100).toFixed(1)); }
+const cnts=["A","T","G","C"].map(b=>(cdna.match(new RegExp(b,"g"))||[]).length);
+Plotly.react("ntPlot",[
+{type:"scatter",mode:"lines",x:pos,y:lgc,fill:"tozeroy",fillcolor:"rgba(13,148,136,0.15)",line:{color:"#0d9488",width:2.5},name:"Local GC%",xaxis:"x",yaxis:"y"},
+{type:"bar",x:["A","T","G","C"],y:cnts,marker:{color:["#3b82f6","#f59e0b","#10b981","#6366f1"]},text:cnts.map(c=>`${c} (${(c/n*100).toFixed(1)}%)`),textposition:"auto",showlegend:false,xaxis:"x2",yaxis:"y2"}
+],sciLayout({title:`Local GC% (Window=${w} nt) & Base Composition`,grid:{rows:1,columns:2,pattern:"independent"},yaxis:{title:"GC%",range:[0,100],gridcolor:"#e2e8f0"},yaxis2:{title:"Count",gridcolor:"#e2e8f0"}}));
+};
+["ntSt","ntE"].forEach(id=>$(id).onchange=upd); $("ntW").oninput=()=>scheduleFrame(upd); upd();
+};
+const computePrimersFor = (ch, host="ecoli") => {
+const core=getEngineeredSeq(ch);
+const eng=buildConstruct(core,S.clN,S.clC,S.clP,S.clL==="None"?"":S.clL);
+const [mrna,cdna]=revTranslate(eng.fullAa,host,true);
+const core3=/TAA$|TAG$|TGA$/.test(cdna)?cdna.slice(0,-3):cdna;
+const fa=cdna.slice(0,S.clAl), ra=revComp(core3.slice(-S.clAl));
+const [hits,zeros]=scanRE(cdna);
+let ff="", rf="", method="";
+if(S.clM==="sticky"&&zeros.length>=2){
+if(!S.clFe||!zeros.includes(S.clFe)) S.clFe=zeros[0];
+if(!S.clRe||S.clRe===S.clFe||!zeros.includes(S.clRe)) S.clRe=zeros.find(z=>z!==S.clFe)||zeros[0];
+ff=`GGAATT${RSITES[S.clFe]}${fa}`; rf=`GGAATT${RSITES[S.clRe]}${ra}`; method=`Sticky-End (${S.clFe}/${S.clRe})`;
+} else if(S.clM==="gibson"){
+const v5=cleanDNA(S.clV5)||"CGCCATGGGGATCCGAATTC", v3=cleanDNA(S.clV3)||"CTCGAGTCTAGAAAGCTTGC";
+ff=v5+fa; rf=revComp(v3)+ra; method="Gibson Assembly";
+} else {
+const site=RSITES[S.clGe]||RSITES.BsaI, o5=cleanDNA(S.clO5)||"AATG", o3=cleanDNA(S.clO3)||"GCTT";
+ff=`TGCA${site}A${o5}${fa}`; rf=`TGCA${site}A${revComp(o3)}${ra}`; method=`Golden Gate (${S.clGe})`;
+}
+const ft=primerTm(fa), rt=primerTm(ra), ta=+(Math.min(ft,rt)-(S.clM==="gibson"?2.5:3.0)).toFixed(1);
+return {eng,mrna,cdna,hits,zeros,ff,rf,ft,rt,ta,method};
+};
+const renderClone = (ws, ch) => {
+  ws.innerHTML=`
+    <div class="card">
+      <h3>🏷️ 1. 融合標籤與蛋白酶切位（自動套用 Pipeline 突變）</h3>
+      <div class="g4">
+        <div><label>N 端標籤</label><select id="cN">${["None","6xHis","FLAG","HA","c-Myc","Strep-II","GST"].map(x=>`<option ${x===S.clN?"selected":""}>${x}</option>`).join("")}</select></div>
+        <div><label>C 端標籤</label><select id="cC">${["None","6xHis","FLAG","HA","c-Myc","Strep-II"].map(x=>`<option ${x===S.clC?"selected":""}>${x}</option>`).join("")}</select></div>
+        <div><label>蛋白酶切位</label><select id="cP">${Object.keys(PROT).map(x=>`<option ${x===S.clP?"selected":""}>${x}</option>`).join("")}</select></div>
+        <div><label>Linker</label><select id="cL">${["GGGGS","GGSGGS","None"].map(x=>`<option ${x===S.clL?"selected":""}>${x}</option>`).join("")}</select></div>
+      </div>
+      <pre class="seq" id="cAa"></pre>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <h3 style="margin:0">✂️ 2. PCR 選殖引子設計</h3>
+        <div class="seg" id="clSeg">
+          <button data-m="sticky" class="${S.clM==="sticky"?"act":""}">Sticky-End / MCS</button>
+          <button data-m="gibson" class="${S.clM==="gibson"?"act":""}">Gibson Assembly</button>
+          <button data-m="gg" class="${S.clM==="gg"?"act":""}">Golden Gate</button>
+          <button data-m="sdm" class="${S.clM==="sdm"?"act":""}">🎯 SDM 定點突變</button>
+        </div>
+      </div>
+      <div id="clBody"></div>
+</div>`;
+const upd=()=>{
+S.clN=$("cN").value; S.clC=$("cC").value; S.clP=$("cP").value; S.clL=$("cL").value; saveState();
+const p=computePrimersFor(ch, VECTORS[S.pipe.vector].host);
+S.lastPrimers=p;
+$("cAa").textContent=`(${p.eng.fullAa.length} aa | ${p.cdna.length} bp) ${p.eng.fullAa}`;
+const body=$("clBody");
+const showPr=r=>{
+S.lastPrimers=r;
+      $("prRes").innerHTML=`
+        <div class="g3" style="margin:10px 0"><div class="m"><div class="l">Forward Tm</div><div class="v">${r.ft} °C</div></div><div class="m"><div class="l">Reverse Tm</div><div class="v">${r.rt} °C</div></div><div class="m"><div class="l">建議 PCR Ta</div><div class="v">${r.ta} °C</div></div></div>
+        <label>5' Forward Primer (${r.ff.length} nt)</label><pre class="seq">${r.ff}</pre>
+<label style="margin-top:8px">3' Reverse Primer (${r.rf.length} nt)</label><pre class="seq">${r.rf}</pre>`;
+};
+if(S.clM==="sdm"){
+const host=VECTORS[S.pipe.vector].host, tbl=CODONS[host]||CODONS.ecoli;
+const [,wtCdna]=revTranslate(ch.sequence,host,false);
+if(!S.sdmRes||!ch.resNums.includes(S.sdmRes)) S.sdmRes=S.pipe.mutations.length?S.pipe.mutations[S.pipe.mutations.length-1].resNum:ch.resNums[Math.min(5,ch.n-1)];
+body.innerHTML=`
+  <div class="g3" style="margin-bottom:10px">
+    <div><label>突變位點 (Core Chain)</label><select id="sdmR">${Array.from(ch.resNums).map((rn,i)=>`<option value="${rn}" ${rn===S.sdmRes?"selected":""}>#${rn} (${ch.sequence[i]})</option>`).join("")}</select></div>
+    <div><label>目標胺基酸</label><select id="sdmA">${[..."ACDEFGHIKLMNPQRSTVWY"].map(a=>`<option value="${a}" ${a===S.sdmAa?"selected":""}>${a}</option>`).join("")}</select></div>
+    <div><div class="sl-hdr"><span>側翼長度 (Flank)</span><b id="sdmFv">${S.sdmFlank} nt</b></div><input type="range" id="sdmF" min="12" max="18" value="${S.sdmFlank}"></div>
+  </div><div id="sdmOut"></div>`;
+const calcSdm=()=>{
+S.sdmRes=+$("sdmR").value; S.sdmAa=$("sdmA").value; S.sdmFlank=+$("sdmF").value; $("sdmFv").textContent=S.sdmFlank+" nt";
+const idx=ch.resNums.indexOf(S.sdmRes), origAa=ch.sequence[idx];
+const wtCod=wtCdna.slice(idx*3,idx*3+3), mutCod=(tbl[S.sdmAa]||"GCG").replace(/U/g,"T");
+const up=wtCdna.slice(Math.max(0,idx*3-S.sdmFlank),idx*3);
+const dn=wtCdna.slice(idx*3+3,idx*3+3+S.sdmFlank);
+const dnQ5=wtCdna.slice(idx*3+3,idx*3+3+Math.max(18,S.sdmFlank+3));
+const upQ5=wtCdna.slice(Math.max(0,idx*3-21),idx*3);
+const qcF=up+mutCod+dn, qcTm=primerTm(qcF);
+const q5F=mutCod+dnQ5, q5R=revComp(upQ5), q5Tf=primerTm(dnQ5), q5Tr=primerTm(q5R), q5Ta=+(Math.min(q5Tf,q5Tr)+1).toFixed(1);
+const hl=(a,m,b)=>`${a}<span class="mut-hl">${m}</span>${b}`;
+$("sdmOut").innerHTML=`
+  <div style="margin-bottom:8px"><span class="badge b-info">突變編碼：${origAa}${S.sdmRes}${S.sdmAa} ｜ ${wtCod} → ${mutCod} (${host})</span></div>
+  <div class="g2">
+    <div class="m">
+      <div class="l">方法 A：QuikChange 互補重疊型 (適用 DpnI 消化)</div>
+      <div style="font-size:12px;color:var(--ac2);margin:4px 0">Tm = ${qcTm} °C ｜ 建議 Ta = ${(qcTm-3).toFixed(1)} °C ｜ 全長 ${qcF.length} nt</div>
+      <label>5' QC-Fwd</label><pre class="seq">${hl(up,mutCod,dn)}</pre>
+      <label style="margin-top:6px">5' QC-Rev (反向互補)</label><pre class="seq">${hl(revComp(dn),revComp(mutCod),revComp(up))}</pre>
+    </div>
+    <div class="m">
+      <div class="l">方法 B：Q5 SDM 背對背指數型 (適用 NEB KLD 酵素組)</div>
+      <div style="font-size:12px;color:var(--ac2);margin:4px 0">Fwd 退火 Tm=${q5Tf}°C ｜ Rev Tm=${q5Tr}°C ｜ 建議 Ta=${q5Ta}°C</div>
+      <label>5' Q5-Fwd (${q5F.length} nt)</label><pre class="seq">${hl("",mutCod,dnQ5)}</pre>
+      <label style="margin-top:6px">5' Q5-Rev (${q5R.length} nt, 需 5'-P 或 KLD 磷酸化)</label><pre class="seq">${q5R||"(位點過近 5' 端，請改用 QuikChange)"}</pre>
+    </div>
+  </div>`;
+};
+$("sdmR").onchange=calcSdm; $("sdmA").onchange=calcSdm; $("sdmF").oninput=calcSdm; calcSdm();
+return;
+}
+if(S.clM==="sticky"){
+if(p.zeros.length<2){ body.innerHTML=`<span class="badge b-err">所有常見 MCS 酵素皆有內部切位，建議切換為 Gibson Assembly 或 Golden Gate！</span>`; return; }
+      body.innerHTML=`
+        <div style="margin-bottom:8px">${Object.keys(p.hits).length?`<span class="badge b-warn">內部切位: ${Object.entries(p.hits).map(([e,ps])=>`${e}(${ps.join(",")})`).join(" | ")}</span>`:`<span class="badge b-ok">無常見 MCS 內部切位</span>`}</div>
+        <div class="g3">
+          <div><label>5' Forward 酶</label><select id="sFe">${p.zeros.map(z=>`<option ${z===S.clFe?"selected":""}>${z}</option>`).join("")}</select></div>
+          <div><label>3' Reverse 酶</label><select id="sRe">${p.zeros.filter(z=>z!==S.clFe).map(z=>`<option ${z===S.clRe?"selected":""}>${z}</option>`).join("")}</select></div>
+          <div><div class="sl-hdr"><span>退火長度</span><b id="sAlv">${S.clAl} bp</b></div><input type="range" id="sAl" min="18" max="27" value="${S.clAl}"></div>
+</div><div id="prRes"></div>`;
+const calc=()=>{ S.clFe=$("sFe").value; S.clRe=$("sRe").value; S.clAl=+$("sAl").value; $("sAlv").textContent=S.clAl+" bp"; showPr(computePrimersFor(ch,VECTORS[S.pipe.vector].host)); };
+$("sFe").onchange=()=>{ S.clFe=$("sFe").value; upd(); }; $("sRe").onchange=calc; $("sAl").oninput=calc; showPr(p);
+} else if(S.clM==="gibson"){
+      body.innerHTML=`
+        <div class="g3">
+          <div><label>5' Overlap</label><input type="text" id="gV5" value="${S.clV5}"></div>
+          <div><label>3' Overlap</label><input type="text" id="gV3" value="${S.clV3}"></div>
+          <div><div class="sl-hdr"><span>退火長度</span><b id="gAlv">${S.clAl} bp</b></div><input type="range" id="gAl" min="18" max="27" value="${S.clAl}"></div>
+</div><div id="prRes"></div>`;
+const calc=()=>{ S.clV5=cleanDNA($("gV5").value); S.clV3=cleanDNA($("gV3").value); S.clAl=+$("gAl").value; $("gAlv").textContent=S.clAl+" bp"; showPr(computePrimersFor(ch,VECTORS[S.pipe.vector].host)); };
+["gV5","gV3","gAl"].forEach(id=>$(id).oninput=calc); showPr(p);
+} else {
+      body.innerHTML=`
+        <div class="g3">
+          <div><label>Type IIS 酶</label><select id="ggE"><option ${S.clGe==="BsaI"?"selected":""}>BsaI</option><option ${S.clGe==="BsmBI"?"selected":""}>BsmBI</option></select></div>
+          <div><label>5' Overhang (4nt)</label><input type="text" id="gg5" value="${S.clO5}" maxlength="4"></div>
+          <div><label>3' Overhang (4nt)</label><input type="text" id="gg3" value="${S.clO3}" maxlength="4"></div>
+</div><div id="prRes"></div>`;
+const calc=()=>{ S.clGe=$("ggE").value; S.clO5=cleanDNA($("gg5").value); S.clO3=cleanDNA($("gg3").value); showPr(computePrimersFor(ch,VECTORS[S.pipe.vector].host)); };
+$("ggE").onchange=calc; ["gg5","gg3"].forEach(id=>$(id).oninput=calc); showPr(p);
+}
+};
+["cN","cC","cP","cL"].forEach(id=>$(id).onchange=upd);
+$("clSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.clM=b.dataset.m; $("clSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b)); upd(); });
+upd();
+};
+const renderThermo = (ws, tok) => {
+const sl=(id,lbl,min,max,val)=>`<div><div class="sl-hdr"><span>${lbl}</span><b id="${id}v">${val.toFixed(1)}</b></div><input type="range" id="${id}" min="${min}" max="${max}" step="0.5" value="${val}"></div>`;
+  ws.innerHTML=`
+    <div class="card">
+      <div class="g2">
+        <div><h3>🔵 Model A (基準/野生型)</h3><div class="g3">${sl("au","U",-30,30,S.a.u)}${sl("ats","TS",0,60,S.a.ts)}${sl("an","N",-60,10,S.a.n)}</div></div>
+        <div><h3>🟠 Model B (突變/比較型)</h3><div class="g3">${sl("bu","U",-30,30,S.b.u)}${sl("bts","TS",0,60,S.b.ts)}${sl("bn","N",-60,10,S.b.n)}</div></div>
+      </div>
+      <div id="tsWarn" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div class="seg" id="thSeg">
+          <button data-s="2d" class="${S.thSub==="2d"?"act":""}">📈 2D 反應座標</button>
+          <button data-s="3d" class="${S.thSub==="3d"?"act":""}">🌋 3D 折疊漏斗</button>
+          <button data-s="kin" class="${S.thSub==="kin"?"act":""}">🌡️ 阿瑞尼士掃描</button>
+        </div>
+        <div id="thExtra" class="row"></div>
+      </div>
+      <div id="thPlotWrap"></div>
+    </div>
+<div class="card"><div class="g4" id="thMetrics"></div><div id="thRate" style="margin-top:8px;font-size:13px;color:var(--ac2)"></div></div>`;
+let rev=1;
+const draw = (hiRes=false, recreate=false) => {
+if(tok!==viewToken||!$("thMetrics")) return;
+const dga=S.a.n-S.a.u, dgb=S.b.n-S.b.u, eaa=S.a.ts-S.a.u, eab=S.b.ts-S.b.u;
+const warns=[];
+if(!(S.a.ts>S.a.u&&S.a.ts>S.a.n)) warns.push("Model A 過渡態 TS 未高於 U 與 N（無能障下坡折疊）");
+if(!(S.b.ts>S.b.u&&S.b.ts>S.b.n)) warns.push("Model B 過渡態 TS 未高於 U 與 N（無能障下坡折疊）");
+$("tsWarn").innerHTML=warns.length?`<span class="badge b-warn">⚠️ ${warns.join(" ｜ ")}</span>`:"";
+$("thMetrics").innerHTML=[
+["🔵 A 折疊 ΔG",`${dga.toFixed(1)} kJ/mol`,`Δ=${(dga-dgb)>=0?"+":""}${(dga-dgb).toFixed(1)}`],
+["🔵 A 活化能 ΔG‡",`${eaa.toFixed(1)} kJ/mol`,`Δ=${(eaa-eab)>=0?"+":""}${(eaa-eab).toFixed(1)}`],
+["🟠 B 折疊 ΔG",`${dgb.toFixed(1)} kJ/mol`,`Δ=${(dgb-dga)>=0?"+":""}${(dgb-dga).toFixed(1)}`],
+["🟠 B 活化能 ΔG‡",`${eab.toFixed(1)} kJ/mol`,`Δ=${(eab-eaa)>=0?"+":""}${(eab-eaa).toFixed(1)}`]
+].map(([l,v,d])=>`<div class="m"><div class="l">${l}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join("");
+if(eaa>0&&eab>0&&Math.abs(eaa-eab)>0.05){
+const ratio=Math.exp(Math.min(50,Math.abs(eaa-eab)/(8.3144626e-3*298.15)));
+$("thRate").textContent=`⚡ 298.15 K 理論折疊速率：${eaa<eab?"Model A":"Model B"} 約快 ${ratio.toFixed(1)}× ｜ 熱力學更穩定：${dga<dgb?"Model A":dgb<dga?"Model B":"相當"}`;
+} else $("thRate").textContent="⚡ 兩模型活化能障相當或存在無能障下坡折疊。";
+if(!window.Plotly){ setTimeout(()=>draw(hiRes,true),120); return; }
+rev++;
+const renderP=(id,tr,lay)=>{ if(recreate){ try{Plotly.purge(id);}catch(_){} Plotly.newPlot(id,tr,lay,{responsive:true}); } else Plotly.react(id,tr,lay); };
+if(S.thSub==="2d"){
+const [ax,ay]=energyCurve(S.a.u,S.a.ts,S.a.n), [bx,by]=energyCurve(S.b.u,S.b.ts,S.b.n);
+renderP("thP1",[
+{type:"scatter",mode:"lines",x:Array.from(ax),y:Array.from(ay),name:"Model A (野生型)",line:{color:"#2563eb",width:3.5}},
+{type:"scatter",mode:"markers+text",x:[0,.5,1],y:[S.a.u,S.a.ts,S.a.n],text:["U","TS","N"],textposition:"top center",marker:{size:10,color:"#2563eb"},showlegend:false},
+{type:"scatter",mode:"lines",x:Array.from(bx),y:Array.from(by),name:"Model B (突變型)",line:{color:"#ea580c",width:3.5}},
+{type:"scatter",mode:"markers",x:[0,.5,1],y:[S.b.u,S.b.ts,S.b.n],marker:{size:10,color:"#ea580c"},showlegend:false}
+],sciLayout({title:"蛋白質折疊自由能剖面比較 (Free Energy Profile)",xaxis:{title:"反應座標 (Reaction Coordinate)",gridcolor:"#e2e8f0"},yaxis:{title:"吉布斯自由能 ΔG (kJ/mol)",gridcolor:"#e2e8f0"},hovermode:"x unified",datarevision:rev}));
+} else if(S.thSub==="3d"){
+const N=hiRes?96:48;
+const tMap={smooth:"平滑折疊漏斗 (Smooth Funnel)",rugged:"粗糙能量地景 (Rugged Landscape)",multi:"多盆地錯誤折疊地景 (Multi-basin)"};
+const mkLay=(ttl,zr)=>sciLayout({title:`${ttl} — ${tMap[S.fType]}`,margin:{l:10,r:10,t:46,b:10},scene:{xaxis:{title:"構形座標 1"},yaxis:{title:"構形座標 2"},zaxis:zr?{title:"有效自由能 (kJ/mol)",range:zr}:{title:"有效自由能 (kJ/mol)"},aspectratio:{x:1.2,y:1.2,z:.8}},uirevision:`fn_${S.fType}_${S.fTgt}`,datarevision:rev});
+if(S.fTgt==="Both"){
+const zr=[Math.min(S.a.n,S.b.n)-10,Math.max(S.a.u,S.b.u)+12];
+renderP("thP1",[makeFunnelTrace(S.a,S.fType,S.fRough,S.fDepth,zr,N)],mkLay("Model A",zr));
+renderP("thP2",[makeFunnelTrace(S.b,S.fType,S.fRough,S.fDepth,zr,N)],mkLay("Model B",zr));
+} else {
+const m=S.fTgt==="Model A"?S.a:S.b;
+renderP("thP1",[makeFunnelTrace(m,S.fType,S.fRough,S.fDepth,null,N)],mkLay(S.fTgt,null));
+}
+} else {
+const sa=tempSweep(S.a.ts-S.a.u,S.a.ts-S.a.n,S.kDs,S.kMin,S.kMax), sb=tempSweep(S.b.ts-S.b.u,S.b.ts-S.b.n,S.kDs,S.kMin,S.kMax);
+      $("tmBox").innerHTML=`
+        <div class="m"><div class="l">Model A 熔解溫度 Tm</div><div class="v">${sa.tm?`${sa.tm.toFixed(1)} K (${(sa.tm-273.15).toFixed(1)} °C)`:"超出區間"}</div></div>
+<div class="m"><div class="l">Model B 熔解溫度 Tm</div><div class="v">${sb.tm?`${sb.tm.toFixed(1)} K (${(sb.tm-273.15).toFixed(1)} °C)`:"超出區間"}</div></div>`;
+const shapes=[], annos=[];
+if(sa.tm){
+shapes.push({type:"line",x0:sa.tm,x1:sa.tm,y0:0,y1:1,xref:"x",yref:"y domain",line:{color:"#2563eb",width:2,dash:"dot"}});
+annos.push({x:sa.tm,y:0.96,xref:"x",yref:"y domain",text:`Tm(A)≈${sa.tm.toFixed(1)}K`,showarrow:false,font:{color:"#2563eb",size:11},xanchor:"right",bgcolor:"rgba(255,255,255,.85)"});
+}
+if(sb.tm){
+shapes.push({type:"line",x0:sb.tm,x1:sb.tm,y0:0,y1:1,xref:"x",yref:"y domain",line:{color:"#ea580c",width:2,dash:"dot"}});
+annos.push({x:sb.tm,y:0.08,xref:"x",yref:"y domain",text:`Tm(B)≈${sb.tm.toFixed(1)}K`,showarrow:false,font:{color:"#ea580c",size:11},xanchor:"left",bgcolor:"rgba(255,255,255,.85)"});
+}
+renderP("thP1",[
+{type:"scatter",mode:"lines",x:Array.from(sa.T),y:Array.from(sa.lkF),name:"Model A: k_fold",line:{color:"#2563eb",width:3},xaxis:"x",yaxis:"y"},
+{type:"scatter",mode:"lines",x:Array.from(sa.T),y:Array.from(sa.lkU),name:"Model A: k_unfold",line:{color:"#2563eb",width:2.5,dash:"dash"},xaxis:"x",yaxis:"y"},
+{type:"scatter",mode:"lines",x:Array.from(sb.T),y:Array.from(sb.lkF),name:"Model B: k_fold",line:{color:"#ea580c",width:3},xaxis:"x",yaxis:"y"},
+{type:"scatter",mode:"lines",x:Array.from(sb.T),y:Array.from(sb.lkU),name:"Model B: k_unfold",line:{color:"#ea580c",width:2.5,dash:"dash"},xaxis:"x",yaxis:"y"},
+{type:"scatter",mode:"lines",x:Array.from(sa.invT),y:Array.from(sa.lnF),name:"A ln(k_f)",line:{color:"#2563eb",width:3},showlegend:false,xaxis:"x2",yaxis:"y2"},
+{type:"scatter",mode:"lines",x:Array.from(sa.invT),y:Array.from(sa.lnU),name:"A ln(k_u)",line:{color:"#2563eb",width:2.5,dash:"dash"},showlegend:false,xaxis:"x2",yaxis:"y2"},
+{type:"scatter",mode:"lines",x:Array.from(sb.invT),y:Array.from(sb.lnF),name:"B ln(k_f)",line:{color:"#ea580c",width:3},showlegend:false,xaxis:"x2",yaxis:"y2"},
+{type:"scatter",mode:"lines",x:Array.from(sb.invT),y:Array.from(sb.lnU),name:"B ln(k_u)",line:{color:"#ea580c",width:2.5,dash:"dash"},showlegend:false,xaxis:"x2",yaxis:"y2"}
+],sciLayout({
+title:"阿瑞尼士／艾林動力學溫度掃描 (Arrhenius / Eyring Sweep)",
+grid:{rows:1,columns:2,pattern:"independent"},
+xaxis:{title:"絕對溫度 T (K)",gridcolor:"#e2e8f0"},yaxis:{title:"log₁₀ k (s⁻¹)",gridcolor:"#e2e8f0"},
+xaxis2:{title:"1000 / T (K⁻¹)",gridcolor:"#e2e8f0"},yaxis2:{title:"ln k",gridcolor:"#e2e8f0"},
+legend:{orientation:"h",y:1.12,x:0.5,xanchor:"center"},hovermode:"x unified",shapes,annotations:annos,datarevision:rev
+}));
+}
+};
+const bindSl=(id,obj,k)=>{
+$(id).oninput=()=>{ obj[k]=+$(id).value; $(id+"v").textContent=obj[k].toFixed(1); updateSidebarParams(); scheduleFrame(()=>draw(false,false)); };
+$(id).onchange=()=>scheduleFrame(()=>draw(true,false));
+};
+bindSl("au",S.a,"u"); bindSl("ats",S.a,"ts"); bindSl("an",S.a,"n");
+bindSl("bu",S.b,"u"); bindSl("bts",S.b,"ts"); bindSl("bn",S.b,"n");
+const buildSubUI = () => {
+if(window.Plotly) document.querySelectorAll("#thPlotWrap .plot").forEach(el=>{ try{Plotly.purge(el);}catch(_){} });
+const ex=$("thExtra"), pw=$("thPlotWrap");
+if(S.thSub==="2d"){
+ex.innerHTML=""; pw.innerHTML=`<div id="thP1" class="plot" style="height:460px"></div>`;
+} else if(S.thSub==="3d"){
+      ex.innerHTML=`
+        <select id="fTp" style="width:auto"><option value="smooth" ${S.fType==="smooth"?"selected":""}>平滑漏斗</option><option value="rugged" ${S.fType==="rugged"?"selected":""}>粗糙地景</option><option value="multi" ${S.fType==="multi"?"selected":""}>多盆地陷阱</option></select>
+        <select id="fTg" style="width:auto"><option value="Model A" ${S.fTgt==="Model A"?"selected":""}>Model A</option><option value="Model B" ${S.fTgt==="Model B"?"selected":""}>Model B</option><option value="Both" ${S.fTgt==="Both"?"selected":""}>並排比較</option></select>
+<div id="fSlBox" style="min-width:140px"></div>`;
+const updFSl=()=>{
+$("fSlBox").innerHTML=S.fType==="rugged"?`<div class="sl-hdr"><span>粗糙度</span><b id="fRv">${S.fRough}</b></div><input type="range" id="fR" min="0" max="6" step="0.5" value="${S.fRough}">`
+:S.fType==="multi"?`<div class="sl-hdr"><span>陷阱深度</span><b id="fDv">${S.fDepth}</b></div><input type="range" id="fD" min="2" max="20" step="1" value="${S.fDepth}">`:"";
+if($("fR")){ $("fR").oninput=()=>{ S.fRough=+$("fR").value; $("fRv").textContent=S.fRough; scheduleFrame(()=>draw(false,false)); }; $("fR").onchange=()=>scheduleFrame(()=>draw(true,false)); }
+if($("fD")){ $("fD").oninput=()=>{ S.fDepth=+$("fD").value; $("fDv").textContent=S.fDepth; scheduleFrame(()=>draw(false,false)); }; $("fD").onchange=()=>scheduleFrame(()=>draw(true,false)); }
+};
+$("fTp").onchange=()=>{ S.fType=$("fTp").value; updFSl(); requestAnimationFrame(()=>draw(true,true)); };
+$("fTg").onchange=()=>{ S.fTgt=$("fTg").value; buildSubUI(); requestAnimationFrame(()=>draw(true,true)); };
+updFSl();
+pw.innerHTML=S.fTgt==="Both"?`<div class="g2"><div id="thP1" class="plot" style="height:500px"></div><div id="thP2" class="plot" style="height:500px"></div></div>`:`<div id="thP1" class="plot" style="height:540px"></div>`;
+} else {
+      ex.innerHTML=`
+        <div style="min-width:130px"><div class="sl-hdr"><span>ΔS_fold</span><b id="kDsv">${S.kDs.toFixed(2)}</b></div><input type="range" id="kDs" min="-0.5" max="-0.05" step="0.05" value="${S.kDs}"></div>
+<div style="min-width:120px"><div class="sl-hdr"><span>T_max</span><b id="kMxv">${S.kMax} K</b></div><input type="range" id="kMx" min="340" max="520" step="10" value="${S.kMax}"></div>`;
+$("kDs").oninput=()=>{ S.kDs=+$("kDs").value; $("kDsv").textContent=S.kDs.toFixed(2); scheduleFrame(()=>draw(true,false)); };
+$("kMx").oninput=()=>{ S.kMax=+$("kMx").value; $("kMxv").textContent=S.kMax+" K"; scheduleFrame(()=>draw(true,false)); };
+pw.innerHTML=`<div class="g2" id="tmBox" style="margin-bottom:8px"></div><div id="thP1" class="plot" style="height:460px"></div>`;
+}
+};
+$("thSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.thSub=b.dataset.s; $("thSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b)); buildSubUI(); requestAnimationFrame(()=>draw(true,true)); });
+buildSubUI(); draw(true,true);
+};
+const renderLab = (ws, ch, t) => {
+const vec=VECTORS[S.pipe.vector], pr=computePrimersFor(ch, vec.host);
+const fullBio=biochem(pr.eng.fullAa)||{mw:0,pi:7,gravy:0,chg:0,epsOx:0,abs01:0,cys:0};
+const pat=getPatches(ch), ssInfo=getDisulfide(ch);
+const swA=tempSweep(S.a.ts-S.a.u,S.a.ts-S.a.n,S.kDs), swB=tempSweep(S.b.ts-S.b.u,S.b.ts-S.b.n,S.kDs);
+const hasSS=ssInfo.native.length>0||S.pipe.mutations.some(m=>m.tgtAa==="C")||fullBio.cys>=2;
+const bufPh=fullBio.pi<6.8?7.8:(fullBio.pi>8.2?7.0:+(fullBio.pi>7.4?fullBio.pi-1.4:fullBio.pi+1.4).toFixed(1));
+const iex=bufPh>fullBio.pi?"陰離子交換 (HiTrap Q / DEAE)":"陽離子交換 (HiTrap SP / CM)";
+const resin=S.clN==="6xHis"||S.clC==="6xHis"?"Ni-NTA IMAC (Lysis: 20 mM Imidazole → Wash: 40 mM → Elute: 250 mM)"
+:S.clN==="GST"?"Glutathione Sepharose 4B (Elute: 10 mM Reduced Glutathione)"
+:S.clN==="Strep-II"||S.clC==="Strep-II"?"Strep-Tactin XT (Elute: 50 mM Biotin)":"離子交換 + 膠體過濾 (SEC Superdex 75/200)";
+const extSec=Math.max(20,Math.ceil(pr.cdna.length/1000*30));
+const rxN=S.pipe.pcrN, rxV=S.pipe.pcrVol, sc=rxV/50;
+const steps=[
+["s1",`Stage 1 序列確認：標的 ${S.title} Chain ${ch.chain} (${S.pipe.mutations.length?S.pipe.mutations.map(m=>m.label).join("+"):"Wild-Type"}) + 標籤 [${S.clN}/${S.clC}]`],
+["s2",`Stage 2 PCR 擴增：${pr.method}，Ta = ${pr.ta}°C，延伸 ${extSec} s (${pr.cdna.length} bp)`],
+["s3",`Stage 3 質體組裝與定序：轉形 DH5α，於 ${vec.ab} 篩選並 Sanger 定序確認讀框`],
+["s4",`Stage 4 蛋白表現：轉入 ${vec.name}，${vec.ind}`],
+["s5",`Stage 5 親和純化：${resin}（建議緩衝液 pH ${bufPh}，遠離 pI ${fullBio.pi.toFixed(1)}）`],
+["s6",`Stage 6 蛋白酶切與拋光：${S.clP!=="None"?S.clP+" 4°C 過夜切割 → ":""}${iex} + SEC 單體回收`],
+["s7",`Stage 7 生物物理 QC：NanoDrop (ε₂₈₀=${fullBio.epsOx}) 定量 → DSF/NanoDSF 測 Tm（預期 WT≈${swA.tm?(swA.tm-273.15).toFixed(1)+"°C":"N/A"} / Mut≈${swB.tm?(swB.tm-273.15).toFixed(1)+"°C":"N/A"}）`]
+];
+const doneCnt=steps.filter(([k])=>S.pipe.checks[k]).length, pct=Math.round(doneCnt/steps.length*100);
+  ws.innerHTML=`
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">🧪 完整重組蛋白實驗流程工作台 (End-to-End Wet-Lab Pipeline)</h2>
+        <div class="row">
+          <button id="btnClrMut" class="sm">清除突變 (${S.pipe.mutations.length})</button>
+          <button class="pri sm" id="btnDlSop">💾 匯出完整 SOP (.html)</button>
+        </div>
+      </div>
+      <div class="prog"><div style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--mu)">實驗進度：<b>${doneCnt}/${steps.length}</b> (${pct}%) ｜ 當前鎖定突變：<b>${S.pipe.mutations.length?S.pipe.mutations.map(m=>m.label).join(", "):"Wild-Type"}</b></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="step-tag">STAGE 1-2</span>構築體性質與表現宿主決策</h3>
+      <div class="g2" style="margin-bottom:10px">
+        <div><label>表現載體與宿主系統</label><select id="labVec">${Object.entries(VECTORS).map(([k,v])=>`<option value="${k}" ${k===S.pipe.vector?"selected":""}>${v.name}</option>`).join("")}</select></div>
+        <div class="m"><div class="l">系統建議與誘導條件</div><div style="font-size:12px;color:#e2e8f0">${vec.ab} ｜ ${vec.ind}</div><div class="d">${vec.note}</div></div>
+      </div>
+      ${hasSS&&S.pipe.vector==="pet28"?`<div style="margin-bottom:8px"><span class="badge b-warn">⚠️ 偵測到二硫鍵需求（Cys=${fullBio.cys}），建議切換至 SHuffle T7 或 Expi293 真核系統！</span></div>`:""}
+      ${pat.nP>=2?`<div style="margin-bottom:8px"><span class="badge b-warn">⚠️ 表面疏水斑塊偏高（${pat.nP} 個），建議降溫至 16°C 低濃度 IPTG 誘導或改用 pGEX (GST 助溶)。</span></div>`:""}
+      <div class="g5">
+        <div class="m"><div class="l">全長構築體</div><div class="v">${pr.eng.fullAa.length} aa</div><div class="d">${pr.cdna.length} bp</div></div>
+        <div class="m"><div class="l">預測分子量</div><div class="v">${fullBio.mw.toFixed(2)} kDa</div></div>
+        <div class="m"><div class="l">理論 pI / 緩衝 pH</div><div class="v">${fullBio.pi.toFixed(2)} / ${bufPh}</div></div>
+        <div class="m"><div class="l">ε₂₈₀ (M⁻¹cm⁻¹)</div><div class="v">${fullBio.epsOx}</div></div>
+        <div class="m"><div class="l">A₂₈₀ (1 mg/mL)</div><div class="v">${fullBio.abs01.toFixed(2)}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="step-tag">STAGE 3</span>PCR Master Mix 計算器與循環程式 (${pr.method})</h3>
+      <div class="g3" style="margin-bottom:8px">
+        <div><label>反應管數 (N, 含 10% 餘量)</label><input type="number" id="pcrN" min="1" max="48" value="${rxN}"></div>
+        <div><label>單管反應體積 (µL)</label><select id="pcrV"><option value="25" ${rxV===25?"selected":""}>25 µL</option><option value="50" ${rxV===50?"selected":""}>50 µL</option></select></div>
+        <div class="m"><div class="l">退火 Ta / 延伸時間</div><div class="v">${pr.ta} °C / ${extSec} s</div></div>
+      </div>
+      <div class="g2">
+        <table>
+          <thead><tr><th>試劑 (Q5 High-Fidelity)</th><th>單管 (µL)</th><th>總配製 ×${rxN} (+10%)</th></tr></thead>
+          <tbody>
+            <tr><td>Q5 2X Master Mix</td><td>${(25*sc).toFixed(1)}</td><td><b>${(25*sc*rxN*1.1).toFixed(1)} µL</b></td></tr>
+            <tr><td>Forward Primer (10 µM)</td><td>${(2.5*sc).toFixed(2)}</td><td><b>${(2.5*sc*rxN*1.1).toFixed(1)} µL</b></td></tr>
+            <tr><td>Reverse Primer (10 µM)</td><td>${(2.5*sc).toFixed(2)}</td><td><b>${(2.5*sc*rxN*1.1).toFixed(1)} µL</b></td></tr>
+            <tr><td>Template DNA (~10 ng)</td><td>${(1*sc).toFixed(1)}</td><td><b>${(1*sc*rxN*1.1).toFixed(1)} µL</b></td></tr>
+            <tr><td>Nuclease-Free H₂O</td><td>${(19*sc).toFixed(1)}</td><td><b>${(19*sc*rxN*1.1).toFixed(1)} µL</b></td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th>PCR 步驟</th><th>溫度</th><th>時間</th><th>循環</th></tr></thead>
+          <tbody>
+            <tr><td>Initial Denaturation</td><td>98 °C</td><td>30 s</td><td>1×</td></tr>
+            <tr><td>Denaturation</td><td>98 °C</td><td>10 s</td><td rowspan="3">30×</td></tr>
+            <tr><td>Annealing (Ta)</td><td><b>${pr.ta} °C</b></td><td>20 s</td></tr>
+            <tr><td>Extension (30 s/kb)</td><td>72 °C</td><td><b>${extSec} s</b></td></tr>
+            <tr><td>Final Extension</td><td>72 °C</td><td>2 min</td><td>1×</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="step-tag">STAGE 4-5</span>純化緩衝液策略與實驗查檢表 (Checklist)</h3>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="m"><div class="l">親和層析 (Step 1)</div><div style="font-size:12.5px;color:#e2e8f0">${resin}</div></div>
+        <div class="m"><div class="l">精製拋光 & DSF QC (Step 2)</div><div style="font-size:12.5px;color:#e2e8f0">${iex} → SEC ｜ DSF 建議 0.2 mg/mL (A₂₈₀≈${(fullBio.abs01*0.2).toFixed(3)})</div></div>
+      </div>
+      <div>${steps.map(([k,txt])=>`<label class="chk-item ${S.pipe.checks[k]?"done":""}"><input type="checkbox" class="labChk" data-k="${k}" ${S.pipe.checks[k]?"checked":""}><span>${txt}</span></label>`).join("")}</div>
+      <label style="margin-top:8px">實驗備註 (Lab Notes)</label>
+      <textarea id="labNotes" rows="2" placeholder="記錄菌株批號、表現量、純化管號或 DSF 實測 Tm...">${S.pipe.notes}</textarea>
+</div>`;
+$("labVec").onchange=()=>{ S.pipe.vector=$("labVec").value; saveState(); renderLab(ws,ch,t); };
+$("pcrN").onchange=()=>{ S.pipe.pcrN=Math.max(1,+$("pcrN").value||1); saveState(); renderLab(ws,ch,t); };
+$("pcrV").onchange=()=>{ S.pipe.pcrVol=+$("pcrV").value; saveState(); renderLab(ws,ch,t); };
+$("labNotes").oninput=()=>{ S.pipe.notes=$("labNotes").value; saveState(); };
+$("btnClrMut").onclick=()=>{ S.pipe.mutations=[]; updateSidebarParams(); saveState(); renderLab(ws,ch,t); toast("已清除鎖定突變（恢復 Wild-Type）"); };
+ws.querySelectorAll(".labChk").forEach(c=>c.onchange=()=>{ S.pipe.checks[c.dataset.k]=c.checked; saveState(); renderLab(ws,ch,t); });
+$("btnDlSop").onclick=()=>{
+const prefix=S.title.split(" ")[0].replace(/[^A-Za-z0-9_]/g,"_");
+const sopCss="<style>body{font-family:sans-serif;max-width:960px;margin:24px auto;padding:0 16px;color:#1e293b;line-height:1.6}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #cbd5e1;padding:7px 10px;text-align:left}pre{background:#0f172a;color:#38bdf8;padding:10px;border-radius:8px;white-space:pre-wrap;word-break:break-all}</style>";
+const sopHtml=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${S.title} Wet-Lab SOP</title>${sopCss}</head><body><h1>🧪 ${S.title} — 完整濕實驗 SOP</h1><p>Chain ${ch.chain} | Mutations: ${S.pipe.mutations.length?S.pipe.mutations.map(m=>m.label).join(", "):"WT"} | Vector: ${vec.name} | MW: ${fullBio.mw.toFixed(2)} kDa | pI: ${fullBio.pi.toFixed(2)} | Buffer pH: ${bufPh} | ε280: ${fullBio.epsOx}</p><h2>PCR Primers (${pr.method}, Ta=${pr.ta}°C, Ext=${extSec}s)</h2><pre>Fwd (${pr.ff.length} nt): ${pr.ff}\nRev (${pr.rf.length} nt): ${pr.rf}</pre><h2>Checklist (${doneCnt}/${steps.length})</h2><ul>${steps.map(([k,txt])=>`<li>[${S.pipe.checks[k]?"✓":" "}] ${txt}</li>`).join("")}</ul><h2>Notes</h2><p>${S.pipe.notes||"(None)"}</p><h2>Engineered Construct (${pr.eng.fullAa.length} aa)</h2><pre>${pr.eng.fullAa}</pre><h2>cDNA (${pr.cdna.length} bp)</h2><pre>${pr.cdna}</pre></body></html>`;
+downloadBlob(sopHtml,`${prefix}_WetLab_SOP.html`,"text/html;charset=utf-8");
+};
+};
+const downloadBlob = (content, fname, mime) => {
+const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=fname; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+};
+const renderExport = (ws, ch, t) => {
+  ws.innerHTML=`
+    <div class="g3">
+      <div class="card"><h3>📄 獨立可列印分析報告 (.html)</h3><p class="sub">含結構指標、二硫鍵、引子、熱力學與序列。</p><button class="pri" id="dlHtml" style="width:100%">💾 下載 HTML 報告</button></div>
+      <div class="card"><h3>🧬 GenBank 標準質體檔 (.gb)</h3><p class="sub">相容 SnapGene / Benchling，含 CDS 與標籤特徵。</p><button class="pri" id="dlGb" style="width:100%">💾 下載 GenBank (.gb)</button></div>
+      <div class="card"><h3>📦 實驗專案檔 (.json)</h3><p class="sub">完整結構化資料，供 AI 或下游自動化腳本讀取。</p><button class="pri" id="dlJson" style="width:100%">💾 下載 JSON 專案</button></div>
+</div>`;
+const pr=computePrimersFor(ch,VECTORS[S.pipe.vector].host);
+const bp=getBiophys(ch)||{}, bio=biochem(pr.eng.fullAa)||{}, ss=ssSummary(ch.ss,t), ds=getDisulfide(ch);
+const [cai,dg5]=caiAnd5Dg(pr.mrna,VECTORS[S.pipe.vector].host), sw=tempSweep(S.a.ts-S.a.u,S.a.ts-S.a.n,S.kDs);
+const prefix=S.title.split(" ")[0].replace(/[^A-Za-z0-9_]/g,"_");
+$("dlHtml").onclick=()=>{
+const rows=ds.cands.slice(0,6).map(c=>`<tr><td>${c.a1}${c.r1}</td><td>${c.a2}${c.r2}</td><td>${c.dca} Å</td><td>${c.dcb} Å</td><td>${c.ddg} kJ/mol</td><td>+${c.tm} °C</td></tr>`).join("")||"<tr><td colspan=6>無候選位點</td></tr>";
+const repCss="<style>body{font-family:sans-serif;max-width:960px;margin:24px auto;padding:0 16px;color:#1e293b}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}pre{background:#0f172a;color:#38bdf8;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-all}</style>";
+const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${S.title} Report</title>${repCss}</head><body><h1>🧬 ${S.title} — Biophysics & Cloning Report</h1><p>Chain ${ch.chain} (${pr.eng.fullAa.length} aa) | Fold: ${ss.cls} | RCO: ${(bp.rco||0).toFixed(3)} | Rg: ${(bp.rg||0).toFixed(2)} Å | MW: ${(bio.mw||0).toFixed(2)} kDa | pI: ${(bio.pi||0).toFixed(2)} | ε280: ${bio.epsOx} | Tm(A): ${sw.tm?sw.tm.toFixed(1)+" K":"N/A"} | CAI: ${cai.toFixed(3)} | 5'ΔG: ${dg5}</p><h2>Primers (${pr.method}, Ta=${pr.ta}°C)</h2><pre>Fwd: ${pr.ff}\nRev: ${pr.rf}</pre><h2>De Novo Disulfide Candidates</h2><table><tr><th>Site 1</th><th>Site 2</th><th>Cα</th><th>Cβ</th><th>ΔΔG</th><th>ΔTm</th></tr>${rows}</table><h2>Construct FASTA</h2><pre>&gt;${S.title}_${ch.chain}\n${pr.eng.fullAa}</pre><h2>cDNA</h2><pre>${pr.cdna}</pre></body></html>`;
+downloadBlob(html,`${prefix}_Report.html`,"text/html;charset=utf-8");
+};
+$("dlGb").onclick=()=>{
+const d=new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).replace(/ /g,"-").toUpperCase();
+const loc=prefix.slice(0,16).padEnd(16," "), n=pr.cdna.length, low=pr.cdna.toLowerCase(), ori=[];
+for(let i=0;i<n;i+=60){ const ch60=low.slice(i,i+60).match(/.{1,10}/g).join(" "); ori.push(`${String(i+1).padStart(9," ")} ${ch60}`); }
+const fLines=pr.eng.feats.map(f=>`     ${f.type==="core"?"CDS":"misc_feature"}    ${(f.start-1)*3+1}..${Math.min(n,f.end*3)}\n                     /label="${f.name}"`).join("\n");
+const gb=`LOCUS       ${loc} ${String(n).padStart(6," ")} bp    DNA     linear   SYN ${d}\nDEFINITION  ${S.title}\nFEATURES             Location/Qualifiers\n     CDS             1..${n}\n                     /gene="${prefix}"\n                     /translation="${pr.eng.fullAa}"\n${fLines}\nORIGIN\n${ori.join("\n")}\n//\n`;
+downloadBlob(gb,`${prefix}_construct.gb`,"text/plain;charset=utf-8");
+};
+$("dlJson").onclick=()=>{
+const obj={title:S.title,chain:ch.chain,mutations:S.pipe.mutations,vector:S.pipe.vector,biophysics:bp,biochem:bio,thermodynamics:{modelA:S.a,modelB:S.b,tmA:sw.tm},cloning:{method:pr.method,fwd:pr.ff,rev:pr.rf,ta:pr.ta,cdna:pr.cdna,constructAa:pr.eng.fullAa},notes:S.pipe.notes};
+downloadBlob(JSON.stringify(obj,null,2),`${prefix}_project.json`,"application/json");
+};
+};
+const loadBundle = (pdbText, title, keepMut=false) => {
+const b=parsePDB(pdbText, title);
+if(!b.chains.length){ toast("PDB 中找不到有效胺基酸鏈"); return; }
+S.bundle=b; S.title=title; S.chainIdx=0; S.mutRes=b.chains[0].resNums[0];
+if(!keepMut){ S.pipe.mutations=[]; saveState(); }
+$("srcStatus").textContent=`✓ ${title} (${b.chains.length} chain${b.chains.length>1?"s":""})`;
+renderHeader(); renderTab();
+};
+const loadFastaText = raw => {
+const lines=(raw||"").trim().split(/\r?\n/);
+let name="Custom_FASTA", seq="";
+for(const ln of lines){
+const s=ln.trim(); if(!s) continue;
+if(s.startsWith(">")){ if(!seq) name=s.slice(1).split(/\s+/)[0]||name; else break; }
+else seq+=s.toUpperCase().replace(/[^ACDEFGHIKLMNPQRSTVWY]/g,"");
+}
+if(seq.length<5){ toast("請貼上至少 5 個有效胺基酸字元"); return; }
+const n=seq.length, rnums=new Int32Array(n); for(let i=0;i<n;i++) rnums[i]=i+1;
+S.bundle={sourceName:name, rawPdb:"", hasSidechains:false, seqOnly:true, chains:[{
+model:0, chain:"A", n, sequence:seq, ca:new Float32Array(0), cb:new Float32Array(0),
+resNums:rnums, resNames:Array.from(seq), ss:"C".repeat(n),
+sgNums:new Int32Array(0), sg:new Float32Array(0),
+rama:{phi:new Float32Array(0),psi:new Float32Array(0),nums:new Int32Array(0),names:[],aa:""}
+}]};
+S.title=`${name} (FASTA)`; S.chainIdx=0; S.mutRes=1; S.pipe.mutations=[]; saveState();
+if(S.tab==="3d"||S.tab==="cm"||S.tab==="rama") S.tab="fasta";
+$("srcStatus").textContent=`✓ ${name} (${n} aa, 純序列)`;
+renderHeader(); renderTab(); toast(`已載入純序列 ${name} (${n} aa)`);
+};
+const fetchRCSB = async id => {
+const cid=id.trim().toUpperCase();
+if(!/^[A-Z0-9]{4}$/.test(cid)){ toast("請輸入 4 碼 PDB ID (例如 1CRN)"); return; }
+$("srcStatus").textContent=`⏳ 下載 RCSB ${cid}...`;
+try{
+const res=await fetch(`https://files.rcsb.org/download/${cid}.pdb`);
+if(!res.ok) throw new Error(`HTTP ${res.status}`);
+loadBundle(await res.text(),`${cid} (RCSB PDB)`); toast(`已載入 ${cid}`);
+}catch(e){ $("srcStatus").textContent=`✕ 載入失敗: ${e.message}`; toast("無法連線 RCSB，請檢查網路"); }
+};
+const fetchAFDB = async uid => {
+const cid=uid.trim().toUpperCase();
+if(!/^[A-Z0-9]{4,12}$/.test(cid)){ toast("請輸入有效 UniProt ID (例如 P69905)"); return; }
+$("srcStatus").textContent=`⏳ 查詢 AlphaFold DB ${cid}...`;
+try{
+const meta=await fetch(`https://alphafold.ebi.ac.uk/api/prediction/${cid}`);
+if(!meta.ok) throw new Error(`HTTP ${meta.status}`);
+const arr=await meta.json();
+const pdbUrl=arr?.[0]?.pdbUrl; if(!pdbUrl) throw new Error("查無預測結構");
+const res=await fetch(pdbUrl); if(!res.ok) throw new Error(`PDB HTTP ${res.status}`);
+loadBundle(await res.text(),`${cid} (AlphaFold DB)`); toast(`已載入 AlphaFold ${cid}`);
+}catch(e){ $("srcStatus").textContent=`✕ AFDB 失敗: ${e.message}`; toast("無法抓取 AlphaFold DB，請確認 UniProt ID"); }
+};
+$("langSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.lang=b.dataset.l; $("langSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b)); saveState(); renderHeader(); renderTab(); });
+$("btnHandbook").onclick=()=>{ S.handbook=!S.handbook; saveState(); renderHeader(); renderTab(); };
+$("btnShare").onclick=async()=>{
+const u=new URL(location.href);
+if(S.title.includes("(RCSB PDB)")) u.searchParams.set("pdb",S.title.split(" ")[0]);
+else if(S.title.includes("(AlphaFold DB)")) u.searchParams.set("afdb",S.title.split(" ")[0]);
+else { u.searchParams.delete("pdb"); u.searchParams.delete("afdb"); }
+try{ await navigator.clipboard.writeText(u.toString()); toast("✓ 已複製連結（部署至 GitHub Pages 即可分享給任何人）"); }
+catch(_){ prompt("複製此分享連結：", u.toString()); }
+};
+$("btnResetStore").onclick=()=>{ try{localStorage.removeItem(STORE_KEY);}catch(_){} location.reload(); };
+$("srcSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+const m=b.dataset.s; $("srcSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b));
+["sample","rcsb","afdb","fasta","upload"].forEach(k=>{ const el=$("src"+k[0].toUpperCase()+k.slice(1)); if(el) el.style.display=m===k?"block":"none"; });
+});
+$("btnLoadSample").onclick=()=>loadBundle($("sample1ubq").textContent,"1UBQ (Ubiquitin)");
+$("btnFetch").onclick=()=>fetchRCSB($("rcsbId").value);
+$("btnAfdb").onclick=()=>fetchAFDB($("afdbId").value);
+$("btnFasta").onclick=()=>loadFastaText($("fastaIn").value);
+document.querySelectorAll(".preBtn").forEach(b=>b.onclick=()=>{ $("rcsbId").value=b.dataset.id; fetchRCSB(b.dataset.id); });
+document.querySelectorAll(".afBtn").forEach(b=>b.onclick=()=>{ $("afdbId").value=b.dataset.id; fetchAFDB(b.dataset.id); });
+$("pdbFile").onchange=async e=>{ const f=e.target.files[0]; if(f) loadBundle(await f.text(), f.name); };
+$("topChainSel").onchange=()=>{ S.chainIdx=+$("topChainSel").value; S.pipe.mutations=[]; saveState(); renderHeader(); renderTab(); };
+window.addEventListener("DOMContentLoaded",()=>{
+loadSavedState();
+$("langSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x.dataset.l===S.lang));
+const qs=new URLSearchParams(location.search);
+const qPdb=qs.get("pdb"), qAfdb=qs.get("afdb");
+if(qPdb){ $("rcsbId").value=qPdb.toUpperCase(); fetchRCSB(qPdb); }
+else if(qAfdb){ $("afdbId").value=qAfdb.toUpperCase(); fetchAFDB(qAfdb); }
+else loadBundle($("sample1ubq").textContent,"1UBQ (Ubiquitin)",true);
+});
+})();
+</script>
+</body>
+</html>
