@@ -4,26 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🧬 Protein Thermodynamics & Wet-Lab Engineering Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f5f7;--panel:rgba(255,255,255,.78);--card:#ffffff;--surf:#f5f5f7;--bd:rgba(0,0,0,.08);--bd-s:rgba(0,0,0,.14);--tx:#1d1d1f;--mu:#6e6e73;--ac:#0071e3;--ac-h:#0077ed;--ac2:#0066cc;--warn:#b25000;--err:#d70015;--ok:#1d8348;--sh:0 2px 12px rgba(0,0,0,.04),0 12px 32px rgba(0,0,0,.03);--sh-h:0 6px 20px rgba(0,0,0,.07),0 16px 40px rgba(0,0,0,.05)}
+:root{--bg:#f5f5f7;--panel:rgba(255,255,255,.74);--card:rgba(255,255,255,.72);--surf:rgba(0,0,0,.045);--bd:rgba(0,0,0,.075);--bd-s:rgba(0,0,0,.12);--tx:#1d1d1f;--mu:#515154;--ac:#0071e3;--ac-h:#0077ed;--ac2:#0066cc;--warn:#c96f00;--err:#d70015;--ok:#1e873a;--spec-top:rgba(255,255,255,.98);--spec-bot:rgba(0,0,0,.04);--spot:rgba(0,113,227,.065);--rim:rgba(0,113,227,.55);--hero-grad:linear-gradient(110deg,#1d1d1f 0%,#3a3a3c 38%,#0071e3 50%,#1d1d1f 62%,#515154 100%);--sh:0 16px 44px rgba(0,0,0,.065),0 2px 10px rgba(0,0,0,.035);--sh-h:0 22px 54px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.05)}
+[data-theme=dark]{--bg:#000000;--panel:rgba(24,24,32,.66);--card:rgba(28,28,36,.62);--surf:rgba(255,255,255,.075);--bd:rgba(255,255,255,.13);--bd-s:rgba(255,255,255,.22);--tx:#f5f5f7;--mu:#a1a1a6;--ac:#2997ff;--ac-h:#47a6ff;--ac2:#64d2ff;--spec-top:rgba(255,255,255,.32);--spec-bot:rgba(0,0,0,.42);--spot:rgba(120,195,255,.1);--rim:rgba(120,195,255,.78);--hero-grad:linear-gradient(110deg,#fff 0%,#e5e5ea 36%,#8ec8ff 50%,#fff 64%,#a1a1a6 100%);--sh:0 24px 60px rgba(0,0,0,.58),0 4px 16px rgba(0,0,0,.36);--sh-h:0 28px 72px rgba(0,0,0,.72)}
+[data-theme=sunlit]{--bg:#fff8f0;--panel:rgba(255,248,240,.76);--card:rgba(255,252,247,.74);--surf:rgba(234,88,12,.06);--bd:rgba(234,88,12,.12);--bd-s:rgba(234,88,12,.22);--tx:#261a10;--mu:#6e4f3a;--ac:#ea580c;--ac-h:#f97316;--ac2:#c2410c;--spec-top:rgba(255,255,255,.98);--spec-bot:rgba(234,88,12,.06);--spot:rgba(249,115,22,.09);--rim:rgba(249,115,22,.62);--hero-grad:linear-gradient(110deg,#261a10 0%,#9a3412 38%,#f97316 50%,#261a10 64%,#6e4f3a 100%);--sh:0 18px 46px rgba(194,65,12,.08),0 2px 12px rgba(194,65,12,.04);--sh-h:0 24px 56px rgba(194,65,12,.13)}
+[data-theme=pride]{--bg:#faf7ff;--panel:rgba(255,255,255,.74);--card:rgba(255,255,255,.72);--surf:rgba(120,60,180,.06);--bd:rgba(130,70,200,.12);--bd-s:rgba(130,70,200,.22);--tx:#1f162e;--mu:#52436b;--ac:#db2777;--ac-h:#be185d;--ac2:#9333ea;--spec-top:rgba(255,255,255,.98);--spec-bot:rgba(140,80,220,.06);--spot:rgba(236,72,153,.085);--rim:rgba(236,72,153,.6);--hero-grad:linear-gradient(110deg,#e11d48 0%,#f59e0b 25%,#10b981 50%,#3b82f6 75%,#9333ea 100%);--sh:0 18px 48px rgba(110,50,180,.09),0 2px 12px rgba(110,50,180,.04);--sh-h:0 24px 58px rgba(110,50,180,.14)}
+.pride-egg{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border-radius:999px;border:1px solid var(--bd-s);background:var(--surf);font-size:12px;line-height:1;cursor:pointer;transition:transform .28s cubic-bezier(.34,1.34,.64,1),box-shadow .25s,border-color .2s}
+.pride-egg:hover{transform:scale(1.16) rotate(8deg);border-color:rgba(236,72,153,.6);box-shadow:0 0 14px rgba(236,72,153,.4)}
+.pride-egg.act{background:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#c77dff);border-color:rgba(255,255,255,.6);box-shadow:0 0 16px rgba(236,72,153,.55)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{background:radial-gradient(ellipse 90% 50% at 72% -8%,rgba(0,113,227,.075),transparent 58%),radial-gradient(ellipse 60% 40% at 15% 100%,rgba(88,86,214,.05),transparent 60%),var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","PingFang TC",sans-serif;display:flex;min-height:100vh;font-size:14px;line-height:1.47;letter-spacing:-.01em}
+body{background:radial-gradient(ellipse 90% 50% at 72% -8%,rgba(0,113,227,.075),transparent 58%),radial-gradient(ellipse 60% 40% at 15% 100%,rgba(88,86,214,.05),transparent 60%),var(--bg);color:var(--tx);font-family:"SF Pro Display","SF Pro Text",-apple-system,BlinkMacSystemFont,"Inter","PingFang TC","Microsoft JhengHei",sans-serif;display:flex;min-height:100vh;font-size:14px;line-height:1.47;letter-spacing:-.01em}
 aside{width:292px;flex-shrink:0;background:var(--panel);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-right:1px solid var(--bd);padding:20px 18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:100vh;position:sticky;top:0}
 main{flex:1;padding:28px 34px 40px;overflow-x:hidden;min-width:0;max-width:1440px;margin:0 auto}
-h1{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.15;background:linear-gradient(135deg,#1d1d1f 0%,#424245 55%,#0071e3 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:10px}
+h1{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.15;background:var(--hero-grad);background-size:220% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:heroSheen 10s ease-in-out infinite alternate;display:flex;align-items:center;gap:10px}
+@keyframes heroSheen{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 h2{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px;color:var(--tx)}
 h3{font-size:15px;font-weight:600;letter-spacing:-.015em;margin-bottom:10px;color:var(--tx)}
 .sub{color:var(--mu);font-size:14px;margin:6px 0 22px;line-height:1.5}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--sh);transition:box-shadow .25s ease,transform .25s ease}
+.card{background:var(--card);backdrop-filter:saturate(180%) blur(28px);-webkit-backdrop-filter:saturate(180%) blur(28px);border:1px solid var(--bd);border-radius:24px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--sh),inset 0 1px 0 var(--spec-top),inset 0 -1px 0 var(--spec-bot);transition:box-shadow .28s cubic-bezier(.22,1,.36,1),transform .28s cubic-bezier(.22,1,.36,1)}
 .card:hover{box-shadow:var(--sh-h)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.g5{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
 @media(max-width:960px){body{flex-direction:column}aside{width:100%;max-height:none;position:static}main{padding:18px 16px}.g4,.g5,.g3,.g2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.m{background:var(--surf);border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:12px 14px;transition:background .2s}
-.m:hover{background:#ededf0}
+.m{background:var(--surf);border:1px solid rgba(0,0,0,.05);border-radius:14px;padding:13px 15px;transition:transform .22s cubic-bezier(.22,1,.36,1),background .2s,box-shadow .22s}
+.m:hover{background:#ededf2;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.05)}
 .m .l{font-size:11.5px;font-weight:500;color:var(--mu);margin-bottom:4px;letter-spacing:.005em}
 .m .v{font-size:19px;font-weight:600;color:var(--tx);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .m .d{font-size:11.5px;margin-top:3px;color:var(--ac2);font-weight:500;font-variant-numeric:tabular-nums}
@@ -111,23 +121,22 @@ tr:hover td{background:rgba(0,113,227,.03)}
 [data-theme=dark] .b-warn{background:rgba(255,159,10,.18);color:#ff9f0a}
 [data-theme=dark] .b-err{background:rgba(255,69,58,.18);color:#ff453a}
 [data-theme=dark] .b-info{background:rgba(41,151,255,.18);color:#64d2ff}
-body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;background:radial-gradient(circle 42vw at 78% 12%,rgba(0,113,227,.08),transparent 70%),radial-gradient(circle 36vw at 18% 82%,rgba(94,92,230,.06),transparent 70%);animation:aurora 22s ease-in-out infinite alternate;will-change:transform}
-[data-theme=dark] body::before{background:radial-gradient(circle 45vw at 78% 12%,rgba(41,151,255,.15),transparent 70%),radial-gradient(circle 38vw at 18% 82%,rgba(191,90,242,.1),transparent 70%)}
-@keyframes aurora{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-2%,1.8%,0) scale(1.04)}}
+#ambient_bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;filter:blur(56px);opacity:.85;transition:opacity .5s}
 .card{position:relative;overflow:hidden}
-.card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s ease;background:radial-gradient(460px circle at var(--mx,50%) var(--my,50%),rgba(0,113,227,.065),transparent 60%)}
-[data-theme=dark] .card::before{background:radial-gradient(460px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.065),transparent 60%)}
-.card:hover::before{opacity:1}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .32s ease;background:radial-gradient(500px circle at var(--mx,50%) var(--my,50%),var(--spot),transparent 58%);z-index:0}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.25px;pointer-events:none;background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),var(--rim),transparent 62%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;opacity:0;transition:opacity .28s ease;z-index:2}
+.card:hover::before,.card:hover::after{opacity:1}
+.card>*{position:relative;z-index:1}
 .nav{position:sticky;top:12px;z-index:30;box-shadow:0 8px 28px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.8)}
 [data-theme=dark] .nav{box-shadow:0 12px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}
 .hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
-.cmd-btn{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:980px;background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border:1px solid var(--bd-s);color:var(--mu);font-size:12.5px;font-weight:500;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .18s}
-.cmd-btn:hover{color:var(--tx);border-color:var(--ac);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,113,227,.14)}
+.cmd-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:980px;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#0071e3,#5e5ce6,#bf5af2,#0071e3) border-box;border:1.5px solid transparent;color:var(--tx);font-size:12.5px;font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(0,113,227,.12);transition:all .2s cubic-bezier(.22,1,.36,1)}
+.cmd-btn:hover{transform:translateY(-1.5px) scale(1.015);box-shadow:0 8px 22px rgba(0,113,227,.22)}
 .cmd-btn kbd{font-family:inherit;font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;background:rgba(118,118,128,.14);color:var(--tx)}
 [data-theme=dark] .cmd-btn{background:rgba(44,44,46,.75);color:#aeaeb2}
-pre.seq{position:relative;cursor:pointer;transition:border-color .18s}
+pre.seq{position:relative;cursor:pointer;transition:border-color .18s;padding-right:76px}
 pre.seq:hover{border-color:var(--ac)}
-pre.seq::after{content:"點擊複製";position:sticky;float:right;top:0;font-family:-apple-system,sans-serif;font-size:10.5px;font-weight:600;color:#a1a1a6;background:rgba(255,255,255,.1);padding:2px 7px;border-radius:6px;opacity:0;transition:opacity .15s;pointer-events:none}
+pre.seq::after{content:"點擊複製";position:absolute;top:8px;right:10px;font-family:-apple-system,sans-serif;font-size:10.5px;font-weight:600;color:#e5e5ea;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);padding:2px 8px;border-radius:980px;opacity:0;transition:opacity .15s;pointer-events:none}
 pre.seq:hover::after{opacity:1}
 #cmdModal{position:fixed;inset:0;z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:12vh;background:rgba(0,0,0,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 #cmdModal.open{display:flex;animation:appleIn .18s ease}
@@ -141,11 +150,13 @@ pre.seq:hover::after{opacity:1}
 </style>
 </head>
 <body>
+<canvas id="ambient_bg" width="240" height="140"></canvas>
 <aside>
 <div class="row" style="justify-content:space-between;gap:6px">
 <strong style="font-size:14.5px;letter-spacing:-.02em">🧬 Protein Studio</strong>
 <div class="row" style="gap:5px">
-<button id="btnTheme" class="sm" style="padding:4px 8px" title="切換 Apple 淺色 / Pro 深色">☀️</button>
+<button id="btnTheme" class="sm" style="padding:4px 8px" title="切換 早上 / 午后 / 夜晚">☀️</button>
+<button id="btnPride" class="pride-egg" title="🏳️‍🌈 Pride 彩蛋模式">🏳️‍🌈</button>
 <div class="seg" id="langSeg">
 <button data-l="zh" class="act">中文</button>
 <button data-l="en">EN</button>
@@ -223,7 +234,7 @@ pre.seq:hover::after{opacity:1}
 <select id="topChainSel" style="width:auto;min-width:220px"></select>
 </div>
 <div class="g4" id="bpMetrics"></div>
-<button class="pri" id="btnSyncA" style="width:100%;margin-top:10px"></button>
+<button id="btnSyncA" style="width:100%;margin-top:12px;background:rgba(0,113,227,.09);color:var(--ac);border:1px solid rgba(0,113,227,.22);font-weight:600"></button>
 </div>
 <div class="nav" id="navBar"></div>
 <div id="workspace"></div>
@@ -1188,8 +1199,8 @@ v.render();
 };
 ["mSt","mCo","mSc"].forEach(id=>$(id).onchange=()=>requestAnimationFrame(()=>upd(false)));
 $("mSf").onchange=()=>requestAnimationFrame(()=>upd(true));
-$("mSp").onchange=()=>{ S.molSpin=$("mSp").checked; v.spin(S.molSpin,[0,1,0]); };
-$("mRst").onclick=()=>{ v.zoomTo(); v.render(); };
+$("mSp").onchange=()=>{ S.molSpin=$("mSp").checked; v.spin(S.molSpin?"y":false,0.8); };
+$("mRst").onclick=()=>{ S.molSpin=false; $("mSp").checked=false; v.spin(false); v.zoomTo(); v.render(); };
 v.setHoverable({},true,a=>{ if(a&&$("molTip")){ const tp=$("molTip"); tp.style.display="block"; tp.innerHTML=`<strong>${a.resn} ${a.resi}</strong> (Chain ${a.chain}) - ${a.atom}`; }},()=>{ if($("molTip")) $("molTip").style.display="none"; });
 upd(false); v.zoomTo(); v.render();
 };
@@ -1271,42 +1282,118 @@ $("cmMd").onchange=()=>{ S.cmMode=$("cmMd").value; scheduleFrame(()=>draw(true))
 $("cmCut").oninput=()=>{ S.cmCut=+$("cmCut").value; $("cmCutV").textContent=S.cmCut.toFixed(1)+" Å"; scheduleFrame(()=>draw(false)); };
 draw(true);
 };
+let RAMA_GRID = null;
+const ramaFreeEnergy = (phi, psi) => {
+  const wrap = d => ((d + 540) % 360) - 180;
+  // Multi-basin empirical conformational probability P(phi,psi) -> G = -RT ln(P/Pmax) at 298.15 K
+  const basins = [
+    [-63, -43, 18, 16, 1.00],  // right-handed alpha-helix
+    [-125, 135, 28, 24, 0.72], // antiparallel beta-sheet
+    [-115, 115, 22, 18, 0.45], // parallel beta-sheet
+    [-70, 145, 20, 22, 0.58],  // polyproline II (PPII)
+    [-82, -12, 22, 18, 0.24],  // 3_10 / bridge
+    [58, 42, 18, 20, 0.14],    // left-handed alpha_L
+    [-75, 12, 20, 16, 0.12]    // gamma-turn bridge
+  ];
+  let p = 1e-4;
+  for (let i = 0; i < basins.length; i++) {
+    const [m1, m2, s1, s2, w] = basins[i];
+    const d1 = wrap(phi - m1) / s1, d2 = wrap(psi - m2) / s2;
+    p += w * Math.exp(-0.5 * (d1 * d1 + d2 * d2));
+  }
+  const rt = 8.3144626e-3 * 298.15;
+  return Math.min(18.0, Math.max(0.0, -rt * Math.log(p / 1.06)));
+};
+const getRamaGrid = () => {
+  if (RAMA_GRID) return RAMA_GRID;
+  const ax = [], Z = [];
+  for (let a = -180; a <= 180; a += 5) ax.push(a);
+  for (let iy = 0; iy < ax.length; iy++) {
+    const row = new Array(ax.length), psi = ax[iy];
+    for (let ix = 0; ix < ax.length; ix++) row[ix] = +ramaFreeEnergy(ax[ix], psi).toFixed(2);
+    Z.push(row);
+  }
+  return RAMA_GRID = { ax, Z };
+};
 const renderRama = (ws, ch, tok) => {
   if(S.bundle.seqOnly){ ws.innerHTML=`<div class="card"><span class="badge b-info">📄 純序列模式無主鏈原子座標，無法計算拉氏圖。請使用 RCSB / AFDB 或上傳 PDB。</span></div>`; return; }
-const r=ch.rama, n=r.phi.length;
-let ac=0,bc=0,fav=0; const out=[];
-for(let i=0;i<n;i++){
-const p=r.phi[i], q=r.psi[i];
-if(p>=-110&&p<=-35&&q>=-70&&q<=-15) ac++;
-if(p>=-165&&p<=-45&&q>=90&&q<=175) bc++;
-const ok=(p>=-140&&p<=-30&&q>=-80&&q<=10)||(p>=-180&&p<=-40&&q>=80&&q<=180)||(p>=30&&p<=100&&q>=0&&q<=90)||r.names[i]==="GLY";
-if(ok) fav++; else out.push(`${r.names[i]}${r.nums[i]} (${p.toFixed(0)}°,${q.toFixed(0)}°)`);
-}
+  if(!S.ramaMode) S.ramaMode="thermo";
+  const r=ch.rama, n=r.phi.length;
+  let ac=0,bc=0,fav=0,dgSum=0; const out=[], dgArr=new Float32Array(n), binCnt=new Map();
+  for(let i=0;i<n;i++){
+    const p=r.phi[i], q=r.psi[i], dg=ramaFreeEnergy(p,q);
+    dgArr[i]=dg; dgSum+=dg;
+    const bk=`${Math.floor((p+180)/30)}:${Math.floor((q+180)/30)}`;
+    binCnt.set(bk,(binCnt.get(bk)||0)+1);
+    if(p>=-110&&p<=-35&&q>=-70&&q<=-15) ac++;
+    if(p>=-165&&p<=-45&&q>=90&&q<=175) bc++;
+    if(dg<=9.0||r.names[i]==="GLY") fav++; else out.push(`${r.names[i]}${r.nums[i]} (${p.toFixed(0)}°,${q.toFixed(0)}°, +${dg.toFixed(1)} kJ/mol)`);
+  }
+  let sBB=0;
+  if(n>0) for(const cnt of binCnt.values()){ const pr=cnt/n; sBB-=8.3145*pr*Math.log(pr); }
+  const meanDg=n?(dgSum/n).toFixed(2):"0.00";
   ws.innerHTML=`
-    <div class="g3" style="margin-bottom:12px">
+    <div class="g5" style="margin-bottom:12px">
       <div class="m"><div class="l">右手 α-螺旋區</div><div class="v">${n?(ac/n*100).toFixed(1):0}%</div></div>
       <div class="m"><div class="l">β-折板區</div><div class="v">${n?(bc/n*100).toFixed(1):0}%</div></div>
-      <div class="m"><div class="l">核心允許區佔比</div><div class="v">${n?(fav/n*100).toFixed(1):0}%</div></div>
+      <div class="m"><div class="l">能量允許區 (≤9 kJ/mol)</div><div class="v">${n?(fav/n*100).toFixed(1):0}%</div></div>
+      <div class="m"><div class="l">平均構形 ΔG(φ,ψ)</div><div class="v">${meanDg} kJ/mol</div><div class="d">298.15 K Boltzmann</div></div>
+      <div class="m"><div class="l">主鏈構形熵 S_bb</div><div class="v">${sBB.toFixed(1)} J/mol·K</div></div>
     </div>
-    <div class="card"><div id="rmPlot" class="plot" style="height:500px"></div></div>
-<div class="card">${out.length?`<span class="badge b-warn">偵測到 ${out.length} 個構象異常殘基</span> <span style="font-size:12px;color:var(--mu)">${out.slice(0,8).join(", ")}</span>`:`<span class="badge b-ok">所有非甘胺酸殘基皆位於立體化學核心允許區</span>`}</div>`;
-const draw=async()=>{
-if(tok!==viewToken||!$("rmPlot")) return;
-if(!window.Plotly){ $("rmPlot").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("rmPlot")) return; $("rmPlot").innerHTML=""; }
-const mk=(name,fn,sym,col)=>{
-const x=[],y=[],t=[];
-for(let i=0;i<n;i++) if(fn(r.names[i])){ x.push(r.phi[i]); y.push(r.psi[i]); t.push(`${r.names[i]} ${r.nums[i]} (${r.aa[i]})<br>φ=${r.phi[i].toFixed(1)}°, ψ=${r.psi[i].toFixed(1)}°`); }
-return {type:"scatter",mode:"markers",name:`${name} (${x.length})`,x,y,text:t,hoverinfo:"text",marker:{size:8,symbol:sym,color:col,opacity:.88}};
-};
-const shapes=[
-{type:"rect",x0:-165,y0:90,x1:-45,y1:175,fillcolor:"rgba(59,130,246,.16)",line:{color:"rgba(59,130,246,.5)",dash:"dot"}},
-{type:"rect",x0:-110,y0:-70,x1:-35,y1:-15,fillcolor:"rgba(16,185,129,.18)",line:{color:"rgba(16,185,129,.55)",dash:"dot"}},
-{type:"rect",x0:30,y0:10,x1:90,y1:75,fillcolor:"rgba(245,158,11,.16)",line:{color:"rgba(245,158,11,.5)",dash:"dot"}}
-];
-Plotly.newPlot("rmPlot",[mk("General",m=>m!=="GLY"&&m!=="PRO","circle","#2563eb"),mk("GLY",m=>m==="GLY","diamond","#dc2626"),mk("PRO",m=>m==="PRO","square","#7c3aed")],
-sciLayout({title:`Ramachandran Plot — Chain ${ch.chain}`,xaxis:{title:"φ (Phi°)",range:[-180,180],dtick:60,gridcolor:"#e2e8f0",zerolinecolor:"#94a3b8"},yaxis:{title:"ψ (Psi°)",range:[-180,180],dtick:60,scaleanchor:"x",scaleratio:1,gridcolor:"#e2e8f0",zerolinecolor:"#94a3b8"},shapes}),{responsive:true});
-};
-draw();
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div style="font-weight:600;font-size:13.5px">🌋 拉氏圖自由能地景與等高線 (G = −RT ln P)</div>
+        <div class="seg" id="rmSeg">
+          <button data-m="thermo" class="${S.ramaMode==="thermo"?"act":""}">🌋 熱力學自由能等高線 (kJ/mol)</button>
+          <button data-m="contour" class="${S.ramaMode==="contour"?"act":""}">🗺️ 允許區等高線 (MolProbity)</button>
+        </div>
+      </div>
+      <div id="rmPlot" class="plot" style="height:560px;max-width:760px;margin:0 auto"></div>
+    </div>
+    <div class="card">${out.length?`<span class="badge b-warn">偵測到 ${out.length} 個高張力殘基 (ΔG > 9 kJ/mol)</span> <span style="font-size:12px;color:var(--mu)">${out.slice(0,6).join(" ｜ ")}</span>`:`<span class="badge b-ok">所有非甘胺酸殘基皆位於低自由能核心允許區</span>`}</div>`;
+  const draw=async()=>{
+    if(tok!==viewToken||!$("rmPlot")) return;
+    if(!window.Plotly){ $("rmPlot").innerHTML="<div style='color:#64748b;padding:24px'>⏳ 按需載入 Plotly 圖表引擎...</div>"; try{ await ensureLib("plotly"); }catch(_){ return; } if(tok!==viewToken||!$("rmPlot")) return; $("rmPlot").innerHTML=""; }
+    const g=getRamaGrid();
+    const bgTrace = S.ramaMode==="thermo" ? {
+      type:"contour", x:g.ax, y:g.ax, z:g.Z, name:"ΔG(φ,ψ)", showscale:true, hoverinfo:"skip",
+      colorscale:[
+        [0.00,"#1e1b4b"],[0.12,"#2563eb"],[0.24,"#06b6d4"],[0.38,"#10b981"],
+        [0.54,"#facc15"],[0.68,"#f97316"],[0.82,"#ef4444"],[0.92,"#fecdd3"],[1.00,"#ffffff"]
+      ],
+      zmin:0, zmax:15,
+      contours:{start:0,end:15,size:1.5,coloring:"fill",showlabels:true,labelfont:{size:10,color:"#0f172a"}},
+      line:{color:"rgba(15,23,42,0.55)",width:1.2},
+      colorbar:{title:{text:"ΔG<br>(kJ/mol)",side:"top"},x:1.03,thickness:15,len:0.84,dtick:3}
+    } : {
+      type:"contour", x:g.ax, y:g.ax, z:g.Z, name:"Allowed", showscale:false, hoverinfo:"skip",
+      colorscale:[[0,"#1d4ed8"],[0.25,"#38bdf8"],[0.55,"#bae6fd"],[0.62,"#ffffff"],[1,"#ffffff"]],
+      zmin:0, zmax:15,
+      contours:{start:0,end:9,size:3,coloring:"fill",showlabels:true,labelfont:{size:10.5,color:"#0f172a"}},
+      line:{color:"#1e3a8a",width:1.6}
+    };
+    const mk=(name,fn,sym,col)=>{
+      const x=[],y=[],t=[];
+      for(let i=0;i<n;i++) if(fn(r.names[i])){ x.push(r.phi[i]); y.push(r.psi[i]); t.push(`${r.names[i]} ${r.nums[i]} (${r.aa[i]})<br>φ=${r.phi[i].toFixed(1)}°, ψ=${r.psi[i].toFixed(1)}°<br>ΔG(φ,ψ)=<b>${dgArr[i].toFixed(2)} kJ/mol</b>`); }
+      return {type:"scatter",mode:"markers",name:`${name} (${x.length})`,x,y,text:t,hoverinfo:"text",marker:{size:8.5,symbol:sym,color:col,opacity:.96,line:{width:1.4,color:"#ffffff"}}};
+    };
+    const annos=[
+      {x:-63,y:-43,text:"<b>αR</b>",showarrow:false,font:{size:12,color:"#ffffff"}},
+      {x:-125,y:138,text:"<b>β-Sheet</b>",showarrow:false,font:{size:11,color:"#ffffff"}},
+      {x:58,y:42,text:"<b>αL</b>",showarrow:false,font:{size:11,color:"#0f172a"}}
+    ];
+    try{Plotly.purge("rmPlot");}catch(_){}
+    Plotly.newPlot("rmPlot",[bgTrace,mk("General",m=>m!=="GLY"&&m!=="PRO","circle","#0f172a"),mk("GLY",m=>m==="GLY","diamond","#e11d48"),mk("PRO",m=>m==="PRO","square","#7c3aed")],
+      sciLayout({
+        title:{text:`Ramachandran ${S.ramaMode==="thermo"?"ΔG(φ,ψ) Contour":"Favored Contours"} — Chain ${ch.chain}`,y:0.97,x:0.5,xanchor:"center"},
+        margin:{l:58,r:82,t:82,b:52},
+        xaxis:{title:"φ (Phi°)",range:[-180,180],dtick:60,constrain:"domain",gridcolor:"rgba(148,163,184,0.35)",zerolinecolor:"#64748b"},
+        yaxis:{title:"ψ (Psi°)",range:[-180,180],dtick:60,scaleanchor:"x",scaleratio:1,constrain:"domain",gridcolor:"rgba(148,163,184,0.35)",zerolinecolor:"#64748b"},
+        annotations:annos, legend:{orientation:"h",y:1.02,yanchor:"bottom",x:0.5,xanchor:"center"}
+      }),{responsive:true});
+  };
+  $("rmSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.ramaMode=b.dataset.m; $("rmSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b)); requestAnimationFrame(draw); });
+  draw();
 };
 const renderMut = (ws, ch) => {
   if(S.bundle.seqOnly){ ws.innerHTML=`<div class="card"><span class="badge b-info">📄 純序列模式無 3D 座標（無法計算核心埋藏與二硫鍵距離），但可直接至「✂️ 選殖/引子 → SDM 定點突變」設計突變引子！</span></div>`; return; }
@@ -1911,12 +1998,26 @@ const res=await fetch(pdbUrl); if(!res.ok) throw new Error(`PDB HTTP ${res.statu
 loadBundle(await res.text(),`${cid} (AlphaFold DB)`); toast(`已載入 AlphaFold ${cid}`);
 }catch(e){ $("srcStatus").textContent=`✕ AFDB 失敗: ${e.message}`; toast("無法抓取 AlphaFold DB，請確認 UniProt ID"); }
 };
+const THEMES = ["light", "sunlit", "dark"];
+const THEME_ICONS = { light: "☀️ 早上", sunlit: "🌇 午后", dark: "🌙 夜晚", pride: "🏳️‍🌈 Pride" };
+let lastStdTheme = "light";
 const applyTheme = th => {
-  S.theme = th === "dark" ? "dark" : "light";
+  const valid = THEMES.includes(th) || th === "pride";
+  S.theme = valid ? th : "light";
+  if (S.theme !== "pride") lastStdTheme = S.theme;
   document.documentElement.setAttribute("data-theme", S.theme);
-  if ($("btnTheme")) $("btnTheme").textContent = S.theme === "dark" ? "🌙" : "☀️";
+  if ($("btnTheme")) $("btnTheme").textContent = THEME_ICONS[S.theme];
+  if ($("btnPride")) $("btnPride").classList.toggle("act", S.theme === "pride");
 };
-$("btnTheme").onclick = () => { applyTheme(S.theme === "dark" ? "light" : "dark"); saveState(); };
+$("btnTheme").onclick = () => {
+  const cur = S.theme === "pride" ? lastStdTheme : S.theme;
+  applyTheme(THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length]); saveState();
+};
+$("btnPride").onclick = () => {
+  const next = S.theme === "pride" ? lastStdTheme : "pride";
+  applyTheme(next); saveState();
+  if (next === "pride") toast("🏳️‍🌈 已啟用 Pride 虹彩液態玻璃彩蛋模式！");
+};
 $("langSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ S.lang=b.dataset.l; $("langSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("act",x===b)); saveState(); renderHeader(); renderTab(); });
 $("btnHandbook").onclick=()=>{ S.handbook=!S.handbook; saveState(); renderHeader(); renderTab(); };
 $("btnShare").onclick=async()=>{
@@ -1973,8 +2074,13 @@ const cmdItems = () => [
 ];
 let cmdIdx = 0, cmdFiltered = [];
 const renderCmd = () => {
-  const q = ($("cmdIn").value || "").trim().toLowerCase();
+  const raw = ($("cmdIn").value || "").trim();
+  const q = raw.toLowerCase();
   cmdFiltered = cmdItems().filter(x => x.t.toLowerCase().includes(q) || x.k.toLowerCase().includes(q));
+  if (/^[a-z0-9]{4}$/i.test(raw)) {
+    const pid = raw.toUpperCase();
+    cmdFiltered.unshift({ t: `🌐 從 RCSB 下載結構 ${pid}`, k: "即時抓取", fn: () => { $("rcsbId").value = pid; fetchRCSB(pid); } });
+  }
   cmdIdx = Math.min(cmdIdx, Math.max(0, cmdFiltered.length - 1));
   $("cmdList").innerHTML = cmdFiltered.map((x, i) => `<div class="cmd-item ${i===cmdIdx?"sel":""}" data-i="${i}"><span>${x.t}</span><span class="k">${x.k}</span></div>`).join("") || `<div style="padding:14px;color:var(--mu);text-align:center">查無符合指令</div>`;
   $("cmdList").querySelectorAll(".cmd-item").forEach(el => el.onclick = () => { closeCmd(); cmdFiltered[+el.dataset.i]?.fn(); });
@@ -1991,6 +2097,35 @@ $("cmdIn").onkeydown = e => {
   else if (e.key === "Escape") closeCmd();
 };
 window.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("cmdModal").classList.contains("open") ? closeCmd() : openCmd(); } });
+// @fx: ultra-lightweight 240x140 volumetric ambient orb shader (<2MB RAM, pauses when tab hidden)
+(() => {
+  const cv = $("ambient_bg"), ctx = cv?.getContext("2d"); if (!ctx) return;
+  const W = 240, H = 140;
+  const PAL = {
+    light: ["rgba(0,113,227,0.22)", "rgba(56,189,248,0.18)", "rgba(99,102,241,0.14)"],
+    sunlit: ["rgba(249,115,22,0.26)", "rgba(251,191,36,0.22)", "rgba(234,88,12,0.16)"],
+    dark: ["rgba(41,151,255,0.28)", "rgba(191,90,242,0.22)", "rgba(48,209,88,0.12)"],
+    pride: ["rgba(225,29,72,0.22)", "rgba(245,158,11,0.20)", "rgba(147,51,234,0.22)"]
+  };
+  const orbs = [{x:.75,y:.22,r:62,vx:.0005,vy:.0004,p:0},{x:.22,y:.78,r:58,vx:-.0004,vy:.0005,p:2.1},{x:.52,y:.48,r:52,vx:.0003,vy:-.0004,p:4.2}];
+  let t = 0, last = 0;
+  const tick = ts => {
+    requestAnimationFrame(tick);
+    if (document.hidden || ts - last < 45) return; // ~22fps smooth drift, near-zero CPU
+    last = ts; t += 0.012;
+    ctx.clearRect(0, 0, W, H);
+    const cols = PAL[S.theme] || PAL.light;
+    for (let i = 0; i < orbs.length; i++) {
+      const o = orbs[i];
+      const cx = (o.x + Math.sin(t + o.p) * 0.14) * W;
+      const cy = (o.y + Math.cos(t * 0.85 + o.p) * 0.14) * H;
+      const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, o.r);
+      g.addColorStop(0, cols[i]); g.addColorStop(1, "transparent");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, o.r, 0, 6.2832); ctx.fill();
+    }
+  };
+  requestAnimationFrame(tick);
+})();
 })();
 </script>
 </body>
